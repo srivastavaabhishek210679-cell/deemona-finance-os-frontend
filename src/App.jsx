@@ -1,4 +1,5 @@
-﻿import RBACPage      from './components/rbac/RBACPage';
+﻿import TopBarComponent from './components/TopBar';
+import RBACPage      from './components/rbac/RBACPage';
 import BillingPage   from './components/billing/BillingPage';
 import AdminPage     from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
@@ -254,7 +255,7 @@ function Layout({ title, subtitle, children }) {
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
       <Sidebar user={user} tenant={tenant} onLogout={logout} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--bg)' }}>
-        <TopBar title={title} subtitle={subtitle} />
+        <TopBarComponent title={title} subtitle={subtitle} />
         <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
       </div>
       <RightPanel />
@@ -336,6 +337,8 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 
 
 
