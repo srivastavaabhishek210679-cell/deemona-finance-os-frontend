@@ -1,4 +1,9 @@
-﻿import MarketplacePage from './components/marketplace/MarketplacePage';
+﻿import EmailAIPage from './components/emailai/EmailAIPage';
+import ForecastingPage from './components/forecasting/ForecastingPage';
+import SchedulerPage from './components/scheduler/SchedulerPage';
+import SDKPage from './components/sdk/SDKPage';
+import AIStudioPage from './components/aistudio/AIStudioPage';
+import MarketplacePage from './components/marketplace/MarketplacePage';
 import TallyPage from './components/tally/TallyPage';
 import WhatsAppPage from './components/whatsapp/WhatsAppPage';
 import AutomationPage from './components/automation/AutomationPage';
@@ -67,6 +72,11 @@ const NAV_ITEMS = [
   { path: '/marketplace', label: 'Agent Marketplace',   icon: 'agents' },
   { path: '/tally',       label: 'Tally Sync',           icon: 'reports' },
   { path: '/whatsapp',    label: 'WhatsApp',             icon: 'memory' },
+  { path: '/email-ai',    label: 'Email AI',             icon: 'memory' },
+  { path: '/forecasting', label: 'Forecasting',          icon: 'reports' },
+  { path: '/scheduler',   label: 'Scheduler',            icon: 'agents' },
+  { path: '/sdk',         label: 'Developer SDK',        icon: 'ai' },
+  { path: '/ai-studio',   label: 'AI Studio',            icon: 'ai' },
   { path: '/digitaltwin', label: 'Digital Twin',        icon: 'decision' },
 ];
 
@@ -343,6 +353,11 @@ export default function App() {
     { path: '/marketplace', title: 'Agent Marketplace',      sub: 'Enable and manage AI agents for your organization.', comp: <MarketplacePage /> },
     { path: '/tally',       title: 'Tally XML Sync',         sub: 'Export data as Tally-compatible XML vouchers.',      comp: <TallyPage /> },
     { path: '/whatsapp',    title: 'WhatsApp Integration',   sub: 'Send approvals and alerts via WhatsApp.',            comp: <WhatsAppPage /> },
+    { path: '/email-ai',    title: 'Email AI',               sub: 'Read financial emails and create entries automatically.', comp: <EmailAIPage /> },
+    { path: '/forecasting', title: 'Forecasting Engine',     sub: '90-day cash, revenue, and expense forecasts with AI.',    comp: <ForecastingPage /> },
+    { path: '/scheduler',   title: 'Scheduled Jobs',         sub: 'Automate recurring finance tasks with cron jobs.',        comp: <SchedulerPage /> },
+    { path: '/sdk',         title: 'Developer SDK',          sub: 'Open API, API keys, and code examples.',                 comp: <SDKPage /> },
+    { path: '/ai-studio',   title: 'AI Studio',              sub: 'Custom AI models, industry templates, and training.',    comp: <AIStudioPage /> },
   ];
 
   return (
@@ -359,6 +374,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
