@@ -1,7 +1,8 @@
+﻿import { apiURL } from '../../api.js';
 import { useState, useEffect, useCallback } from 'react';
 
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
-const get = async url => { const r = await fetch(url, { headers: headers() }); if (!r.ok) throw new Error(await r.text()); return r.json(); };
+const get = async url => { const r = await fetch(apiURL(url), { headers: headers() }); if (!r.ok) throw new Error(await r.text()); return r.json(); };
 
 function INR(n) {
   const v = parseFloat(n || 0);
@@ -43,7 +44,7 @@ function StatRow({ label, amount, bold, indent, color, border }) {
   );
 }
 
-// ── P&L Statement ─────────────────────────────────────────────
+// â”€â”€ P&L Statement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PnLStatement() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -91,7 +92,7 @@ function PnLStatement() {
       {/* P&L Table */}
       <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', background: 'var(--surface-3)', fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-          PROFIT & LOSS STATEMENT — {from} to {to}
+          PROFIT & LOSS STATEMENT â€” {from} to {to}
         </div>
 
         <StatRow label="REVENUE" amount={data.income.total} bold />
@@ -123,7 +124,7 @@ function PnLStatement() {
   );
 }
 
-// ── Balance Sheet ─────────────────────────────────────────────
+// â”€â”€ Balance Sheet â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function BalanceSheet() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -199,7 +200,7 @@ function BalanceSheet() {
   );
 }
 
-// ── Cash Flow Statement ────────────────────────────────────────
+// â”€â”€ Cash Flow Statement â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function CashFlowStatement() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -267,7 +268,7 @@ function CashFlowStatement() {
   );
 }
 
-// ── Main Statements Page ──────────────────────────────────────
+// â”€â”€ Main Statements Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function StatementsPage() {
   const [tab, setTab] = useState('pnl');
 
@@ -288,3 +289,4 @@ export default function StatementsPage() {
     </div>
   );
 }
+
