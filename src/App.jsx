@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -10,6 +10,9 @@ import ProcurementPage from './components/procurement/ProcurementPage';
 import PayrollPage from './components/payroll/PayrollPage';
 import TaxPage from './components/tax/TaxPage';
 import BudgetingPage from './components/budgeting/BudgetingPage';
+import StatementsPage from './components/statements/StatementsPage';
+import CFOAgentPage from './components/cfoagent/CFOAgentPage';
+import DocumentAIPage from './components/documentai/DocumentAIPage';
 import { ExpensesPage, AssetsPage, InventoryPage, ProjectsPage, CompliancePage, CRMPage } from './components/remaining/AllPages';
 import DigitalTwinPage from './components/digitaltwin/DigitalTwinPage';
 
@@ -49,6 +52,9 @@ const NAV_ITEMS = [
   { path: '/projects',    label: 'Projects',            icon: 'accounting' },
   { path: '/compliance',  label: 'Compliance',          icon: 'decision' },
   { path: '/crm',         label: 'CRM',                 icon: 'agents' },
+  { path: '/statements',  label: 'Statements',           icon: 'reports' },
+  { path: '/cfo',         label: 'Digital CFO',          icon: 'ai' },
+  { path: '/document-ai', label: 'Document AI',          icon: 'memory' },
   { path: '/digitaltwin', label: 'Digital Twin',        icon: 'decision' },
 ];
 
@@ -210,7 +216,7 @@ function RightPanel() {
       <div style={{ padding: 14, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <span style={{ fontSize: 12, fontWeight: 700 }}>AI Summary</span>
-          <span style={{ color: 'var(--accent)', fontSize: 14 }}>✦</span>
+          <span style={{ color: 'var(--accent)', fontSize: 14 }}>âœ¦</span>
         </div>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 10 }}>
           No activity recorded yet. Start using Deemona AI Finance OS to build your organizational financial memory.
@@ -232,13 +238,13 @@ function RightPanel() {
           ))}
         </div>
         <button style={{ marginTop: 8, fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-          View all categories →
+          View all categories â†’
         </button>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>Recent Activity</div>
         <div style={{ padding: 14, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, marginBottom: 6, opacity: 0.4 }}>🕐</div>
+          <div style={{ fontSize: 20, marginBottom: 6, opacity: 0.4 }}>ðŸ•</div>
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>No recent activity</div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>
             Activities will appear here as your team starts using the platform.
@@ -290,7 +296,7 @@ export default function App() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 40, color: '#6C63FF', marginBottom: 12 }}>◈</div>
+          <div style={{ fontSize: 40, color: '#6C63FF', marginBottom: 12 }}>â—ˆ</div>
           <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>Loading Deemona AI Finance OS...</div>
         </div>
       </div>
@@ -300,8 +306,8 @@ export default function App() {
   if (!user) return <AuthGate />;
 
   const routes = [
-    { path: '/',            title: 'Finance Memory',         sub: 'Every decision and insight — searchable forever.', comp: <FinanceMemoryPage /> },
-    { path: '/memory',      title: 'Finance Memory',         sub: 'Every decision and insight — searchable forever.', comp: <FinanceMemoryPage /> },
+    { path: '/',            title: 'Finance Memory',         sub: 'Every decision and insight â€” searchable forever.', comp: <FinanceMemoryPage /> },
+    { path: '/memory',      title: 'Finance Memory',         sub: 'Every decision and insight â€” searchable forever.', comp: <FinanceMemoryPage /> },
     { path: '/decision',    title: 'AI Decision Center',     sub: 'Your executive financial command center.', comp: <DecisionCenter /> },
     { path: '/accounting',  title: 'Accounting',             sub: 'General Ledger, Journal Entries, AP and AR.', comp: <AccountingPage /> },
     { path: '/treasury',    title: 'Treasury',               sub: 'Bank accounts, cash position, and liquidity forecast.', comp: <TreasuryPage /> },
@@ -316,6 +322,9 @@ export default function App() {
     { path: '/compliance',  title: 'Compliance',             sub: 'Statutory deadlines, penalties, and regulatory calendar.', comp: <CompliancePage /> },
     { path: '/crm',         title: 'CRM',                    sub: 'Sales pipeline, leads, and customer revenue.', comp: <CRMPage /> },
     { path: '/digitaltwin', title: 'Financial Digital Twin', sub: 'Simulate scenarios before making real decisions.', comp: <DigitalTwinPage /> },
+    { path: '/statements',  title: 'Financial Statements',   sub: 'P&L, Balance Sheet, and Cash Flow Statement.',    comp: <StatementsPage /> },
+    { path: '/cfo',         title: 'Digital CFO',            sub: 'AI-powered executive finance intelligence.',       comp: <CFOAgentPage /> },
+    { path: '/document-ai', title: 'Document AI',            sub: 'Invoice OCR and automated AP entry creation.',    comp: <DocumentAIPage /> },
   ];
 
   return (
@@ -332,3 +341,5 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
