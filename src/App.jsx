@@ -1,4 +1,7 @@
-﻿import { useState } from 'react';
+﻿import AutomationPage from './components/automation/AutomationPage';
+import TaxAgentPage from './components/taxagent/TaxAgentPage';
+import AuditAgentPage from './components/auditagent/AuditAgentPage';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -55,6 +58,9 @@ const NAV_ITEMS = [
   { path: '/statements',  label: 'Statements',           icon: 'reports' },
   { path: '/cfo',         label: 'Digital CFO',          icon: 'ai' },
   { path: '/document-ai', label: 'Document AI',          icon: 'memory' },
+  { path: '/automation',  label: 'Automation Studio',    icon: 'agents' },
+  { path: '/tax-agent',   label: 'Tax Agent',            icon: 'reports' },
+  { path: '/audit',       label: 'Audit Agent',          icon: 'ai' },
   { path: '/digitaltwin', label: 'Digital Twin',        icon: 'decision' },
 ];
 
@@ -325,6 +331,9 @@ export default function App() {
     { path: '/statements',  title: 'Financial Statements',   sub: 'P&L, Balance Sheet, and Cash Flow Statement.',    comp: <StatementsPage /> },
     { path: '/cfo',         title: 'Digital CFO',            sub: 'AI-powered executive finance intelligence.',       comp: <CFOAgentPage /> },
     { path: '/document-ai', title: 'Document AI',            sub: 'Invoice OCR and automated AP entry creation.',    comp: <DocumentAIPage /> },
+    { path: '/automation',  title: 'Automation Studio',      sub: 'Visual workflow builder for finance automation.',  comp: <AutomationPage /> },
+    { path: '/tax-agent',   title: 'Tax Agent',              sub: 'GST computation, TDS management, and tax advisory.', comp: <TaxAgentPage /> },
+    { path: '/audit',       title: 'Audit Agent',            sub: 'Anomaly detection, fraud alerts, and audit trail.', comp: <AuditAgentPage /> },
   ];
 
   return (
@@ -341,5 +350,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
