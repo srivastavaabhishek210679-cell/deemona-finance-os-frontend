@@ -13,7 +13,7 @@ import WhatsAppPage from './components/whatsapp/WhatsAppPage';
 import AutomationPage from './components/automation/AutomationPage';
 import TaxAgentPage from './components/taxagent/TaxAgentPage';
 import AuditAgentPage from './components/auditagent/AuditAgentPage';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -172,56 +172,6 @@ function Sidebar({ user, tenant, onLogout }) {
         <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 3, textAlign: 'right' }}>All modules active</div>
       </div>
     </aside>
-  );
-}
-
-function TopBar({ title, subtitle }) {
-  return (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 14,
-      padding: '14px 22px', borderBottom: '1px solid var(--border)',
-      background: 'var(--bg)', flexShrink: 0,
-    }}>
-      <div style={{ flex: 1 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, lineHeight: 1.2 }}>{title}</h1>
-        {subtitle && <p style={{ fontSize: 13, color: 'var(--text-secondary)', marginTop: 2 }}>{subtitle}</p>}
-      </div>
-      <div style={{
-        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px',
-        background: 'var(--surface-2)', border: '1px solid var(--border)',
-        borderRadius: 10, width: 200,
-      }}>
-        <Icon d={ICONS.search} size={14} color="var(--text-muted)" />
-        <span style={{ fontSize: 13, color: 'var(--text-muted)', flex: 1 }}>Search anywhere...</span>
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', background: 'var(--surface-3)', padding: '2px 6px', borderRadius: 4 }}>K</span>
-      </div>
-      <div style={{ position: 'relative' }}>
-        <button style={{
-          width: 36, height: 36, borderRadius: 10, background: 'var(--surface-2)',
-          border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <Icon d={ICONS.bell} size={16} color="var(--text-secondary)" />
-        </button>
-        <div style={{
-          position: 'absolute', top: -4, right: -4, width: 16, height: 16, borderRadius: '50%',
-          background: 'var(--danger)', fontSize: 9, fontWeight: 700, color: '#fff',
-          display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid var(--bg)',
-        }}>3</div>
-      </div>
-      <button style={{
-        width: 36, height: 36, borderRadius: 10, background: 'var(--surface-2)',
-        border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Icon d={ICONS.help} size={16} color="var(--text-secondary)" />
-      </button>
-      <button style={{
-        display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10,
-        background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer',
-      }}>
-        <Icon d={ICONS.plus} size={15} color="#fff" />
-        New
-      </button>
-    </div>
   );
 }
 
@@ -386,6 +336,8 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 
 
 
