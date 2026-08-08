@@ -1,4 +1,8 @@
-﻿import EmailAIPage from './components/emailai/EmailAIPage';
+﻿import RBACPage      from './components/rbac/RBACPage';
+import BillingPage   from './components/billing/BillingPage';
+import AdminPage     from './components/admin/AdminPage';
+import DataExportPage from './components/dataexport/DataExportPage';
+import EmailAIPage from './components/emailai/EmailAIPage';
 import ForecastingPage from './components/forecasting/ForecastingPage';
 import SchedulerPage from './components/scheduler/SchedulerPage';
 import SDKPage from './components/sdk/SDKPage';
@@ -77,6 +81,10 @@ const NAV_ITEMS = [
   { path: '/scheduler',   label: 'Scheduler',            icon: 'agents' },
   { path: '/sdk',         label: 'Developer SDK',        icon: 'ai' },
   { path: '/ai-studio',   label: 'AI Studio',            icon: 'ai' },
+  { path: '/team',        label: 'Team & Access',        icon: 'agents' },
+  { path: '/billing',     label: 'Billing',              icon: 'reports' },
+  { path: '/export',      label: 'Data Export',          icon: 'memory' },
+  { path: '/admin',       label: 'Platform Admin',       icon: 'ai' },
   { path: '/digitaltwin', label: 'Digital Twin',        icon: 'decision' },
 ];
 
@@ -358,6 +366,10 @@ export default function App() {
     { path: '/scheduler',   title: 'Scheduled Jobs',         sub: 'Automate recurring finance tasks with cron jobs.',        comp: <SchedulerPage /> },
     { path: '/sdk',         title: 'Developer SDK',          sub: 'Open API, API keys, and code examples.',                 comp: <SDKPage /> },
     { path: '/ai-studio',   title: 'AI Studio',              sub: 'Custom AI models, industry templates, and training.',    comp: <AIStudioPage /> },
+    { path: '/team',        title: 'Team and Access Control', sub: 'Manage team members, roles, and permissions.',          comp: <RBACPage /> },
+    { path: '/billing',     title: 'Billing and Plans',       sub: 'Manage subscription, usage limits, and payments.',      comp: <BillingPage /> },
+    { path: '/export',      title: 'Data Export',             sub: 'Export data in JSON, CSV, or Tally XML format.',        comp: <DataExportPage /> },
+    { path: '/admin',       title: 'Platform Admin',          sub: 'Platform-wide tenant management and analytics.',        comp: <AdminPage /> },
   ];
 
   return (
@@ -374,6 +386,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
