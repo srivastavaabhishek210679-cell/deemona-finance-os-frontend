@@ -1,4 +1,7 @@
-﻿import AutomationPage from './components/automation/AutomationPage';
+﻿import MarketplacePage from './components/marketplace/MarketplacePage';
+import TallyPage from './components/tally/TallyPage';
+import WhatsAppPage from './components/whatsapp/WhatsAppPage';
+import AutomationPage from './components/automation/AutomationPage';
 import TaxAgentPage from './components/taxagent/TaxAgentPage';
 import AuditAgentPage from './components/auditagent/AuditAgentPage';
 import { useState } from 'react';
@@ -61,6 +64,9 @@ const NAV_ITEMS = [
   { path: '/automation',  label: 'Automation Studio',    icon: 'agents' },
   { path: '/tax-agent',   label: 'Tax Agent',            icon: 'reports' },
   { path: '/audit',       label: 'Audit Agent',          icon: 'ai' },
+  { path: '/marketplace', label: 'Agent Marketplace',   icon: 'agents' },
+  { path: '/tally',       label: 'Tally Sync',           icon: 'reports' },
+  { path: '/whatsapp',    label: 'WhatsApp',             icon: 'memory' },
   { path: '/digitaltwin', label: 'Digital Twin',        icon: 'decision' },
 ];
 
@@ -334,6 +340,9 @@ export default function App() {
     { path: '/automation',  title: 'Automation Studio',      sub: 'Visual workflow builder for finance automation.',  comp: <AutomationPage /> },
     { path: '/tax-agent',   title: 'Tax Agent',              sub: 'GST computation, TDS management, and tax advisory.', comp: <TaxAgentPage /> },
     { path: '/audit',       title: 'Audit Agent',            sub: 'Anomaly detection, fraud alerts, and audit trail.', comp: <AuditAgentPage /> },
+    { path: '/marketplace', title: 'Agent Marketplace',      sub: 'Enable and manage AI agents for your organization.', comp: <MarketplacePage /> },
+    { path: '/tally',       title: 'Tally XML Sync',         sub: 'Export data as Tally-compatible XML vouchers.',      comp: <TallyPage /> },
+    { path: '/whatsapp',    title: 'WhatsApp Integration',   sub: 'Send approvals and alerts via WhatsApp.',            comp: <WhatsAppPage /> },
   ];
 
   return (
@@ -350,6 +359,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
