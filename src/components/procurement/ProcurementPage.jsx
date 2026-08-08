@@ -1,3 +1,4 @@
+﻿import { apiURL } from '../../api.js';
 import { useState, useEffect, useCallback } from 'react';
 
 const API = '/api/procurement';
@@ -73,7 +74,7 @@ function StatusBadge({ status, priority }) {
   );
 }
 
-// ── Summary Cards ─────────────────────────────────────────────
+// â”€â”€ Summary Cards â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function SummaryCards({ summary }) {
   if (!summary) return null;
   const cards = [
@@ -98,7 +99,7 @@ function SummaryCards({ summary }) {
   );
 }
 
-// ── New PO Form ───────────────────────────────────────────────
+// â”€â”€ New PO Form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function NewPOForm({ onSaved, onCancel }) {
   const [vendors, setVendors] = useState([]);
   const [accounts, setAccounts] = useState([]);
@@ -113,8 +114,8 @@ function NewPOForm({ onSaved, onCancel }) {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/accounting/vendors', { headers: headers() }).then(r => r.json()),
-      fetch('/api/accounting/accounts', { headers: headers() }).then(r => r.json()),
+      fetch(apiURL('/api/accounting/vendors'), { headers: headers() }).then(r => r.json()),
+      fetch(apiURL('/api/accounting/accounts'), { headers: headers() }).then(r => r.json()),
     ]).then(([vd, ad]) => {
       setVendors(vd.vendors || []);
       setAccounts(ad.accounts || []);
@@ -269,7 +270,7 @@ function NewPOForm({ onSaved, onCancel }) {
             <select value={line.account_id} onChange={e => updateLine(i, 'account_id', e.target.value)} style={inputStyle}>
               <option value="">Select account</option>
               {accounts.filter(a => a.type === 'expense').map(a => (
-                <option key={a.id} value={a.id}>{a.code} — {a.name}</option>
+                <option key={a.id} value={a.id}>{a.code} â€” {a.name}</option>
               ))}
             </select>
             <button onClick={() => removeLine(i)} style={{
@@ -320,7 +321,7 @@ function NewPOForm({ onSaved, onCancel }) {
   );
 }
 
-// ── PO Detail Modal ───────────────────────────────────────────
+// â”€â”€ PO Detail Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PODetail({ po, onClose, onRefresh }) {
   const [detail, setDetail] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -426,7 +427,7 @@ function PODetail({ po, onClose, onRefresh }) {
                       {h.action.toUpperCase()}
                     </span>
                     <span style={{ color: 'var(--text-secondary)' }}>{h.actor_name}</span>
-                    {h.comment && <span style={{ color: 'var(--text-muted)' }}>— {h.comment}</span>}
+                    {h.comment && <span style={{ color: 'var(--text-muted)' }}>â€” {h.comment}</span>}
                   </div>
                 ))}
               </div>
@@ -460,7 +461,7 @@ function PODetail({ po, onClose, onRefresh }) {
   );
 }
 
-// ── Purchase Orders Tab ───────────────────────────────────────
+// â”€â”€ Purchase Orders Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function PurchaseOrdersTab({ onRefreshSummary }) {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -520,7 +521,7 @@ function PurchaseOrdersTab({ onRefreshSummary }) {
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading...</div>
       ) : orders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: 60 }}>
-          <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.4 }}>📦</div>
+          <div style={{ fontSize: 36, marginBottom: 12, opacity: 0.4 }}>ðŸ“¦</div>
           <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 6 }}>No purchase orders yet</div>
           <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
             Create your first PO to start the procurement workflow
@@ -569,7 +570,7 @@ function PurchaseOrdersTab({ onRefreshSummary }) {
   );
 }
 
-// ── Procurement Agent Tab ─────────────────────────────────────
+// â”€â”€ Procurement Agent Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function AgentTab() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -668,7 +669,7 @@ function AgentTab() {
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────
+// â”€â”€ Main â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export default function ProcurementPage() {
   const [tab, setTab] = useState('orders');
   const [summary, setSummary] = useState(null);
@@ -696,3 +697,4 @@ export default function ProcurementPage() {
     </div>
   );
 }
+

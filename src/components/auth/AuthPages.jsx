@@ -1,3 +1,4 @@
+﻿import { apiURL } from '../../api.js';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -68,7 +69,7 @@ function GoogleCompanyModal({ googleData, onComplete, onCancel }) {
     if (!company.trim()) { setError('Company name is required'); return; }
     setLoading(true);
     try {
-      const res = await fetch('/api/auth/google', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:googleData.idToken, company_name:company, industry }) });
+      const res = await fetch(apiURL('/api/auth/google'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:googleData.idToken, company_name:company, industry }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       localStorage.setItem('token', data.token);
@@ -101,7 +102,7 @@ function GoogleCompanyModal({ googleData, onComplete, onCancel }) {
   );
 }
 
-// ── Forgot Password ───────────────────────────────────────────
+// â”€â”€ Forgot Password â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 function ForgotPasswordPage({ onBack }) {
   const [step, setStep] = useState(1);
   const [email, setEmail] = useState('');
@@ -116,7 +117,7 @@ function ForgotPasswordPage({ onBack }) {
   const sendOTP = async e => {
     e.preventDefault(); setLoading(true); setError('');
     try {
-      const res = await fetch('/api/auth/forgot-password', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email }) });
+      const res = await fetch(apiURL('/api/auth/forgot-password'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setTokenHash(data.token_hash || '');
@@ -131,7 +132,7 @@ function ForgotPasswordPage({ onBack }) {
     if (newPassword.length < 8) { setError('Password must be at least 8 characters'); return; }
     setLoading(true); setError('');
     try {
-      const res = await fetch('/api/auth/reset-password', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ token_hash:tokenHash, otp, new_password:newPassword }) });
+      const res = await fetch(apiURL('/api/auth/reset-password'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ token_hash:tokenHash, otp, new_password:newPassword }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSuccess('Password reset successfully! Redirecting to sign in...');
@@ -204,7 +205,7 @@ function ForgotPasswordPage({ onBack }) {
   );
 }
 
-// ── Login Page ────────────────────────────────────────────────
+// â”€â”€ Login Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function LoginPage({ onSwitch }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
@@ -218,7 +219,7 @@ export function LoginPage({ onSwitch }) {
   useGoogleInit(async response => {
     setGoogleLoading(true); setError('');
     try {
-      const res = await fetch('/api/auth/google', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:response.credential }) });
+      const res = await fetch(apiURL('/api/auth/google'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:response.credential }) });
       const data = await res.json();
       if (data.needsCompany) { setGoogleData({...data, idToken:response.credential}); return; }
       if (!res.ok) throw new Error(data.error);
@@ -275,7 +276,7 @@ export function LoginPage({ onSwitch }) {
   );
 }
 
-// ── Register Page ─────────────────────────────────────────────
+// â”€â”€ Register Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 export function RegisterPage({ onSwitch }) {
   const [form, setForm] = useState({ company_name:'', industry:'Technology', gstin:'', first_name:'', last_name:'', email:'', password:'', confirm_password:'' });
   const [loading, setLoading] = useState(false);
@@ -288,7 +289,7 @@ export function RegisterPage({ onSwitch }) {
   useGoogleInit(async response => {
     setGoogleLoading(true); setError('');
     try {
-      const res = await fetch('/api/auth/google', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:response.credential }) });
+      const res = await fetch(apiURL('/api/auth/google'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:response.credential }) });
       const data = await res.json();
       if (data.needsCompany) { setGoogleData({...data, idToken:response.credential}); return; }
       if (!res.ok) throw new Error(data.error);
@@ -308,7 +309,7 @@ export function RegisterPage({ onSwitch }) {
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
     setLoading(true); setError('');
     try {
-      const res = await fetch('/api/auth/register', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(form) });
+      const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(form) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSuccess('Account created successfully! Please sign in with your credentials.');
@@ -387,3 +388,4 @@ export function RegisterPage({ onSwitch }) {
     </div>
   );
 }
+
