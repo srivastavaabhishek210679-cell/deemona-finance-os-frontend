@@ -1,0 +1,46 @@
+﻿*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0B0B13;
+  --surface-1:    #13131E;
+  --surface-2:    #1A1A28;
+  --surface-3:    #22223A;
+  --border:       #2A2A42;
+  --border-light: #32324E;
+  --text-primary:   #F0EEF8;
+  --text-secondary: #8B89A8;
+  --text-muted:     #55536A;
+  --accent:         #6C63FF;
+  --accent-dim:     #6C63FF22;
+  --accent-hover:   #7B73FF;
+  --success:  #22C98A;
+  --warning:  #F5A623;
+  --danger:   #FF5C5C;
+  --info:     #4FC3F7;
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 12px;
+  font-size: 18px;
+
+  /* Base font size â€” increase this to scale everything up */
+  font-size: 18px;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  font-size: 19px;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+button { font-family: inherit; cursor: pointer; border: none; }
+input, textarea, select { font-family: inherit; font-size: 18px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+
+
