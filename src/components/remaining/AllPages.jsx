@@ -44,9 +44,9 @@ export function ExpensesPage() {
   const updItem=(i,k,v)=>setForm(f=>{const items=[...f.items];items[i]={...items[i],[k]:v};return{...f,items};});
   const total=form.items.reduce((s,i)=>s+parseFloat(i.amount||0),0);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/expenses/claims',{...form,total_amount:total});setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const submit=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/submit');await load();}catch(e){alert('Error: '+e.message);};};
-  const approve=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/approve');await load();}catch(e){alert('Error: '+e.message);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/expenses/claims'),{...form,total_amount:total});setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const submit=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/submit'));await load();}catch(e){alert('Error: '+e.message);};};
+  const approve=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/approve'));await load();}catch(e){alert('Error: '+e.message);};};
 
   const summary={total:claims.length,pending:claims.filter(c=>c.status==='submitted').length,approved:claims.filter(c=>c.status==='approved').length,totalAmt:claims.reduce((s,c)=>s+parseFloat(c.total_amount||0),0)};
 
@@ -136,7 +136,7 @@ export function AssetsPage() {
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/assets'));setAssets(d.assets||[]);}catch{setAssets([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/assets',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/assets'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const calcDepreciation=(asset)=>{
     if(!asset.purchase_date||!asset.purchase_price) return 0;
@@ -239,12 +239,12 @@ export function InventoryPage() {
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/inventory'));setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/inventory',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/inventory'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const addMovement=async(itemId,type)=>{
     const qty=prompt(`Enter quantity for ${type}:`);
     if(!qty||isNaN(qty)) return;
-    try{await post(apiURL('/api/inventory/'+itemId+'/movement',{type,quantity:parseFloat(qty),date:new Date().toISOString().split('T')[0]});await load();}
+    try{await post(apiURL('/api/inventory/'+itemId+'/movement'),{type,quantity:parseFloat(qty),date:new Date().toISOString().split('T')[0]});await load();}
     catch(e){alert('Error: '+e.message);}
   };
 
@@ -335,7 +335,7 @@ export function ProjectsPage() {
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/projects'));setProjects(d.projects||[]);}catch{setProjects([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/projects',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/projects'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const prColor={planning:'#8B89A8',active:'#22C98A',on_hold:'#F5A623',completed:'#6C63FF',cancelled:'#FF5C5C'};
   const priColor={low:'#8B89A8',normal:'#6C63FF',high:'#F5A623',urgent:'#FF5C5C'};
@@ -446,8 +446,8 @@ export function CompliancePage() {
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/compliance'));setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/compliance',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const complete=async id=>{try{await patch(apiURL('/api/compliance/'+id+'/complete',{completed_date:new Date().toISOString().split('T')[0]});await load();}catch(e){alert('Error: '+e.message);}};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/compliance'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const complete=async id=>{try{await patch(apiURL('/api/compliance/'+id+'/complete'),{completed_date:new Date().toISOString().split('T')[0]});await load();}catch(e){alert('Error: '+e.message);}};
 
   const now=new Date();
   const overdue=items.filter(i=>i.status==='pending'&&new Date(i.due_date)<now);
@@ -548,8 +548,8 @@ export function CRMPage() {
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/crm/leads'));setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post(apiURL('/api/crm/leads',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const moveStage=async(id,stage)=>{try{await patch(apiURL('/api/crm/leads/'+id,{stage});await load();}catch(e){alert('Error: '+e.message);}};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/crm/leads'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const moveStage=async(id,stage)=>{try{await patch(apiURL('/api/crm/leads/'+id),{stage});await load();}catch(e){alert('Error: '+e.message);}};
 
   const STAGES=['new','contacted','qualified','proposal','negotiation','won','lost'];
   const stageColor={new:'#4FC3F7',contacted:'#6C63FF',qualified:'#9B8FFF',proposal:'#F5A623',negotiation:'#F5A623',won:'#22C98A',lost:'#FF5C5C'};
@@ -651,6 +651,8 @@ export function CRMPage() {
     </div>
   );
 }
+
+
 
 
 
