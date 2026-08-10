@@ -22,8 +22,10 @@ async function apiPost(url, body) {
 }
 async function apiPatch(url, body) {
   const res = await fetch(url, { method: 'PATCH', headers: headers(), body: JSON.stringify(body) });
-  const _t = await res.text();
-  if (!res.ok) throw new Error(_t);
+  const _pt = await res.text();
+  if (!res.ok) throw new Error(_pt);
+  if (!_pt || _pt.trim() === '') return {};
+  try { return JSON.parse(_pt); } catch { return {}; }
   return res.json();
 }
 
@@ -713,6 +715,7 @@ export default function ProcurementPage() {
     </div>
   );
 }
+
 
 
 
