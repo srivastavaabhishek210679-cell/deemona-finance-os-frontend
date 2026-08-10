@@ -1,7 +1,8 @@
 ﻿import { useState, useEffect, useCallback } from 'react';
+import { apiURL } from '../api.js';
 
-const API = '/api/accounting';
-const AGENT_API = '/api/agents/accounting';
+const API = apiURL('/api/accounting');
+const AGENT_API = apiURL('/api/agent');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
@@ -792,6 +793,7 @@ export default function AccountingPage() {
     </div>
   );
 }
+
 
 
 
