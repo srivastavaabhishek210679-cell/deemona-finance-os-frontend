@@ -37,7 +37,7 @@ export function ExpensesPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({employee_name:'',department:'',date:new Date().toISOString().split('T')[0],title:'',notes:'',items:[{date:new Date().toISOString().split('T')[0],category:'travel',description:'',amount:''}]});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/expenses/claims');setClaims(d.claims||[]);}catch{setClaims([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/expenses/claims'));setClaims(d.claims||[]);}catch{setClaims([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const addItem=()=>setForm(f=>({...f,items:[...f.items,{date:f.date,category:'travel',description:'',amount:''}]}));
@@ -133,7 +133,7 @@ export function AssetsPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({asset_code:'',name:'',category:'equipment',purchase_date:'',purchase_price:'',location:'',useful_life_years:5,depreciation_method:'straight_line',depreciation_rate:20,salvage_value:0,notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/assets');setAssets(d.assets||[]);}catch{setAssets([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/assets'));setAssets(d.assets||[]);}catch{setAssets([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/assets',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
@@ -236,7 +236,7 @@ export function InventoryPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({sku:'',name:'',category:'',unit:'pcs',current_stock:0,reorder_level:0,reorder_qty:0,unit_cost:'',selling_price:'',location:'',hsn_code:'',notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/inventory');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/inventory'));setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/inventory',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
@@ -332,7 +332,7 @@ export function ProjectsPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({project_code:'',name:'',client_name:'',status:'planning',priority:'normal',start_date:'',end_date:'',budget:'',description:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/projects');setProjects(d.projects||[]);}catch{setProjects([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/projects'));setProjects(d.projects||[]);}catch{setProjects([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/projects',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
@@ -443,7 +443,7 @@ export function CompliancePage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({category:'tax',title:'',description:'',frequency:'annual',due_date:'',penalty_if_missed:0,notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/compliance');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/compliance'));setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/compliance',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
@@ -545,7 +545,7 @@ export function CRMPage() {
   const [filter,setFilter]=useState('all');
   const [form,setForm]=useState({name:'',company:'',email:'',phone:'',source:'referral',stage:'new',value:'',probability:20,expected_close:'',notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/crm/leads');setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/crm/leads'));setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/crm/leads',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
@@ -651,5 +651,7 @@ export function CRMPage() {
     </div>
   );
 }
+
+
 
 

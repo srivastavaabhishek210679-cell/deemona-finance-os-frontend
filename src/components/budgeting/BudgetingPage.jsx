@@ -53,7 +53,7 @@ export default function BudgetingPage() {
 
   return (
     <div style={{padding:24}}>
-      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',overflow:'hidden',overflow:'hidden'}}>
+      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',overflow:'hidden'}}>
         {/* Budget list */}
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -178,6 +178,7 @@ export default function BudgetingPage() {
     </div>
   );
 }
+
 
 
 

@@ -219,7 +219,7 @@ function RightPanel() {
           ))}
         </div>
         <button style={{ marginTop: 8, fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-          View all categories >
+          View all categories
         </button>
       </div>
       <div>
@@ -337,6 +337,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
