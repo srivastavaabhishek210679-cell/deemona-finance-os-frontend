@@ -53,7 +53,7 @@ export default function BudgetingPage() {
 
   return (
     <div style={{padding:24}}>
-      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',minWidth:0}}>
+      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',overflow:'hidden',overflow:'hidden'}}>
         {/* Budget list */}
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -101,7 +101,7 @@ export default function BudgetingPage() {
         </div>
 
         {/* Budget detail */}
-        <div>
+        <div style={{minWidth:0,overflow:'hidden'}}>
           {!selected ? (
             <div style={{textAlign:'center',padding:80,color:'var(--text-muted)'}}>
               <div style={{fontSize:36,marginBottom:12,opacity:0.3}}>📊</div>
@@ -137,7 +137,7 @@ export default function BudgetingPage() {
                   No budget lines yet. Use AI Generate or add lines manually.
                 </div>
               ) : (
-                <div style={{borderRadius:12,border:'1px solid var(--border)',overflowX:'auto',overflowY:'visible',maxWidth:'100%'}}>
+                <div style={{borderRadius:12,border:'1px solid var(--border)',overflowX:'auto',width:'100%'}}>
                   <table style={{width:'100%',minWidth:900,borderCollapse:'collapse',fontSize:12}}>
                     <thead>
                       <tr style={{background:'var(--surface-3)'}}>
@@ -178,5 +178,6 @@ export default function BudgetingPage() {
     </div>
   );
 }
+
 
 
