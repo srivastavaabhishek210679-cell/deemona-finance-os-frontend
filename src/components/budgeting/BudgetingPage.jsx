@@ -53,7 +53,7 @@ export default function BudgetingPage() {
 
   return (
     <div style={{padding:24}}>
-      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh'}}>
+      <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',minWidth:0}}>
         {/* Budget list */}
         <div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
@@ -137,19 +137,19 @@ export default function BudgetingPage() {
                   No budget lines yet. Use AI Generate or add lines manually.
                 </div>
               ) : (
-                <div style={{borderRadius:12,border:'1px solid var(--border)',overflow:'auto'}}>
-                  <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+                <div style={{borderRadius:12,border:'1px solid var(--border)',overflowX:'auto',overflowY:'visible',maxWidth:'100%'}}>
+                  <table style={{width:'100%',minWidth:900,borderCollapse:'collapse',fontSize:12}}>
                     <thead>
                       <tr style={{background:'var(--surface-3)'}}>
-                        <th style={{padding:'10px 14px',textAlign:'left',fontWeight:700,color:'var(--text-muted)',letterSpacing:'0.05em',whiteSpace:'nowrap'}}>CATEGORY</th>
-                        {MONTHS.map(m=><th key={m} style={{padding:'10px 8px',textAlign:'right',fontWeight:700,color:'var(--text-muted)'}}>{m}</th>)}
+                        <th style={{padding:'10px 14px',textAlign:'left',fontWeight:700,color:'var(--text-muted)',letterSpacing:'0.05em',whiteSpace:'nowrap',position:'sticky',left:0,background:'var(--surface-3)',zIndex:2}}>CATEGORY</th>
+                        {MONTHS.map(m=><th key={m} style={{padding:'8px 6px',textAlign:'right',fontWeight:700,color:'var(--text-muted)',minWidth:65}}>{m}</th>)}
                         <th style={{padding:'10px 14px',textAlign:'right',fontWeight:700,color:'var(--text-muted)'}}>TOTAL</th>
                       </tr>
                     </thead>
                     <tbody>
                       {lines.map((line,i)=>(
                         <tr key={line.id} style={{background:i%2===0?'var(--surface-2)':'var(--surface-1)',borderTop:'1px solid var(--border)'}}>
-                          <td style={{padding:'10px 14px',fontWeight:500,whiteSpace:'nowrap'}}>{line.category}</td>
+                          <td style={{padding:'10px 14px',fontWeight:500,whiteSpace:'nowrap',position:'sticky',left:0,background:'inherit',zIndex:1}}>{line.category}</td>
                           {MONTH_KEYS.map(m=>(
                             <td key={m} style={{padding:'8px',textAlign:'right',color:'var(--text-secondary)'}}>
                               {parseFloat(line[m]||0)>0?formatINR(line[m]).replace('Rs ',''):'--'}
@@ -178,4 +178,5 @@ export default function BudgetingPage() {
     </div>
   );
 }
+
 
