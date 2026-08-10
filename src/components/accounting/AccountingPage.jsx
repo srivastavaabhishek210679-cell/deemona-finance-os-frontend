@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 
 const API = '/api/accounting';
 const AGENT_API = '/api/agents/accounting';
@@ -9,13 +9,18 @@ const headers = () => ({
 
 async function apiGet(url) {
   const res = await fetch(url, { headers: headers() });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) throw new Error(text || ("HTTP " + res.status));
+  if (!text || text.trim() === "") return {};
+  try { return JSON.parse(text); } catch { return {}; }
 }
 async function apiPost(url, body) {
   const res = await fetch(url, { method: 'POST', headers: headers(), body: JSON.stringify(body) });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) throw new Error(text || ("HTTP " + res.status));
+  if (!text || text.trim() === "") return {};
+  try { return JSON.parse(text); }
+  catch { throw new Error("Backend is starting up. Please wait 30 seconds and click again."); }
 }
 
 // ── Helpers ───────────────────────────────────────────────────
@@ -129,9 +134,21 @@ function AccountsTab() {
 
   const setup = async () => {
     setSetupLoading(true);
-    try { await apiPost(API + '/setup', {}); await load(); }
-    catch (e) { alert('Setup failed: ' + e.message); }
-    finally { setSetupLoading(false); }
+    try {
+      const data = await apiPost(API + '/setup', {});
+      if (data && (data.success || data.created >= 0)) {
+        await load();
+      } else {
+        await load();
+      }
+    } catch (e) {
+      if (e.message && e.message.includes('starting up')) {
+        alert(e.message);
+      } else {
+        console.error('Setup error:', e);
+        await load();
+      }
+    } finally { setSetupLoading(false); }
   };
 
   const typeColors = {
@@ -781,3 +798,4 @@ export default function AccountingPage() {
     </div>
   );
 }
+
