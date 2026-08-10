@@ -92,7 +92,7 @@ function PnLStatement() {
       {/* P&L Table */}
       <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
         <div style={{ padding: '14px 16px', background: 'var(--surface-3)', fontSize: 13, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
-          PROFIT & LOSS STATEMENT â€” {from} to {to}
+          PROFIT & LOSS STATEMENT  -  {from} to {to}
         </div>
 
         <StatRow label="REVENUE" amount={data.income.total} bold />

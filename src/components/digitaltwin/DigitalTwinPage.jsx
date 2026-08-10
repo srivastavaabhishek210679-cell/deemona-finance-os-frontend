@@ -292,7 +292,7 @@ export default function DigitalTwinPage() {
           </div>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
             Simulate financial scenarios before making real decisions. Model hiring plans, new offices,
-            product launches, and market changes â€” see projected P&L, cash flow, and ROI.
+            product launches, and market changes  -  see projected P&L, cash flow, and ROI.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
@@ -566,7 +566,7 @@ export default function DigitalTwinPage() {
               {/* Cash flow chart */}
               {result.cash_flow_months?.length > 0 && (
                 <div style={{ padding: 20, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', marginBottom: 20 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Monthly Cash Flow â€” Year 1</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Monthly Cash Flow  -  Year 1</div>
                   <BarChart
                     data={result.cash_flow_months.map(m => ({ label: m.month, value: m.value }))}
                     color="#6C63FF"

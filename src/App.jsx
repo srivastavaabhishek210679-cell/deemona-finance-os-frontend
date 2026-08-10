@@ -287,8 +287,8 @@ export default function App() {
   if (!user) return <AuthGate />;
 
   const routes = [
-    { path: '/',            title: 'Finance Memory',         sub: 'Every decision and insight â€” searchable forever.', comp: <FinanceMemoryPage /> },
-    { path: '/memory',      title: 'Finance Memory',         sub: 'Every decision and insight â€” searchable forever.', comp: <FinanceMemoryPage /> },
+    { path: '/',            title: 'Finance Memory',         sub: 'Every decision and insight  -  searchable forever.', comp: <FinanceMemoryPage /> },
+    { path: '/memory',      title: 'Finance Memory',         sub: 'Every decision and insight  -  searchable forever.', comp: <FinanceMemoryPage /> },
     { path: '/decision',    title: 'AI Decision Center',     sub: 'Your executive financial command center.', comp: <DecisionCenter /> },
     { path: '/accounting',  title: 'Accounting',             sub: 'General Ledger, Journal Entries, AP and AR.', comp: <AccountingPage /> },
     { path: '/treasury',    title: 'Treasury',               sub: 'Bank accounts, cash position, and liquidity forecast.', comp: <TreasuryPage /> },

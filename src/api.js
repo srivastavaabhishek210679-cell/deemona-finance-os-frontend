@@ -1,4 +1,4 @@
-﻿// Central API URL helper â€” all components import from here
+﻿// Central API URL helper  -  all components import from here
 const BACKEND = import.meta.env.VITE_API_URL || 'https://deemona-finance-os-api.onrender.com';
 
 export function apiURL(path) {
