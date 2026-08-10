@@ -197,7 +197,7 @@ function RightPanel() {
       <div style={{ padding: 14, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
           <span style={{ fontSize: 12, fontWeight: 700 }}>AI Summary</span>
-          <span style={{ color: 'var(--accent)', fontSize: 14 }}>âœ¦</span>
+          <span style={{ color: 'var(--accent)', fontSize: 14 }}>*</span>
         </div>
         <p style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 10 }}>
           No activity recorded yet. Start using Deemona AI Finance OS to build your organizational financial memory.
@@ -219,13 +219,13 @@ function RightPanel() {
           ))}
         </div>
         <button style={{ marginTop: 8, fontSize: 11, color: 'var(--accent)', background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}>
-          View all categories â†’
+          View all categories >
         </button>
       </div>
       <div>
         <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 10 }}>Recent Activity</div>
         <div style={{ padding: 14, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', textAlign: 'center' }}>
-          <div style={{ fontSize: 20, marginBottom: 6, opacity: 0.4 }}>ðŸ•</div>
+          <div style={{ fontSize: 20, marginBottom: 6, opacity: 0.4 }}>O</div>
           <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>No recent activity</div>
           <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.5 }}>
             Activities will appear here as your team starts using the platform.
@@ -277,7 +277,7 @@ export default function App() {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 40, color: '#6C63FF', marginBottom: 12 }}>â—ˆ</div>
+          <div style={{ fontSize: 40, color: '#6C63FF', marginBottom: 12 }}>*</div>
           <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>Loading Deemona AI Finance OS...</div>
         </div>
       </div>
