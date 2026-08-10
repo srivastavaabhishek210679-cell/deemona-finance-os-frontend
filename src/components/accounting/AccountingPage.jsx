@@ -135,19 +135,13 @@ function AccountsTab() {
   const setup = async () => {
     setSetupLoading(true);
     try {
-      const data = await apiPost(API + '/setup', {});
-      if (data && (data.success || data.created >= 0)) {
-        await load();
-      } else {
-        await load();
-      }
+      await apiPost(API + '/setup', {});
+      await new Promise(r => setTimeout(r, 600));
+      await load();
     } catch (e) {
-      if (e.message && e.message.includes('starting up')) {
-        alert(e.message);
-      } else {
-        console.error('Setup error:', e);
-        await load();
-      }
+      console.error('Setup error:', e);
+      await new Promise(r => setTimeout(r, 600));
+      await load();
     } finally { setSetupLoading(false); }
   };
 
@@ -798,4 +792,6 @@ export default function AccountingPage() {
     </div>
   );
 }
+
+
 
