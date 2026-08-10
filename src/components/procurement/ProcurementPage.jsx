@@ -288,7 +288,7 @@ function NewPOForm({ onSaved, onCancel }) {
             <select value={line.account_id} onChange={e => updateLine(i, 'account_id', e.target.value)} style={inputStyle}>
               <option value="">Select account</option>
               {accounts.filter(a => a.type === 'expense').map(a => (
-                <option key={a.id} value={a.id}>{a.code} â€” {a.name}</option>
+                <option key={a.id} value={a.id}>{a.code} - {a.name}</option>
               ))}
             </select>
             <button onClick={() => removeLine(i)} style={{
@@ -445,7 +445,7 @@ function PODetail({ po, onClose, onRefresh }) {
                       {h.action.toUpperCase()}
                     </span>
                     <span style={{ color: 'var(--text-secondary)' }}>{h.actor_name}</span>
-                    {h.comment && <span style={{ color: 'var(--text-muted)' }}>â€” {h.comment}</span>}
+                    {h.comment && <span style={{ color: 'var(--text-muted)' }}>- {h.comment}</span>}
                   </div>
                 ))}
               </div>
