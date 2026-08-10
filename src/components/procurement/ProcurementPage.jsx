@@ -8,17 +8,22 @@ const headers = () => ({
 });
 async function apiGet(url) {
   const res = await fetch(url, { headers: headers() });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) throw new Error(text);
+  if (!text || text.trim() === "") return {};
+  try { return JSON.parse(text); } catch { return {}; }
 }
 async function apiPost(url, body) {
   const res = await fetch(url, { method: 'POST', headers: headers(), body: JSON.stringify(body) });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
+  const text = await res.text();
+  if (!res.ok) throw new Error(text);
+  if (!text || text.trim() === '') return {};
+  try { return JSON.parse(text); } catch { return {}; }
 }
 async function apiPatch(url, body) {
   const res = await fetch(url, { method: 'PATCH', headers: headers(), body: JSON.stringify(body) });
-  if (!res.ok) throw new Error(await res.text());
+  const _t = await res.text();
+  if (!res.ok) throw new Error(_t);
   return res.json();
 }
 
@@ -107,7 +112,7 @@ function NewPOForm({ onSaved, onCancel }) {
   const [aiSuggestion, setAiSuggestion] = useState('');
   const [suggesting, setSuggesting] = useState(false);
   const [form, setForm] = useState({
-    vendor_id: '', expected_date: '', priority: 'normal',
+    vendor_id: null, expected_date: '', priority: 'normal',
     department: '', notes: '',
     lines: [{ description: '', quantity: 1, unit: 'pcs', unit_price: '', amount: '', account_id: '' }],
   });
@@ -161,7 +166,18 @@ function NewPOForm({ onSaved, onCancel }) {
     if (!form.lines.length || !form.lines[0].description) { alert('Add at least one line item'); return; }
     setSaving(true);
     try {
-      await apiPost(API + '/purchase-orders', form);
+      const payload = {
+        ...form,
+        vendor_id: form.vendor_id || null,
+        lines: form.lines.map(l => ({
+          ...l,
+          account_id: l.account_id || null,
+          quantity: parseFloat(l.quantity) || 1,
+          unit_price: parseFloat(l.unit_price) || 0,
+          amount: parseFloat(l.amount) || 0,
+        })),
+      };
+      await apiPost(API + '/purchase-orders', payload);
       onSaved();
     } catch (e) { alert('Error: ' + e.message); }
     finally { setSaving(false); }
@@ -697,5 +713,6 @@ export default function ProcurementPage() {
     </div>
   );
 }
+
 
 
