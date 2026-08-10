@@ -1,7 +1,7 @@
 ﻿import { apiURL } from '../../api.js';
 import { useState, useEffect, useCallback } from 'react';
 
-const API = '/api/procurement';
+const API = apiURL('/api/procurement');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
@@ -697,4 +697,5 @@ export default function ProcurementPage() {
     </div>
   );
 }
+
 

@@ -1,6 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
+import { apiURL } from '../../api.js';
 
-const API = '/api/memory';
+const API = apiURL('/api/memory');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
@@ -513,3 +514,4 @@ export default function FinanceMemoryPanel() {
     </div>
   );
 }
+

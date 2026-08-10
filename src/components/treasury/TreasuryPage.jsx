@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
+import { apiURL } from '../../api.js';
 
-const API = '/api/treasury';
+const API = apiURL('/api/treasury');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
@@ -622,3 +623,4 @@ export default function TreasuryPage() {
     </div>
   );
 }
+

@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
+import { apiURL } from '../../api.js';
 
-const API = '/api/budgeting';
+const API = apiURL('/api/budgeting');
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 async function apiGet(url) { const res = await fetch(url, { headers: headers() }); if (!res.ok) throw new Error(await res.text()); return res.json(); }
 async function apiPost(url, body) { const res = await fetch(url, { method: 'POST', headers: headers(), body: JSON.stringify(body) }); if (!res.ok) throw new Error(await res.text()); return res.json(); }
@@ -177,3 +178,4 @@ export default function BudgetingPage() {
     </div>
   );
 }
+

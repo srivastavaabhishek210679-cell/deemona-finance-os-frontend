@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { apiURL } from '../../api.js';
 
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
@@ -267,3 +267,4 @@ export default function CFOAgentPage() {
     </div>
   );
 }
+

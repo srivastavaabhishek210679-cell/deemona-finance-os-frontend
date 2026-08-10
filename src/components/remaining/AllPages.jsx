@@ -1,7 +1,8 @@
-// ============================================================
+﻿// ============================================================
 // EXPENSES PAGE
 // ============================================================
 import { useState, useEffect, useCallback } from 'react';
+import { apiURL } from '../../api.js';
 
 const hdr = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 const get = async url => { const r = await fetch(url,{headers:hdr()}); if(!r.ok) throw new Error(await r.text()); return r.json(); };
@@ -650,3 +651,4 @@ export function CRMPage() {
     </div>
   );
 }
+

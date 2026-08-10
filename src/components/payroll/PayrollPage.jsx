@@ -1,6 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
+import { apiURL } from '../../api.js';
 
-const API = '/api/payroll';
+const API = apiURL('/api/payroll');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
@@ -500,3 +501,4 @@ export default function PayrollPage() {
     </div>
   );
 }
+

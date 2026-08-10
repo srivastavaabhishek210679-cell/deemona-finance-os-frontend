@@ -1,4 +1,4 @@
-import { useState } from 'react';
+﻿import { useState } from 'react';
 import { apiURL } from '../../api.js';
 
 const headers = () => ({ Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
@@ -297,3 +297,4 @@ export default function DocumentAIPage() {
     </div>
   );
 }
+
