@@ -5,9 +5,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiURL } from '../../api.js';
 
 const hdr = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
-const get = async url => { const r = await fetch(url,{headers:hdr()}); if(!r.ok) throw new Error(await r.text()); return r.json(); };
-const post = async (url,body) => { const r = await fetch(url,{method:'POST',headers:hdr(),body:JSON.stringify(body)}); if(!r.ok) throw new Error(await r.text()); return r.json(); };
-const patch = async (url,body={}) => { const r = await fetch(url,{method:'PATCH',headers:hdr(),body:JSON.stringify(body)}); if(!r.ok) throw new Error(await r.text()); return r.json(); };
+const get = async url => { const r = await fetch(url,{headers:hdr()}); const t=await r.text(); if(!r.ok) throw new Error(t); if(!t||t.trim()==='') return {}; try{return JSON.parse(t);}catch{return {};} };
+const post = async (url,body) => { const r = await fetch(url,{method:'POST',headers:hdr(),body:JSON.stringify(body)}); const t=await r.text(); if(!r.ok) throw new Error(t); if(!t||t.trim()==='') return {}; try{return JSON.parse(t);}catch{return {};} };
+const patch = async (url,body={}) => { const r = await fetch(url,{method:'PATCH',headers:hdr(),body:JSON.stringify(body)}); const t=await r.text(); if(!r.ok) throw new Error(t); if(!t||t.trim()==='') return {}; try{return JSON.parse(t);}catch{return {};} };
 
 function INR(n){const v=parseFloat(n||0);if(v>=1e7)return'Rs '+(v/1e7).toFixed(2)+' Cr';if(v>=1e5)return'Rs '+(v/1e5).toFixed(2)+' L';return'Rs '+v.toLocaleString('en-IN');}
 function fmtDate(d){if(!d)return'--';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
@@ -37,16 +37,16 @@ export function ExpensesPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({employee_name:'',department:'',date:new Date().toISOString().split('T')[0],title:'',notes:'',items:[{date:new Date().toISOString().split('T')[0],category:'travel',description:'',amount:''}]});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/expenses/claims');setClaims(d.claims||[]);}catch{setClaims([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/expenses/claims');setClaims(d.claims||[]);}catch{setClaims([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
   const addItem=()=>setForm(f=>({...f,items:[...f.items,{date:f.date,category:'travel',description:'',amount:''}]}));
   const updItem=(i,k,v)=>setForm(f=>{const items=[...f.items];items[i]={...items[i],[k]:v};return{...f,items};});
   const total=form.items.reduce((s,i)=>s+parseFloat(i.amount||0),0);
 
-  const save=async()=>{setSaving(true);try{await post('/api/expenses/claims',{...form,total_amount:total});setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const submit=async id=>{try{await patch('/api/expenses/claims/'+id+'/submit');await load();}catch(e){alert('Error: '+e.message);};};
-  const approve=async id=>{try{await patch('/api/expenses/claims/'+id+'/approve');await load();}catch(e){alert('Error: '+e.message);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/expenses/claims',{...form,total_amount:total});setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const submit=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/submit');await load();}catch(e){alert('Error: '+e.message);};};
+  const approve=async id=>{try{await patch(apiURL('/api/expenses/claims/'+id+'/approve');await load();}catch(e){alert('Error: '+e.message);};};
 
   const summary={total:claims.length,pending:claims.filter(c=>c.status==='submitted').length,approved:claims.filter(c=>c.status==='approved').length,totalAmt:claims.reduce((s,c)=>s+parseFloat(c.total_amount||0),0)};
 
@@ -133,10 +133,10 @@ export function AssetsPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({asset_code:'',name:'',category:'equipment',purchase_date:'',purchase_price:'',location:'',useful_life_years:5,depreciation_method:'straight_line',depreciation_rate:20,salvage_value:0,notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/assets');setAssets(d.assets||[]);}catch{setAssets([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/assets');setAssets(d.assets||[]);}catch{setAssets([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post('/api/assets',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/assets',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const calcDepreciation=(asset)=>{
     if(!asset.purchase_date||!asset.purchase_price) return 0;
@@ -236,15 +236,15 @@ export function InventoryPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({sku:'',name:'',category:'',unit:'pcs',current_stock:0,reorder_level:0,reorder_qty:0,unit_cost:'',selling_price:'',location:'',hsn_code:'',notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/inventory');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/inventory');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post('/api/inventory',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/inventory',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const addMovement=async(itemId,type)=>{
     const qty=prompt(`Enter quantity for ${type}:`);
     if(!qty||isNaN(qty)) return;
-    try{await post('/api/inventory/'+itemId+'/movement',{type,quantity:parseFloat(qty),date:new Date().toISOString().split('T')[0]});await load();}
+    try{await post(apiURL('/api/inventory/'+itemId+'/movement',{type,quantity:parseFloat(qty),date:new Date().toISOString().split('T')[0]});await load();}
     catch(e){alert('Error: '+e.message);}
   };
 
@@ -332,10 +332,10 @@ export function ProjectsPage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({project_code:'',name:'',client_name:'',status:'planning',priority:'normal',start_date:'',end_date:'',budget:'',description:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/projects');setProjects(d.projects||[]);}catch{setProjects([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/projects');setProjects(d.projects||[]);}catch{setProjects([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post('/api/projects',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/projects',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
   const prColor={planning:'#8B89A8',active:'#22C98A',on_hold:'#F5A623',completed:'#6C63FF',cancelled:'#FF5C5C'};
   const priColor={low:'#8B89A8',normal:'#6C63FF',high:'#F5A623',urgent:'#FF5C5C'};
@@ -443,11 +443,11 @@ export function CompliancePage() {
   const [saving,setSaving]=useState(false);
   const [form,setForm]=useState({category:'tax',title:'',description:'',frequency:'annual',due_date:'',penalty_if_missed:0,notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/compliance');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/compliance');setItems(d.items||[]);}catch{setItems([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post('/api/compliance',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const complete=async id=>{try{await patch('/api/compliance/'+id+'/complete',{completed_date:new Date().toISOString().split('T')[0]});await load();}catch(e){alert('Error: '+e.message);}};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/compliance',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const complete=async id=>{try{await patch(apiURL('/api/compliance/'+id+'/complete',{completed_date:new Date().toISOString().split('T')[0]});await load();}catch(e){alert('Error: '+e.message);}};
 
   const now=new Date();
   const overdue=items.filter(i=>i.status==='pending'&&new Date(i.due_date)<now);
@@ -545,11 +545,11 @@ export function CRMPage() {
   const [filter,setFilter]=useState('all');
   const [form,setForm]=useState({name:'',company:'',email:'',phone:'',source:'referral',stage:'new',value:'',probability:20,expected_close:'',notes:''});
 
-  const load=useCallback(async()=>{setLoading(true);try{const d=await get('/api/crm/leads');setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
+  const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/crm/leads');setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
   useEffect(()=>{load();},[load]);
 
-  const save=async()=>{setSaving(true);try{await post('/api/crm/leads',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
-  const moveStage=async(id,stage)=>{try{await patch('/api/crm/leads/'+id,{stage});await load();}catch(e){alert('Error: '+e.message);}};
+  const save=async()=>{setSaving(true);try{await post(apiURL('/api/crm/leads',form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
+  const moveStage=async(id,stage)=>{try{await patch(apiURL('/api/crm/leads/'+id,{stage});await load();}catch(e){alert('Error: '+e.message);}};
 
   const STAGES=['new','contacted','qualified','proposal','negotiation','won','lost'];
   const stageColor={new:'#4FC3F7',contacted:'#6C63FF',qualified:'#9B8FFF',proposal:'#F5A623',negotiation:'#F5A623',won:'#22C98A',lost:'#FF5C5C'};
@@ -651,4 +651,5 @@ export function CRMPage() {
     </div>
   );
 }
+
 
