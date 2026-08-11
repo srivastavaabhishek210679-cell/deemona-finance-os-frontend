@@ -109,25 +109,25 @@ const Icon = ({ d, size = 16, color = 'currentColor' }) => (
 // ── Sidebar ─────────────────────────────────────────────────
 function Sidebar({ user, tenant, onLogout }) {
   return (
-    <aside style={{ width: 220, flexShrink: 0, background: '#fff', borderRight: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <aside style={{ width: 220, flexShrink: 0, background: '#1B4FD8', borderRight: 'none', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Logo */}
-      <div style={{ padding: '14px 16px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 30, height: 30, borderRadius: 7, background: 'linear-gradient(135deg,#1B4FD8,#3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>D</div>
+      <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 30, height: 30, borderRadius: 7, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>D</div>
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tenant?.name || 'Deemona'}</div>
-          <div style={{ fontSize: 10, color: '#64748B' }}>AI Finance OS</div>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tenant?.name || 'Deemona'}</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>AI Finance OS</div>
         </div>
       </div>
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
         {NAV_GROUPS.map(group => (
           <div key={group.label} style={{ marginBottom: 4 }}>
-            <div style={{ padding: '8px 8px 3px', fontSize: 10, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{group.label}</div>
+            <div style={{ padding: '8px 8px 3px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{group.label}</div>
             {group.items.map(item => (
               <NavLink key={item.path} to={item.path} style={({ isActive }) => ({
                 display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 6,
                 marginBottom: 1, fontSize: 12.5, fontWeight: isActive ? 600 : 400, textDecoration: 'none',
-                color: isActive ? '#1B4FD8' : '#475569', background: isActive ? '#EEF3FD' : 'transparent',
+                color: isActive ? '#1B4FD8' : 'rgba(255,255,255,0.85)', background: isActive ? '#FFFFFF' : 'transparent',
               })}>
                 <Icon d={item.icon} size={14} color="currentColor" />
                 <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
@@ -137,22 +137,22 @@ function Sidebar({ user, tenant, onLogout }) {
         ))}
       </nav>
       {/* Footer */}
-      <div style={{ padding: '10px 8px', borderTop: '1px solid #E2E8F0', flexShrink: 0 }}>
+      <div style={{ padding: '10px 8px', borderTop: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 6 }}>
           <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'linear-gradient(135deg,#1B4FD8,#60A5FA)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#fff', flexShrink: 0 }}>
             {(user?.first_name || user?.name || 'U')[0].toUpperCase()}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: '#0F172A', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.first_name || user?.name || 'User'}</div>
-            <div style={{ fontSize: 10, color: '#64748B', textTransform: 'capitalize' }}>{user?.role_name || 'Owner'}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: '#FFFFFF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.first_name || user?.name || 'User'}</div>
+            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', textTransform: 'capitalize' }}>{user?.role_name || 'Owner'}</div>
           </div>
-          <button onClick={onLogout} title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 4, borderRadius: 4, display: 'flex' }}>
+          <button onClick={onLogout} title="Logout" style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', padding: 4, borderRadius: 4, display: 'flex' }}>
             <Icon d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" size={14} />
           </button>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '4px 8px 0' }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#059669' }} />
-          <div style={{ fontSize: 10, color: '#059669', fontWeight: 600 }}>All modules active</div>
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ADE80' }} />
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)', fontWeight: 600 }}>All modules active</div>
         </div>
       </div>
     </aside>
@@ -256,7 +256,7 @@ function TopBar({ title, subtitle }) {
 
       {showNew && (
         <div style={{ position: 'fixed', top: 60, right: 20, width: 240, zIndex: 101, borderRadius: 12, background: '#fff', border: '1px solid #E2E8F0', boxShadow: '0 16px 48px rgba(15,23,42,0.12)', overflow: 'hidden' }}>
-          <div style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Quick Create</div>
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid #F1F5F9', fontSize: 12, fontWeight: 700, color: '#0A1628' }}>Quick Create</div>
           {QUICK.slice(0, 6).map((item, i) => (
             <a key={i} href={item.path} onClick={closeAll} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 14px', textDecoration: 'none', color: '#334155', borderBottom: '1px solid #F8FAFC', fontSize: 12 }}
               onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
@@ -268,12 +268,12 @@ function TopBar({ title, subtitle }) {
         </div>
       )}
 
-      <div style={{ background: '#fff', borderBottom: '1px solid #E2E8F0', padding: '0 24px', height: 54, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, boxShadow: '0 1px 2px rgba(15,23,42,0.04)' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid #C7D9F8', padding: '0 24px', height: 54, display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, boxShadow: '0 1px 4px rgba(27,79,216,0.08)' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ fontSize: 15, fontWeight: 700, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</h1>
-          {subtitle && <p style={{ fontSize: 11, color: '#64748B', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{subtitle}</p>}
+          <h1 style={{ fontSize: 15, fontWeight: 700, color: '#0A1628', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{title}</h1>
+          {subtitle && <p style={{ fontSize: 11, color: '#3B5998', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{subtitle}</p>}
         </div>
-        <button onClick={() => setShowSearch(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 7, width: 220, cursor: 'pointer', transition: 'border-color 0.15s' }}
+        <button onClick={() => setShowSearch(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#F0F5FF', border: '1px solid #C7D9F8', borderRadius: 7, width: 220, cursor: 'pointer', transition: 'border-color 0.15s' }}
           onMouseEnter={e => e.currentTarget.style.borderColor = '#1B4FD8'}
           onMouseLeave={e => e.currentTarget.style.borderColor = '#E2E8F0'}>
           <Icon d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" size={13} color="#94A3B8" />
@@ -308,13 +308,13 @@ function RightPanel() {
     { label: 'Alerts',       color: '#D97706', count: 0 },
   ];
   return (
-    <div style={{ width: 240, flexShrink: 0, background: '#fff', borderLeft: '1px solid #E2E8F0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #E2E8F0', flexShrink: 0 }}>
+    <div style={{ width: 240, flexShrink: 0, background: '#F0F5FF', borderLeft: '1px solid #C7D9F8', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ padding: '14px 16px 10px', borderBottom: '1px solid #C7D9F8', flexShrink: 0 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: '#0F172A' }}>Memory Insights</div>
         <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 2 }}>Real-time activity</div>
       </div>
       <div style={{ flex: 1, overflowY: 'auto', padding: '12px 14px' }}>
-        <div style={{ padding: '12px', borderRadius: 8, background: '#F8FAFC', border: '1px solid #E2E8F0', marginBottom: 14 }}>
+        <div style={{ padding: '12px', borderRadius: 8, background: '#DBEAFE', border: '1px solid #93B4EF', marginBottom: 14 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#334155' }}>AI Summary</span>
             <span style={{ fontSize: 10, color: '#1B4FD8', fontWeight: 600, cursor: 'pointer' }}>View</span>
@@ -354,7 +354,7 @@ function RightPanel() {
 function Layout({ title, subtitle, children }) {
   const { user, tenant, logout } = useAuth();
   return (
-    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#F4F6FA' }}>
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#EEF3FD' }}>
       <Sidebar user={user} tenant={tenant} onLogout={logout} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <TopBar title={title} subtitle={subtitle} />
@@ -378,7 +378,7 @@ export default function App() {
   const { user, loading } = useAuth();
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F4F6FA' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#EEF3FD' }}>
       <div style={{ textAlign: 'center' }}>
         <div style={{ width: 36, height: 36, borderRadius: 9, background: 'linear-gradient(135deg,#1B4FD8,#3B82F6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 15, fontWeight: 800, color: '#fff', margin: '0 auto 14px' }}>D</div>
         <div style={{ fontSize: 13, color: '#64748B' }}>Loading Deemona AI Finance OS...</div>
