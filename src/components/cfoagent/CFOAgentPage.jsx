@@ -115,18 +115,18 @@ export default function CFOAgentPage() {
         {/* Header */}
         <div style={{
           padding: '16px 20px', borderBottom: '1px solid var(--border)',
-          background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
+          background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)', color: '#FFFFFF',
           display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0,
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
-            background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
+            background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)', color: '#FFFFFF',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 900, color: '#fff',
           }}>◈</div>
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: 16, fontWeight: 700 }}>Digital CFO</div>
-            <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.8)' }}>
               AI-powered executive finance intelligence · Real-time data
             </div>
           </div>
@@ -267,4 +267,6 @@ export default function CFOAgentPage() {
     </div>
   );
 }
+
+
 
