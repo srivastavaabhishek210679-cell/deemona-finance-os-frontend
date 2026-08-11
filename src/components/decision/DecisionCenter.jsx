@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+﻿import { useState, useEffect, useCallback } from 'react';
 
 // ── Simple markdown to JSX ────────────────────────────────────
 function MarkdownBlock({ text }) {
@@ -273,7 +273,7 @@ export default function DecisionCenter() {
         {/* AI Brief */}
         <div style={{
           padding: 20, borderRadius: 14,
-          background: 'linear-gradient(135deg, #1A1A35 0%, #22223A 100%)',
+          background: 'linear-gradient(135deg, #1B4FD8 0%, #3B82F6 100%)',
           border: '1px solid #1B4FD840',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -364,3 +364,4 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
