@@ -286,24 +286,24 @@ export default function DigitalTwinPage() {
       }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 24, color: '#1B4FD8' }}>*</span>
-            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Financial Digital Twin</h2>
+            <span style={{ fontSize: 24, color: '#fff' }}>*</span>
+            <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0, color: '#fff' }}>Financial Digital Twin</h2>
             <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>AI POWERED</span>
           </div>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', margin: 0, lineHeight: 1.6 }}>
             Simulate financial scenarios before making real decisions. Model hiring plans, new offices,
             product launches, and market changes  -  see projected P&L, cash flow, and ROI.
           </p>
         </div>
         <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
           {[
-            { label: 'Scenario Types', value: 'inf' },
+            { label: 'Scenario Types', value: '5' },
             { label: 'Projection Years', value: inputs.projection_years },
             { label: 'Saved Scenarios', value: savedScenarios.length },
           ].map(m => (
             <div key={m.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#1B4FD8' }}>{m.value}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{m.label}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#fff' }}>{m.value}</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>{m.label}</div>
             </div>
           ))}
         </div>
@@ -594,7 +594,7 @@ export default function DigitalTwinPage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 10, fontWeight: 700, marginTop: 1,
                         }}>{section.icon}</span>
-                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{item}</span>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>{item}</span>
                       </div>
                     ))}
                   </div>
@@ -629,6 +629,8 @@ export default function DigitalTwinPage() {
     </div>
   );
 }
+
+
 
 
 
