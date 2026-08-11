@@ -227,7 +227,7 @@ export default function DecisionCenter() {
 
       const res = await fetch(apiURL('/api/cfo/brief'), {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (localStorage.getItem('token') || '') },
         body: JSON.stringify({ prompt }),
       });
       const data = await res.json();
@@ -365,6 +365,7 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
 
 
 
