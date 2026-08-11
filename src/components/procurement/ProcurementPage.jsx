@@ -707,7 +707,7 @@ export default function ProcurementPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <SummaryCards summary={summary} />
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
       {tab === 'orders' && <PurchaseOrdersTab onRefreshSummary={loadSummary} />}

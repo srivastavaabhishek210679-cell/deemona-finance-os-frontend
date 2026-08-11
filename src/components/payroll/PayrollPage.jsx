@@ -490,7 +490,7 @@ export default function PayrollPage() {
   useEffect(() => { loadSummary(); }, [loadSummary]);
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <SummaryCards summary={summary} />
       <TabBar
         tabs={[{ id: 'employees', label: 'Employees' }, { id: 'runs', label: 'Payroll Runs' }]}

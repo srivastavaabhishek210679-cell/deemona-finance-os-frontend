@@ -55,7 +55,7 @@ export default function TaxPage() {
   };
 
   return (
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       {/* Summary */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[

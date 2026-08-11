@@ -65,7 +65,7 @@ export default function WhatsAppPage() {
   const previewTemplate = templates.find(t => t.id === selectedTemplate)?.preview;
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6 }}>WhatsApp Integration</h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0 }}>Send approvals, alerts, and notifications via WhatsApp — preferred channel for Indian businesses</p>

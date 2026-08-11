@@ -52,7 +52,7 @@ export default function BudgetingPage() {
   const inputStyle = { width:'100%', boxSizing:'border-box', padding:'8px 10px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-3)', color:'var(--text-primary)', fontSize:13, outline:'none' };
 
   return (
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'280px 1fr',gap:20,minHeight:'60vh',overflow:'hidden'}}>
         {/* Budget list */}
         <div>

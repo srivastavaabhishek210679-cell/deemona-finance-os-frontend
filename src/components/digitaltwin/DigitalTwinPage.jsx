@@ -276,7 +276,7 @@ export default function DigitalTwinPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       {/* Header */}
       <div style={{
         padding: '20px 24px', borderRadius: 14, marginBottom: 24,

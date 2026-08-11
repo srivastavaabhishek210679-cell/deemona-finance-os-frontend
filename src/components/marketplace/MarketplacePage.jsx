@@ -37,7 +37,7 @@ export default function MarketplacePage() {
   const enabled = agents.filter(a => a.enabled).length;
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       {/* Header */}
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6 }}>Agent Marketplace</h2>

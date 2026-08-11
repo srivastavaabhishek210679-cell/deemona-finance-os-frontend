@@ -51,7 +51,7 @@ export function ExpensesPage() {
   const summary={total:claims.length,pending:claims.filter(c=>c.status==='submitted').length,approved:claims.filter(c=>c.status==='approved').length,totalAmt:claims.reduce((s,c)=>s+parseFloat(c.total_amount||0),0)};
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total Claims',value:summary.total,color:'#1B4FD8'},{label:'Pending Approval',value:summary.pending,color:'#F5A623'},{label:'Approved',value:summary.approved,color:'#22C98A'},{label:'Total Amount',value:INR(summary.totalAmt),color:'#4FC3F7'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
@@ -149,7 +149,7 @@ export function AssetsPage() {
   const categories=['equipment','vehicle','furniture','building','computer','other'];
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[
           {label:'Total Assets',value:assets.length,color:'#1B4FD8'},
@@ -252,7 +252,7 @@ export function InventoryPage() {
   const totalValue=items.reduce((s,i)=>s+parseFloat(i.current_stock||0)*parseFloat(i.unit_cost||0),0);
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total SKUs',value:items.length,color:'#1B4FD8'},{label:'Low Stock',value:lowStock.length,color:'#FF5C5C'},{label:'Inventory Value',value:INR(totalValue),color:'#22C98A'},{label:'Active Items',value:items.filter(i=>i.is_active).length,color:'#4FC3F7'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
@@ -343,7 +343,7 @@ export function ProjectsPage() {
   const totalSpent=projects.reduce((s,p)=>s+parseFloat(p.spent||0),0);
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total Projects',value:projects.length,color:'#1B4FD8'},{label:'Active',value:projects.filter(p=>p.status==='active').length,color:'#22C98A'},{label:'Total Budget',value:INR(totalBudget),color:'#4FC3F7'},{label:'Total Spent',value:INR(totalSpent),color:'#F5A623'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
@@ -455,7 +455,7 @@ export function CompliancePage() {
   const catColor={tax:'#F5A623',labour:'#22C98A',statutory:'#1B4FD8',environmental:'#4FC3F7',roc:'#3B82F6',other:'#3B5998'};
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total Items',value:items.length,color:'#1B4FD8'},{label:'Overdue',value:overdue.length,color:'#FF5C5C'},{label:'Due in 30 Days',value:upcoming.length,color:'#F5A623'},{label:'Completed',value:items.filter(i=>i.status==='completed').length,color:'#22C98A'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
@@ -560,7 +560,7 @@ export function CRMPage() {
   const won=leads.filter(l=>l.stage==='won').reduce((s,l)=>s+parseFloat(l.value||0),0);
 
   return(
-    <div style={{padding:24}}>
+    <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total Leads',value:leads.length,color:'#1B4FD8'},{label:'Pipeline Value',value:INR(pipeline),color:'#4FC3F7'},{label:'Won Revenue',value:INR(won),color:'#22C98A'},{label:'Active',value:leads.filter(l=>!['won','lost'].includes(l.stage)).length,color:'#F5A623'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>

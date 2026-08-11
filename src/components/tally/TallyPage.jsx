@@ -46,7 +46,7 @@ export default function TallyPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <div style={{ marginBottom: 24 }}>
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6 }}>Tally XML Sync</h2>
         <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0 }}>Export your Deemona data as Tally-compatible XML for seamless sync with Tally Prime / ERP 9</p>

@@ -783,7 +783,7 @@ export default function AccountingPage() {
   ];
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <TabBar tabs={tabs} active={tab} onChange={setTab} />
       {tab === 'accounts' && <AccountsTab />}
       {tab === 'journal'  && <JournalEntriesTab />}

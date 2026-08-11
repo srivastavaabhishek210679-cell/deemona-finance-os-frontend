@@ -273,7 +273,7 @@ export default function StatementsPage() {
   const [tab, setTab] = useState('pnl');
 
   return (
-    <div style={{ padding: 24 }}>
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <TabBar
         tabs={[
           { id: 'pnl', label: 'Profit & Loss' },
