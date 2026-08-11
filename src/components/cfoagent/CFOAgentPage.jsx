@@ -115,7 +115,7 @@ export default function CFOAgentPage() {
         {/* Header */}
         <div style={{
           padding: '16px 20px', borderBottom: '1px solid var(--border)',
-          background: 'linear-gradient(135deg, #13131E, #1A1A35)',
+          background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
           display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0,
         }}>
           <div style={{
@@ -180,7 +180,7 @@ export default function CFOAgentPage() {
                 width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                 background: msg.role === 'user'
                   ? 'linear-gradient(135deg, #1B4FD8, #3B82F6)'
-                  : 'linear-gradient(135deg, #22C98A, #1AAF74)',
+                  : 'linear-gradient(135deg, #059669, #047857)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 14, fontWeight: 700, color: '#fff',
               }}>
@@ -215,7 +215,7 @@ export default function CFOAgentPage() {
 
           {loading && (
             <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #22C98A, #1AAF74)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff' }}>◈</div>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'linear-gradient(135deg, #059669, #047857)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff' }}>◈</div>
               <div style={{ padding: '12px 16px', borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text-muted)' }}>
                 Analyzing financial data...
               </div>

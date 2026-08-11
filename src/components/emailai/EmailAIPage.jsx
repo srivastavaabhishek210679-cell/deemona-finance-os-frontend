@@ -115,7 +115,7 @@ export default function EmailAIPage() {
               ))}
               {result.matched_vendor && <div style={{ marginTop:10, padding:'7px 10px', borderRadius:7, background:'#22C98A12', border:'1px solid #22C98A30', fontSize:12, color:'#22C98A' }}>Vendor matched: {result.matched_vendor.name}</div>}
               {created ? <div style={{ marginTop:12, padding:'10px', borderRadius:8, background:'#22C98A12', textAlign:'center', fontSize:13, fontWeight:700, color:'#22C98A' }}>Entry Created!</div>
-              : result.action_required!=='none' && <button onClick={createEntry} disabled={creating} style={{ marginTop:12, width:'100%', padding:'10px', borderRadius:9, fontSize:13, fontWeight:700, background:creating?'var(--surface-3)':'linear-gradient(135deg,#22C98A,#1AAF74)', color:creating?'var(--text-muted)':'#fff', border:'none', cursor:creating?'not-allowed':'pointer' }}>
+              : result.action_required!=='none' && <button onClick={createEntry} disabled={creating} style={{ marginTop:12, width:'100%', padding:'10px', borderRadius:9, fontSize:13, fontWeight:700, background:creating?'var(--surface-3)':'linear-gradient(135deg,#059669,#047857)', color:creating?'var(--text-muted)':'#fff', border:'none', cursor:creating?'not-allowed':'pointer' }}>
                 {creating?'Creating...':'+ '+result.action_required?.replace(/_/g,' ')}
               </button>}
             </div>

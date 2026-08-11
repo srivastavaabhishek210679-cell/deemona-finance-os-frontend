@@ -218,7 +218,7 @@ export default function DocumentAIPage() {
                   ) : (
                     <button onClick={createInvoice} disabled={creating} style={{
                       width:'100%', padding:'11px', borderRadius:10, fontSize:14, fontWeight:700,
-                      background: creating ? 'var(--surface-3)' : 'linear-gradient(135deg,#22C98A,#1AAF74)',
+                      background: creating ? 'var(--surface-3)' : 'linear-gradient(135deg,#059669,#047857)',
                       color: creating ? 'var(--text-muted)' : '#fff',
                       border:'none', cursor: creating ? 'not-allowed' : 'pointer',
                     }}>

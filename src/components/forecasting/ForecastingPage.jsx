@@ -131,7 +131,7 @@ export default function ForecastingPage() {
             <select value={months} onChange={e=>setMonths(parseInt(e.target.value))} style={{ padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13 }}>
               <option value={3}>3 months</option><option value={6}>6 months</option><option value={12}>12 months</option>
             </select>
-            <button onClick={()=>load('revenue')} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#22C98A,#1AAF74)', color:'#fff', border:'none', cursor:'pointer' }}>Refresh</button>
+            <button onClick={()=>load('revenue')} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#059669,#047857)', color:'#fff', border:'none', cursor:'pointer' }}>Refresh</button>
           </div>
 
           {revForecast && (
