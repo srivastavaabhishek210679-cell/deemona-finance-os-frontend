@@ -1,4 +1,5 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+﻿import { apiURL } from '../../api.js';
+import { useState, useEffect, useCallback } from 'react';
 
 // ── Simple markdown to JSX ────────────────────────────────────
 function MarkdownBlock({ text }) {
@@ -224,7 +225,7 @@ export default function DecisionCenter() {
         + 'Use plain text only. No emojis. No markdown symbols like ## or **. '
         + 'Use numbered lists and dashes for structure. Keep under 150 words.';
 
-      const res = await fetch('/api/brief', {
+      const res = await fetch(apiURL('/api/cfo/brief', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -273,7 +274,7 @@ export default function DecisionCenter() {
         {/* AI Brief */}
         <div style={{
           padding: 20, borderRadius: 14,
-          background: '#FFFFFF',
+          background: '#F0F5FF',
           border: '1px solid #1B4FD840',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -364,5 +365,7 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
+
 
 
