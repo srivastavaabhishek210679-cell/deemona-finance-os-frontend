@@ -19,7 +19,7 @@ function ForecastTable({ rows, columns }) {
         {columns.map(c=><div key={c} style={{ fontSize:11, fontWeight:700, color:'var(--text-muted)', letterSpacing:'0.04em' }}>{c}</div>)}
       </div>
       {rows.map((row,i)=>(
-        <div key={i} style={{ display:'grid', gridTemplateColumns:`repeat(${columns.length},1fr)`, padding:'10px 14px', borderTop:'1px solid var(--border)', background: row.highlight ? '#6C63FF08' : 'transparent' }}>
+        <div key={i} style={{ display:'grid', gridTemplateColumns:`repeat(${columns.length},1fr)`, padding:'10px 14px', borderTop:'1px solid var(--border)', background: row.highlight ? '#1B4FD808' : 'transparent' }}>
           {row.cells.map((cell,j)=><div key={j} style={{ fontSize:13, fontWeight:j===0?600:400, color:row.color||'var(--text-primary)' }}>{cell}</div>)}
         </div>
       ))}
@@ -63,7 +63,7 @@ export default function ForecastingPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['cashflow','💧 Cash Flow'],['revenue','📈 Revenue'],['expenses','📉 Expenses'],['insights','🤖 AI Insights']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 

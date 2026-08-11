@@ -41,7 +41,7 @@ function TabBar({ tabs, active, onChange }) {
         <button key={t.id} onClick={() => onChange(t.id)} style={{
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
-          borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
+          borderBottom: active === t.id ? '2px solid #1B4FD8' : '2px solid transparent',
           color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)',
           marginBottom: -1,
         }}>{t.label}</button>
@@ -220,7 +220,7 @@ function BankAccountsTab({ onRefreshSummary }) {
             }}>
               <div style={{
                 width: 48, height: 48, borderRadius: 12,
-                background: '#6C63FF20', display: 'flex', alignItems: 'center',
+                background: '#1B4FD820', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: 22, flexShrink: 0,
               }}>🏦</div>
               <div style={{ flex: 1 }}>
@@ -483,16 +483,16 @@ function CashFlowTab() {
         {[7, 14, 30, 60, 90].map(d => (
           <button key={d} onClick={() => setDays(d)} style={{
             padding: '5px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600,
-            background: days === d ? '#6C63FF20' : 'var(--surface-3)',
+            background: days === d ? '#1B4FD820' : 'var(--surface-3)',
             color: days === d ? '#1B4FD8' : 'var(--text-secondary)',
-            border: '1px solid ' + (days === d ? '#6C63FF40' : 'var(--border)'),
+            border: '1px solid ' + (days === d ? '#1B4FD840' : 'var(--border)'),
             cursor: 'pointer',
           }}>{d}D</button>
         ))}
         <button onClick={runAnalysis} disabled={analyzing} style={{
           marginLeft: 'auto', padding: '6px 16px', borderRadius: 8, fontSize: 13,
-          fontWeight: 600, background: '#6C63FF18', color: '#1B4FD8',
-          border: '1px solid #6C63FF30', cursor: 'pointer',
+          fontWeight: 600, background: '#1B4FD818', color: '#1B4FD8',
+          border: '1px solid #1B4FD830', cursor: 'pointer',
         }}>
           {analyzing ? 'Analyzing...' : '* AI Liquidity Analysis'}
         </button>
@@ -503,7 +503,7 @@ function CashFlowTab() {
         <div style={{
           padding: 16, borderRadius: 12, marginBottom: 20,
           background: 'linear-gradient(135deg, #1A1A35, #22223A)',
-          border: '1px solid #6C63FF40',
+          border: '1px solid #1B4FD840',
           fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-wrap',
         }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#1B4FD8', marginBottom: 8 }}>

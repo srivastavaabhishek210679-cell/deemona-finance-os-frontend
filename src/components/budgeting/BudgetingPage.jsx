@@ -85,8 +85,8 @@ export default function BudgetingPage() {
           ) : budgets.map(b=>(
             <div key={b.id} onClick={()=>loadLines(b)} style={{
               padding:'12px 14px', borderRadius:10, marginBottom:8, cursor:'pointer',
-              background:selected?.id===b.id?'#6C63FF18':'var(--surface-2)',
-              border:'1px solid '+(selected?.id===b.id?'#6C63FF40':'var(--border)'),
+              background:selected?.id===b.id?'#1B4FD818':'var(--surface-2)',
+              border:'1px solid '+(selected?.id===b.id?'#1B4FD840':'var(--border)'),
               transition:'all 0.15s',
             }}>
               <div style={{fontSize:14,fontWeight:600,marginBottom:3}}>{b.name}</div>

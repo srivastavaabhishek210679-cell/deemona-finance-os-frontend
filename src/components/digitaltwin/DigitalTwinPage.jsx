@@ -105,7 +105,7 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
           </div>
           <button onClick={() => onLoad(s)} style={{
             padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-            background: '#6C63FF20', border: '1px solid #6C63FF30', color: '#1B4FD8', cursor: 'pointer',
+            background: '#1B4FD820', border: '1px solid #1B4FD830', color: '#1B4FD8', cursor: 'pointer',
           }}>Load</button>
           <button onClick={() => onDelete(s.id)} style={{
             padding: '3px 8px', borderRadius: 6, fontSize: 11,
@@ -281,7 +281,7 @@ export default function DigitalTwinPage() {
       <div style={{
         padding: '20px 24px', borderRadius: 14, marginBottom: 24,
         background: 'linear-gradient(135deg, #13131E 0%, #1A1A35 50%, #22223A 100%)',
-        border: '1px solid #6C63FF30',
+        border: '1px solid #1B4FD830',
         display: 'flex', alignItems: 'center', gap: 20,
       }}>
         <div style={{ flex: 1 }}>
@@ -315,7 +315,7 @@ export default function DigitalTwinPage() {
           <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
             padding: '10px 20px', fontSize: 14, fontWeight: 600,
             background: 'none', border: 'none', cursor: 'pointer',
-            borderBottom: activeTab === t.id ? '2px solid #6C63FF' : '2px solid transparent',
+            borderBottom: activeTab === t.id ? '2px solid #1B4FD8' : '2px solid transparent',
             color: activeTab === t.id ? '#1B4FD8' : 'var(--text-secondary)',
             marginBottom: -1,
           }}>{t.label}</button>
@@ -487,8 +487,8 @@ export default function DigitalTwinPage() {
               {result.verdict && (
                 <div style={{
                   padding: '16px 20px', borderRadius: 12, marginBottom: 20,
-                  background: (verdictConfig[result.verdict]?.bg) || '#6C63FF10',
-                  border: '1px solid ' + (verdictConfig[result.verdict]?.border || '#6C63FF30'),
+                  background: (verdictConfig[result.verdict]?.bg) || '#1B4FD810',
+                  border: '1px solid ' + (verdictConfig[result.verdict]?.border || '#1B4FD830'),
                   display: 'flex', alignItems: 'flex-start', gap: 14,
                 }}>
                   <div style={{
@@ -521,9 +521,9 @@ export default function DigitalTwinPage() {
               {result.key_metrics && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 20 }}>
                   <MetricCard label="Revenue CAGR" value={result.key_metrics.revenue_cagr + '%'} color="#22C98A" />
-                  <MetricCard label="EBITDA Margin Y3" value={result.key_metrics.ebitda_margin_y3 + '%'} color="#6C63FF" />
+                  <MetricCard label="EBITDA Margin Y3" value={result.key_metrics.ebitda_margin_y3 + '%'} color="#1B4FD8" />
                   <MetricCard label="Payback Period" value={result.key_metrics.payback_months + ' mo'} color="#4FC3F7" />
-                  <MetricCard label="Break-even Month" value={'M' + result.key_metrics.break_even_month} color="#9B8FFF" />
+                  <MetricCard label="Break-even Month" value={'M' + result.key_metrics.break_even_month} color="#3B82F6" />
                   <MetricCard label="Total Investment" value={formatINR(result.key_metrics.total_investment)} color="#F5A623" />
                   <MetricCard label="3-Year ROI" value={result.key_metrics.roi_3yr + '%'} color={result.key_metrics.roi_3yr >= 0 ? '#22C98A' : '#FF5C5C'} />
                 </div>
@@ -569,7 +569,7 @@ export default function DigitalTwinPage() {
                   <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Monthly Cash Flow  -  Year 1</div>
                   <BarChart
                     data={result.cash_flow_months.map(m => ({ label: m.month, value: m.value }))}
-                    color="#6C63FF"
+                    color="#1B4FD8"
                     height={100}
                   />
                 </div>

@@ -102,14 +102,14 @@ export default function BillingPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['overview','📊 Overview'],['plans','💎 Plans'],['invoices','🧾 Invoices']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
       {tab==='overview' && subscription && (
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
           {/* Current plan */}
-          <div style={{ borderRadius:14, border:'2px solid #6C63FF40', padding:24, background:'#6C63FF06' }}>
+          <div style={{ borderRadius:14, border:'2px solid #1B4FD840', padding:24, background:'#1B4FD806' }}>
             <div style={{ fontSize:12, fontWeight:700, color:'var(--text-muted)', marginBottom:8, letterSpacing:'0.05em' }}>CURRENT PLAN</div>
             <div style={{ fontSize:28, fontWeight:900, color:'#1B4FD8', marginBottom:4 }}>{subscription.subscription?.plan_name||'Free'}</div>
             <div style={{ fontSize:14, color:'var(--text-muted)', marginBottom:16 }}>
@@ -160,7 +160,7 @@ export default function BillingPage() {
               const price = billing==='yearly' ? plan.price_yearly : plan.price_monthly;
               const features = typeof plan.features==='string' ? JSON.parse(plan.features) : plan.features;
               return (
-                <div key={plan.id} style={{ borderRadius:14, border:`2px solid ${isCurrent?'#1B4FD8':'var(--border)'}`, padding:20, background:isCurrent?'#6C63FF06':'var(--surface-2)', position:'relative' }}>
+                <div key={plan.id} style={{ borderRadius:14, border:`2px solid ${isCurrent?'#1B4FD8':'var(--border)'}`, padding:20, background:isCurrent?'#1B4FD806':'var(--surface-2)', position:'relative' }}>
                   {isCurrent && <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', padding:'3px 12px', borderRadius:100, background:'#1B4FD8', fontSize:11, fontWeight:700, color:'#fff' }}>CURRENT</div>}
                   <div style={{ fontSize:16, fontWeight:800, marginBottom:4 }}>{plan.name}</div>
                   <div style={{ fontSize:28, fontWeight:900, color: plan.price_monthly>0?'#1B4FD8':'#22C98A', marginBottom:4 }}>

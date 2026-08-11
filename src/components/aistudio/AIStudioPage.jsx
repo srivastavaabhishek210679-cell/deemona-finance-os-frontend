@@ -59,7 +59,7 @@ export default function AIStudioPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['templates','🏭 Industry Templates'],['train','🧠 Custom Training'],['test','🧪 Test Model']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -91,7 +91,7 @@ export default function AIStudioPage() {
                   <div style={{ fontSize:12, color:'var(--text-secondary)' }}>{t.kpis?.slice(0,4).join(' · ')}</div>
                 </div>
 
-                <div style={{ marginBottom:14, padding:'8px 10px', borderRadius:7, background:'#6C63FF08', border:'1px solid #6C63FF20', fontSize:11, color:'#3B82F6' }}>
+                <div style={{ marginBottom:14, padding:'8px 10px', borderRadius:7, background:'#1B4FD808', border:'1px solid #1B4FD820', fontSize:11, color:'#3B82F6' }}>
                   GST: {t.gst_rate}% · TDS: {t.tds_section}
                 </div>
 
@@ -110,7 +110,7 @@ export default function AIStudioPage() {
             <div style={{ fontSize:14, fontWeight:700, marginBottom:8 }}>Starter Templates</div>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:16 }}>
               {STARTER_INSTRUCTIONS.map(s=>(
-                <button key={s.label} onClick={()=>setInstructions(s.text)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{s.label}</button>
+                <button key={s.label} onClick={()=>setInstructions(s.text)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#1B4FD812', color:'#3B82F6', border:'1px solid #1B4FD825', cursor:'pointer' }}>{s.label}</button>
               ))}
             </div>
           </div>
@@ -141,7 +141,7 @@ export default function AIStudioPage() {
 
           <div style={{ display:'flex', gap:8, marginBottom:20, flexWrap:'wrap' }}>
             {['What is our GST liability this month?','Explain working capital to our CFO','What TDS rate applies to our software vendor?','Should we take an overdraft for this month?'].map(q=>(
-              <button key={q} onClick={()=>setTestPrompt(q)} style={{ padding:'5px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
+              <button key={q} onClick={()=>setTestPrompt(q)} style={{ padding:'5px 12px', borderRadius:100, fontSize:11, background:'#1B4FD812', color:'#3B82F6', border:'1px solid #1B4FD825', cursor:'pointer' }}>{q}</button>
             ))}
           </div>
 

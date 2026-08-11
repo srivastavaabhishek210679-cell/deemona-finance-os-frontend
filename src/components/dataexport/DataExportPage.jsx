@@ -72,7 +72,7 @@ export default function DataExportPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['export','📦 Export Data'],['backup','💾 Full Backup'],['tally','📒 Tally Export']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -107,7 +107,7 @@ export default function DataExportPage() {
                 <div style={{ fontSize:13, fontWeight:700 }}>{parseInt(m.count||0).toLocaleString()}</div>
                 <div style={{ fontSize:12, color:'var(--text-muted)' }}>{m.value ? INR(m.value) : '—'}</div>
                 <div style={{ display:'flex', gap:6 }}>
-                  <button onClick={()=>downloadJSON(m.table)} disabled={downloading===m.table+'_json'} style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:'#6C63FF20', color:'#3B82F6', border:'1px solid #6C63FF30', cursor:'pointer' }}>
+                  <button onClick={()=>downloadJSON(m.table)} disabled={downloading===m.table+'_json'} style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:'#1B4FD820', color:'#3B82F6', border:'1px solid #1B4FD830', cursor:'pointer' }}>
                     {downloading===m.table+'_json'?'...':'JSON'}
                   </button>
                   {CSV_TABLES.includes(m.table) && (
@@ -124,7 +124,7 @@ export default function DataExportPage() {
 
       {tab==='backup' && (
         <div style={{ maxWidth:600 }}>
-          <div style={{ borderRadius:14, border:'2px solid #6C63FF40', padding:28, background:'#6C63FF06', marginBottom:20 }}>
+          <div style={{ borderRadius:14, border:'2px solid #1B4FD840', padding:28, background:'#1B4FD806', marginBottom:20 }}>
             <div style={{ fontSize:36, marginBottom:14 }}>💾</div>
             <div style={{ fontSize:18, fontWeight:800, marginBottom:8 }}>Full Data Backup</div>
             <div style={{ fontSize:14, color:'var(--text-secondary)', marginBottom:20, lineHeight:1.6 }}>

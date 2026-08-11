@@ -157,12 +157,12 @@ export default function CFOAgentPage() {
                 {EXAMPLE_QUESTIONS.map(q => (
                   <button key={q} onClick={() => ask(q)} style={{
                     padding: '7px 14px', borderRadius: 100, fontSize: 12,
-                    background: '#6C63FF12', color: '#3B82F6',
-                    border: '1px solid #6C63FF25', cursor: 'pointer',
+                    background: '#1B4FD812', color: '#3B82F6',
+                    border: '1px solid #1B4FD825', cursor: 'pointer',
                     transition: 'background 0.15s',
                   }}
-                  onMouseEnter={e => e.target.style.background = '#6C63FF22'}
-                  onMouseLeave={e => e.target.style.background = '#6C63FF12'}
+                  onMouseEnter={e => e.target.style.background = '#1B4FD822'}
+                  onMouseLeave={e => e.target.style.background = '#1B4FD812'}
                   >{q}</button>
                 ))}
               </div>
@@ -191,8 +191,8 @@ export default function CFOAgentPage() {
               <div style={{
                 maxWidth: '78%',
                 padding: '12px 16px', borderRadius: 12,
-                background: msg.role === 'user' ? '#6C63FF18' : 'var(--surface-2)',
-                border: '1px solid ' + (msg.role === 'user' ? '#6C63FF30' : 'var(--border)'),
+                background: msg.role === 'user' ? '#1B4FD818' : 'var(--surface-2)',
+                border: '1px solid ' + (msg.role === 'user' ? '#1B4FD830' : 'var(--border)'),
                 fontSize: 14, lineHeight: 1.7,
                 color: msg.error ? '#FF5C5C' : 'var(--text-primary)',
               }}>

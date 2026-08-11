@@ -102,7 +102,7 @@ export default function DocumentAIPage() {
           <button key={id} onClick={() => setTab(id)} style={{
             padding:'10px 20px', fontSize:14, fontWeight:600,
             background:'none', border:'none', cursor:'pointer',
-            borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent',
+            borderBottom: tab===id ? '2px solid #1B4FD8' : '2px solid transparent',
             color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1,
           }}>{label}</button>
         ))}
@@ -121,7 +121,7 @@ export default function DocumentAIPage() {
               style={{
                 border:`2px dashed ${dragging ? '#1B4FD8' : 'var(--border)'}`,
                 borderRadius:16, padding:'40px 24px', textAlign:'center', cursor:'pointer',
-                background: dragging ? '#6C63FF08' : 'var(--surface-2)',
+                background: dragging ? '#1B4FD808' : 'var(--surface-2)',
                 transition:'all 0.2s', marginBottom:16,
               }}
             >
@@ -268,7 +268,7 @@ export default function DocumentAIPage() {
                 </div>
               </div>
               <div style={{ padding:20 }}>
-                <div style={{ padding:'10px 14px', borderRadius:8, background:'#6C63FF12', border:'1px solid #6C63FF25', marginBottom:16, fontSize:14, color:'var(--text-primary)' }}>
+                <div style={{ padding:'10px 14px', borderRadius:8, background:'#1B4FD812', border:'1px solid #1B4FD825', marginBottom:16, fontSize:14, color:'var(--text-primary)' }}>
                   {textResult.summary}
                 </div>
                 {textResult.action_required !== 'none' && (

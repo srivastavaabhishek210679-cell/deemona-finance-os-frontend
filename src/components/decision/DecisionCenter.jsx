@@ -66,7 +66,7 @@ function HealthRing({ score }) {
   return (
     <div style={{ position: 'relative', width: 140, height: 140 }}>
       <svg width={140} height={140} viewBox="0 0 140 140">
-        <circle cx={70} cy={70} r={r} fill="none" stroke="#22223A" strokeWidth={10} />
+        <circle cx={70} cy={70} r={r} fill="none" stroke="#DBEAFE" strokeWidth={10} />
         <circle cx={70} cy={70} r={r} fill="none" stroke={color} strokeWidth={10}
           strokeDasharray={filled + ' ' + circ}
           strokeDashoffset={circ / 4}
@@ -274,7 +274,7 @@ export default function DecisionCenter() {
         <div style={{
           padding: 20, borderRadius: 14,
           background: 'linear-gradient(135deg, #1A1A35 0%, #22223A 100%)',
-          border: '1px solid #6C63FF40',
+          border: '1px solid #1B4FD840',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

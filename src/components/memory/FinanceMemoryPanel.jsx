@@ -33,16 +33,16 @@ const TYPE_CONFIG = {
   rejection:       { color:'#FF5C5C', bg:'#FF5C5C18', label:'Rejection' },
   anomaly:         { color:'#FF5C5C', bg:'#FF5C5C18', label:'Anomaly' },
   alert:           { color:'#F5A623', bg:'#F5A62318', label:'Alert' },
-  recommendation:  { color:'#1B4FD8', bg:'#6C63FF18', label:'AI Recommendation' },
+  recommendation:  { color:'#1B4FD8', bg:'#1B4FD818', label:'AI Recommendation' },
   vendor_event:    { color:'#4FC3F7', bg:'#4FC3F718', label:'Vendor Event' },
-  transaction:     { color:'#3B82F6', bg:'#9B8FFF18', label:'Transaction' },
-  ai_insight:      { color:'#1B4FD8', bg:'#6C63FF18', label:'AI Insight' },
+  transaction:     { color:'#3B82F6', bg:'#3B82F618', label:'Transaction' },
+  ai_insight:      { color:'#1B4FD8', bg:'#1B4FD818', label:'AI Insight' },
   decision:        { color:'#4FC3F7', bg:'#4FC3F718', label:'Decision' },
   audit_comment:   { color:'#3B5998', bg:'#8B89A818', label:'Audit Comment' },
   policy_change:   { color:'#F5A623', bg:'#F5A62318', label:'Policy Change' },
   compliance_event:{ color:'#22C98A', bg:'#22C98A18', label:'Compliance' },
   contract_event:  { color:'#4FC3F7', bg:'#4FC3F718', label:'Contract' },
-  simulation_result:{ color:'#1B4FD8',bg:'#6C63FF18', label:'Digital Twin' },
+  simulation_result:{ color:'#1B4FD8',bg:'#1B4FD818', label:'Digital Twin' },
 };
 
 function formatINR(amount) {
@@ -123,7 +123,7 @@ function EmptyState() {
         {/* Glow */}
         <div style={{
           position:'absolute',width:100,height:100,borderRadius:'50%',
-          background:'radial-gradient(circle, #6C63FF44 0%, transparent 70%)',
+          background:'radial-gradient(circle, #1B4FD844 0%, transparent 70%)',
         }}/>
         {/* Stacked cards illustration */}
         <div style={{position:'relative',width:80,height:80}}>
@@ -132,9 +132,9 @@ function EmptyState() {
               position:'absolute',
               width:60+i*8,height:50+i*6,
               bottom:i*10,left:i*(-4)+10,
-              background:`linear-gradient(135deg, #${i===0?'6C63FF':i===1?'5550CC':'4440AA'}, #9B8FFF)`,
+              background:`linear-gradient(135deg, #${i===0?'6C63FF':i===1?'5550CC':'4440AA'}, #3B82F6)`,
               borderRadius:10,opacity:i===0?1:0.6,
-              boxShadow:'0 4px 20px #6C63FF44',
+              boxShadow:'0 4px 20px #1B4FD844',
               display:'flex',alignItems:'center',justifyContent:'center',
             }}>
               {i===0 && <span style={{fontSize:22,opacity:0.9}}>🔍</span>}
@@ -160,7 +160,7 @@ function EmptyState() {
           <div key={f.title} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
             <div style={{
               width:32,height:32,borderRadius:8,flexShrink:0,
-              background:'#6C63FF18',
+              background:'#1B4FD818',
               display:'flex',alignItems:'center',justifyContent:'center',
               fontSize:15,
             }}>{f.icon}</div>
@@ -198,7 +198,7 @@ function MemoryCard({ memory, onClick }) {
       transition:'border-color 0.15s,box-shadow 0.15s',
       marginBottom:8,
     }}
-      onMouseEnter={e=>{e.currentTarget.style.borderColor=cfg.color??'#1B4FD8';e.currentTarget.style.boxShadow=`0 0 0 3px ${cfg.bg??'#6C63FF11'}`}}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor=cfg.color??'#1B4FD8';e.currentTarget.style.boxShadow=`0 0 0 3px ${cfg.bg??'#1B4FD811'}`}}
       onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}
     >
       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
@@ -302,7 +302,7 @@ function AskPanel() {
           {EXAMPLES.map(q=>(
             <button key={q} onClick={()=>{setQuestion(q);textareaRef.current?.focus();}} style={{
               padding:'4px 10px',borderRadius:100,fontSize:15,
-              background:'#6C63FF18',color:'#3B82F6',border:'1px solid #6C63FF30',
+              background:'#1B4FD818',color:'#3B82F6',border:'1px solid #1B4FD830',
               cursor:'pointer',fontWeight:500,
             }}>{q.length>42?q.slice(0,42)+'...':q}</button>
           ))}
@@ -444,7 +444,7 @@ export default function FinanceMemoryPanel() {
               display:'flex',alignItems:'center',gap:6,
               padding:'8px 16px',fontSize:15,fontWeight:600,
               background:'none',border:'none',cursor:'pointer',
-              borderBottom:tab===t.id?'2px solid #6C63FF':'2px solid transparent',
+              borderBottom:tab===t.id?'2px solid #1B4FD8':'2px solid transparent',
               color:tab===t.id?'#1B4FD8':'var(--text-secondary)',
               marginBottom:-1,transition:'color 0.15s',
             }}>

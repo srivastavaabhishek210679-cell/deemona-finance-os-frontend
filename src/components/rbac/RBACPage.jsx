@@ -61,14 +61,14 @@ export default function RBACPage() {
       </div>
 
       {myPerms && (
-        <div style={{ marginBottom:20, padding:'10px 14px', borderRadius:8, background:'#6C63FF12', border:'1px solid #6C63FF25', fontSize:13 }}>
+        <div style={{ marginBottom:20, padding:'10px 14px', borderRadius:8, background:'#1B4FD812', border:'1px solid #1B4FD825', fontSize:13 }}>
           Your role: <strong style={{ color:ROLE_COLORS[myPerms.role]||'#1B4FD8' }}>{myPerms.role?.toUpperCase()}</strong> — {ROLE_DESCS[myPerms.role]||''}
         </div>
       )}
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['team','👥 Team Members'],['roles','🔐 Roles & Permissions'],['invite','+ Invite User']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 

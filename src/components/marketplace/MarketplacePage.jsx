@@ -73,7 +73,7 @@ export default function MarketplacePage() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 16 }}>
           {filtered.map(agent => (
-            <div key={agent.id} style={{ borderRadius: 14, border: `1px solid ${agent.enabled ? '#6C63FF40' : 'var(--border)'}`, padding: 20, background: agent.enabled ? '#6C63FF06' : 'var(--surface-2)', transition: 'all 0.2s' }}>
+            <div key={agent.id} style={{ borderRadius: 14, border: `1px solid ${agent.enabled ? '#1B4FD840' : 'var(--border)'}`, padding: 20, background: agent.enabled ? '#1B4FD806' : 'var(--surface-2)', transition: 'all 0.2s' }}>
               {/* Header */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                 <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>

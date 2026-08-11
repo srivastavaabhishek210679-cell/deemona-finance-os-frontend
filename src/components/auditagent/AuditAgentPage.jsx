@@ -65,7 +65,7 @@ export default function AuditAgentPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['dashboard','🛡 Risk Dashboard'],['anomalies','⚠ Anomalies'],['analysis','🤖 AI Analysis'],['trail','📋 Audit Trail']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #1B4FD8' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -127,7 +127,7 @@ export default function AuditAgentPage() {
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                       <SeverityBadge sev={a.severity} />
                       <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'var(--surface-3)', color:'var(--text-secondary)' }}>{a.category}</span>
-                      <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'#6C63FF20', color:'#3B82F6' }}>{a.anomaly_type?.replace(/_/g,' ')}</span>
+                      <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'#1B4FD820', color:'#3B82F6' }}>{a.anomaly_type?.replace(/_/g,' ')}</span>
                     </div>
                     {a.amount && <span style={{ fontSize:13, fontWeight:700, color:'var(--text-primary)' }}>{INR(a.amount)}</span>}
                   </div>
@@ -181,7 +181,7 @@ export default function AuditAgentPage() {
           ) : trail.map((entry, i) => (
             <div key={i} style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-                <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#3B82F6', flexShrink:0 }}>{entry.module}</span>
+                <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#1B4FD820', color:'#3B82F6', flexShrink:0 }}>{entry.module}</span>
                 <div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{entry.reference}</div>
                   <div style={{ fontSize:11, color:'var(--text-muted)' }}>{new Date(entry.updated_at||entry.date).toLocaleString('en-IN')}</div>

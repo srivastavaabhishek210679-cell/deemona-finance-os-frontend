@@ -79,7 +79,7 @@ export default function TaxAgentPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['dashboard','📊 Dashboard'],['gst','🧾 GST Computation'],['tds','📋 TDS Management'],['calendar','📅 Tax Calendar'],['ask','🤖 Ask Tax Agent']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #1B4FD8' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -90,7 +90,7 @@ export default function TaxAgentPage() {
             <KPI label="GST Collected (Month)" value={INR(dashboard.current_month?.gst_collected)} color="#22C98A" sub="Output tax" />
             <KPI label="ITC Available" value={INR(dashboard.current_month?.itc_available)} color="#4FC3F7" sub="Input tax credit" />
             <KPI label="Net GST Payable" value={INR(dashboard.current_month?.net_gst_payable)} color={dashboard.current_month?.net_gst_payable > 0 ? '#FF5C5C' : '#22C98A'} sub="After ITC offset" />
-            <KPI label="TDS Paid (YTD)" value={INR(dashboard.tds_paid_ytd)} color="#6C63FF" sub="Financial year" />
+            <KPI label="TDS Paid (YTD)" value={INR(dashboard.tds_paid_ytd)} color="#1B4FD8" sub="Financial year" />
           </div>
 
           {dashboard.overdue_filings > 0 && (
@@ -205,14 +205,14 @@ export default function TaxAgentPage() {
           {tds && (
             <div>
               <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:20 }}>
-                <KPI label="Salary TDS (Sec 192)" value={INR(tds.salary_tds?.total_tds_deducted)} color="#6C63FF" sub={`${tds.salary_tds?.employees?.length} employees`} />
+                <KPI label="Salary TDS (Sec 192)" value={INR(tds.salary_tds?.total_tds_deducted)} color="#1B4FD8" sub={`${tds.salary_tds?.employees?.length} employees`} />
                 <KPI label="Vendor TDS (Sec 194C)" value={INR(tds.vendor_tds?.total_applicable)} color="#F5A623" sub={`${tds.vendor_tds?.vendors?.length} vendors`} />
                 <KPI label="Total TDS Payable" value={INR(tds.challan_summary?.total)} color="#FF5C5C" sub={`Due ${tds.challan_summary?.due_date}`} />
               </div>
 
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                 <div style={{ borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
-                  <div style={{ padding:'12px 16px', background:'#6C63FF20', fontSize:13, fontWeight:700, color:'#1B4FD8' }}>SALARY TDS — Section 192</div>
+                  <div style={{ padding:'12px 16px', background:'#1B4FD820', fontSize:13, fontWeight:700, color:'#1B4FD8' }}>SALARY TDS — Section 192</div>
                   <div style={{ maxHeight:300, overflowY:'auto' }}>
                     {tds.salary_tds?.employees?.length === 0 ? (
                       <div style={{ padding:20, textAlign:'center', color:'var(--text-muted)', fontSize:13 }}>No employee data</div>
@@ -264,7 +264,7 @@ export default function TaxAgentPage() {
         <div style={{ maxWidth:700 }}>
           <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:20 }}>
             {TAX_QS.map(q => (
-              <button key={q} onClick={() => setQuestion(q)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
+              <button key={q} onClick={() => setQuestion(q)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#1B4FD812', color:'#3B82F6', border:'1px solid #1B4FD825', cursor:'pointer' }}>{q}</button>
             ))}
           </div>
           <div style={{ display:'flex', gap:10, marginBottom:16 }}>

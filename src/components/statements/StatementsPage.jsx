@@ -18,7 +18,7 @@ function TabBar({ tabs, active, onChange }) {
         <button key={t.id} onClick={() => onChange(t.id)} style={{
           padding: '10px 20px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
-          borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
+          borderBottom: active === t.id ? '2px solid #1B4FD8' : '2px solid transparent',
           color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom: -1,
         }}>{t.label}</button>
       ))}
@@ -188,10 +188,10 @@ function BalanceSheet() {
           {data.liabilities.current.map((l, i) => <StatRow key={i} label={l.name} amount={l.balance} indent />)}
           <StatRow label="TOTAL LIABILITIES" amount={data.total_liabilities} bold color="#FF5C5C" border />
 
-          <div style={{ padding: '14px 16px', background: '#6C63FF20', fontSize: 13, fontWeight: 700, color: '#1B4FD8', letterSpacing: '0.05em', marginTop: 8 }}>EQUITY</div>
+          <div style={{ padding: '14px 16px', background: '#1B4FD820', fontSize: 13, fontWeight: 700, color: '#1B4FD8', letterSpacing: '0.05em', marginTop: 8 }}>EQUITY</div>
           {data.equity.items.map((e, i) => <StatRow key={i} label={e.name} amount={e.balance} indent />)}
           {!data.equity.items.length && <StatRow label="Net Worth" amount={data.total_equity} indent />}
-          <StatRow label="TOTAL EQUITY" amount={data.total_equity} bold color="#6C63FF" border />
+          <StatRow label="TOTAL EQUITY" amount={data.total_equity} bold color="#1B4FD8" border />
 
           <StatRow label="TOTAL LIABILITIES + EQUITY" amount={data.total_liabilities + data.total_equity} bold color="#22C98A" border />
         </div>
@@ -256,7 +256,7 @@ function CashFlowStatement() {
         <StatRow label="Net Cash from Investing Activities" amount={data.investing.net} bold color={data.investing.net >= 0 ? '#22C98A' : '#FF5C5C'} border />
 
         {/* Financing */}
-        <div style={{ padding: '14px 16px', background: '#6C63FF20', fontSize: 13, fontWeight: 700, color: '#1B4FD8', marginTop: 4 }}>FINANCING ACTIVITIES</div>
+        <div style={{ padding: '14px 16px', background: '#1B4FD820', fontSize: 13, fontWeight: 700, color: '#1B4FD8', marginTop: 4 }}>FINANCING ACTIVITIES</div>
         <StatRow label="Net Cash from Financing Activities" amount={0} bold border />
 
         {/* Summary */}

@@ -47,7 +47,7 @@ function TabBar({ tabs, active, onChange }) {
         <button key={t.id} onClick={() => onChange(t.id)} style={{
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
-          borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
+          borderBottom: active === t.id ? '2px solid #1B4FD8' : '2px solid transparent',
           color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)',
           marginBottom: -1,
         }}>{t.label}</button>
@@ -239,15 +239,15 @@ function NewPOForm({ onSaved, onCancel }) {
       <div style={{ marginBottom: 16 }}>
         <button onClick={getAISuggestion} disabled={suggesting} style={{
           padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: '#6C63FF18', color: '#1B4FD8',
-          border: '1px solid #6C63FF30', cursor: 'pointer',
+          background: '#1B4FD818', color: '#1B4FD8',
+          border: '1px solid #1B4FD830', cursor: 'pointer',
         }}>
           {suggesting ? 'Getting AI advice...' : '* AI: Vendor & Price Recommendation'}
         </button>
         {aiSuggestion && (
           <div style={{
             marginTop: 8, padding: 12, borderRadius: 8,
-            background: '#6C63FF10', border: '1px solid #6C63FF30',
+            background: '#1B4FD810', border: '1px solid #1B4FD830',
             fontSize: 13, lineHeight: 1.6, color: 'var(--text-primary)',
           }}>{aiSuggestion}</div>
         )}
@@ -620,7 +620,7 @@ function AgentTab() {
       <div style={{
         padding: 16, borderRadius: 12, marginBottom: 16,
         background: 'linear-gradient(135deg, #1A1A35, #22223A)',
-        border: '1px solid #6C63FF40',
+        border: '1px solid #1B4FD840',
       }}>
         <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Procurement Agent</div>
         <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>
@@ -635,8 +635,8 @@ function AgentTab() {
             {EXAMPLES.map(q => (
               <button key={q} onClick={() => ask(q)} style={{
                 padding: '5px 12px', borderRadius: 100, fontSize: 12,
-                background: '#6C63FF18', color: '#3B82F6',
-                border: '1px solid #6C63FF30', cursor: 'pointer',
+                background: '#1B4FD818', color: '#3B82F6',
+                border: '1px solid #1B4FD830', cursor: 'pointer',
               }}>{q}</button>
             ))}
           </div>
@@ -647,8 +647,8 @@ function AgentTab() {
         {messages.map((m, i) => (
           <div key={i} style={{
             padding: '12px 14px', borderRadius: 10, fontSize: 14, lineHeight: 1.7,
-            background: m.role === 'user' ? '#6C63FF18' : 'var(--surface-2)',
-            border: '1px solid ' + (m.role === 'user' ? '#6C63FF30' : 'var(--border)'),
+            background: m.role === 'user' ? '#1B4FD818' : 'var(--surface-2)',
+            border: '1px solid ' + (m.role === 'user' ? '#1B4FD830' : 'var(--border)'),
             alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
             maxWidth: '85%', whiteSpace: 'pre-wrap',
           }}>

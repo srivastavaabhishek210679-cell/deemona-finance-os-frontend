@@ -73,7 +73,7 @@ export default function AdminPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['overview','📊 Overview'],['tenants','🏢 All Tenants'],['revenue','💰 Revenue'],['tenant-detail',selectedTenant?'🔍 Tenant Detail':'']].filter(([,l])=>l).map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -226,7 +226,7 @@ export default function AdminPage() {
                 {tenantDetail.users?.map(u=>(
                   <div key={u.id} style={{ padding:'9px 14px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', fontSize:12 }}>
                     <div><div style={{ fontWeight:600 }}>{u.first_name} {u.last_name}</div><div style={{ color:'var(--text-muted)' }}>{u.email}</div></div>
-                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:'#6C63FF20', color:'#3B82F6', alignSelf:'center' }}>{u.role_name}</span>
+                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:'#1B4FD820', color:'#3B82F6', alignSelf:'center' }}>{u.role_name}</span>
                   </div>
                 ))}
               </div>

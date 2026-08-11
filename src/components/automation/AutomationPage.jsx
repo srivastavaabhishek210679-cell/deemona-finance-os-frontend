@@ -118,7 +118,7 @@ export default function AutomationPage() {
       {/* Tabs */}
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['templates','📋 Templates'],['ai','✨ AI Generate'],['workflows','⚡ My Workflows'],['logs','📊 Run Logs']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #1B4FD8' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -130,7 +130,7 @@ export default function AutomationPage() {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:15, fontWeight:700, marginBottom:3 }}>{t.name}</div>
-                  <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#1B4FD8' }}>{t.category}</span>
+                  <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#1B4FD820', color:'#1B4FD8' }}>{t.category}</span>
                 </div>
                 <span style={{ fontSize:11, color:'var(--text-muted)', fontWeight:600 }}>{t.steps.length} steps</span>
               </div>
@@ -161,7 +161,7 @@ export default function AutomationPage() {
           </div>
 
           {generated && (
-            <div style={{ borderRadius:12, border:'1px solid #6C63FF40', padding:24, background:'#6C63FF08' }}>
+            <div style={{ borderRadius:12, border:'1px solid #1B4FD840', padding:24, background:'#1B4FD808' }}>
               <div style={{ display:'flex', justifyContent:'space-between', marginBottom:16 }}>
                 <div><div style={{ fontSize:16, fontWeight:700 }}>{generated.name}</div><div style={{ fontSize:13, color:'var(--text-muted)' }}>{generated.description}</div></div>
                 <span style={{ padding:'3px 10px', borderRadius:100, fontSize:11, fontWeight:700, background:'#F5A62320', color:'#F5A623' }}>TRIGGER: {generated.trigger}</span>

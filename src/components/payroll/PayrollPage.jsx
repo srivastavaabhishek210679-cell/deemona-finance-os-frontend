@@ -38,7 +38,7 @@ function TabBar({ tabs, active, onChange }) {
         <button key={t.id} onClick={() => onChange(t.id)} style={{
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
-          borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
+          borderBottom: active === t.id ? '2px solid #1B4FD8' : '2px solid transparent',
           color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom: -1,
         }}>{t.label}</button>
       ))}
@@ -326,7 +326,7 @@ function PayrollRunsTab({ onRefreshSummary }) {
       <div style={{
         padding: 20, borderRadius: 12, marginBottom: 20,
         background: 'linear-gradient(135deg, #1A1A35, #22223A)',
-        border: '1px solid #6C63FF40',
+        border: '1px solid #1B4FD840',
         display: 'flex', alignItems: 'center', gap: 16,
       }}>
         <div style={{ flex: 1 }}>

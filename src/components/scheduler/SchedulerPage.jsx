@@ -75,7 +75,7 @@ export default function SchedulerPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['jobs','⚡ All Jobs'],['logs','📋 Run Logs'],['custom','+ Custom Job']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -86,7 +86,7 @@ export default function SchedulerPage() {
           </div>}
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(340px,1fr))', gap:14 }}>
             {jobs.map(job=>(
-              <div key={job.id} style={{ borderRadius:12, border:`1px solid ${job.enabled?'#6C63FF40':'var(--border)'}`, padding:16, background:job.enabled?'#6C63FF06':'var(--surface-2)' }}>
+              <div key={job.id} style={{ borderRadius:12, border:`1px solid ${job.enabled?'#1B4FD840':'var(--border)'}`, padding:16, background:job.enabled?'#1B4FD806':'var(--surface-2)' }}>
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:14, fontWeight:700, marginBottom:3 }}>{job.name}</div>

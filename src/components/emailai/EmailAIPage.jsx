@@ -59,13 +59,13 @@ export default function EmailAIPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:20 }}>
         {[['analyze','🔍 Analyze'],['reply','✉️ Draft Reply']].map(([id,label]) => (
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #1B4FD8':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
       <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
         <span style={{ fontSize:12, fontWeight:600, color:'var(--text-muted)' }}>Try sample:</span>
-        {SAMPLES.map((s,i)=><button key={i} onClick={()=>loadSample(s)} style={{ padding:'4px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>Sample {i+1}</button>)}
+        {SAMPLES.map((s,i)=><button key={i} onClick={()=>loadSample(s)} style={{ padding:'4px 12px', borderRadius:100, fontSize:11, background:'#1B4FD812', color:'#3B82F6', border:'1px solid #1B4FD825', cursor:'pointer' }}>Sample {i+1}</button>)}
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:result&&tab==='analyze'?'1fr 1fr':'1fr', gap:20 }}>
