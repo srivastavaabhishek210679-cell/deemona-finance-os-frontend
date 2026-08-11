@@ -273,7 +273,7 @@ export default function DecisionCenter() {
         {/* AI Brief */}
         <div style={{
           padding: 20, borderRadius: 14,
-          background: 'linear-gradient(135deg, #1B4FD8 0%, #3B82F6 100%)',
+          background: '#FFFFFF',
           border: '1px solid #1B4FD840',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -364,4 +364,5 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
 
