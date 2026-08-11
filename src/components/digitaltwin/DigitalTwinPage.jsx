@@ -10,7 +10,7 @@ function formatINR(n) {
   return 'Rs ' + num.toLocaleString('en-IN');
 }
 
-// â”€â”€ Mini bar chart â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Mini bar chart ---------------------------------------------
 function BarChart({ data, color, height = 80 }) {
   if (!data?.length) return null;
   const max = Math.max(...data.map(d => Math.abs(d.value)));
@@ -36,7 +36,7 @@ function BarChart({ data, color, height = 80 }) {
   );
 }
 
-// â”€â”€ Scenario input field â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Scenario input field ---------------------------------------
 function ScenarioField({ label, value, onChange, type = 'number', unit, hint }) {
   return (
     <div style={{ marginBottom: 14 }}>
@@ -64,7 +64,7 @@ function ScenarioField({ label, value, onChange, type = 'number', unit, hint }) 
   );
 }
 
-// â”€â”€ Result metric card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Result metric card -----------------------------------------
 function MetricCard({ label, value, change, color, note }) {
   const isPositive = parseFloat(change) >= 0;
   return (
@@ -84,7 +84,7 @@ function MetricCard({ label, value, change, color, note }) {
   );
 }
 
-// â”€â”€ Saved scenarios list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Saved scenarios list ---------------------------------------
 function SavedScenarios({ scenarios, onLoad, onDelete }) {
   if (!scenarios.length) return (
     <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
@@ -110,14 +110,14 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
           <button onClick={() => onDelete(s.id)} style={{
             padding: '3px 8px', borderRadius: 6, fontSize: 11,
             background: '#FF5C5C10', border: '1px solid #FF5C5C20', color: '#FF5C5C', cursor: 'pointer',
-          }}>Ã—</button>
+          }}>x</button>
         </div>
       ))}
     </div>
   );
 }
 
-// â”€â”€ Main Digital Twin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// -- Main Digital Twin ------------------------------------------
 export default function DigitalTwinPage() {
   const [running, setRunning] = useState(false);
   const [result, setResult] = useState(null);
@@ -264,7 +264,7 @@ export default function DigitalTwinPage() {
   };
 
   const verdictConfig = {
-    POSITIVE: { color: '#22C98A', bg: '#22C98A10', border: '#22C98A30', icon: 'â†‘' },
+    POSITIVE: { color: '#22C98A', bg: '#22C98A10', border: '#22C98A30', icon: 'up' },
     CAUTION:  { color: '#F5A623', bg: '#F5A62310', border: '#F5A62330', icon: '~' },
     NEGATIVE: { color: '#FF5C5C', bg: '#FF5C5C10', border: '#FF5C5C30', icon: 'â†“' },
   };
@@ -286,7 +286,7 @@ export default function DigitalTwinPage() {
       }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 24, color: '#1B4FD8' }}>â—ˆ</span>
+            <span style={{ fontSize: 24, color: '#1B4FD8' }}>*</span>
             <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Financial Digital Twin</h2>
             <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>AI POWERED</span>
           </div>
@@ -297,7 +297,7 @@ export default function DigitalTwinPage() {
         </div>
         <div style={{ display: 'flex', gap: 20, flexShrink: 0 }}>
           {[
-            { label: 'Scenario Types', value: 'âˆž' },
+            { label: 'Scenario Types', value: 'inf' },
             { label: 'Projection Years', value: inputs.projection_years },
             { label: 'Saved Scenarios', value: savedScenarios.length },
           ].map(m => (
@@ -322,7 +322,7 @@ export default function DigitalTwinPage() {
         ))}
       </div>
 
-      {/* â”€â”€ INPUTS TAB â”€â”€ */}
+      {/* -- INPUTS TAB -- */}
       {activeTab === 'inputs' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 24 }}>
 
@@ -439,7 +439,7 @@ export default function DigitalTwinPage() {
               fontSize: 15, fontWeight: 700, letterSpacing: '0.02em',
               transition: 'opacity 0.2s',
             }}>
-              {running ? 'AI is running simulation...' : 'â—ˆ Run Financial Simulation'}
+              {running ? 'AI is running simulation...' : '* Run Financial Simulation'}
             </button>
             {running && (
               <div style={{ textAlign: 'center', marginTop: 10, fontSize: 12, color: 'var(--text-muted)' }}>
@@ -450,12 +450,12 @@ export default function DigitalTwinPage() {
         </div>
       )}
 
-      {/* â”€â”€ RESULTS TAB â”€â”€ */}
+      {/* -- RESULTS TAB -- */}
       {activeTab === 'results' && (
         <div>
           {running && (
             <div style={{ textAlign: 'center', padding: 80 }}>
-              <div style={{ fontSize: 48, marginBottom: 16 }}>â—ˆ</div>
+              <div style={{ fontSize: 48, marginBottom: 16 }}>*</div>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>AI is simulating your scenario...</div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)' }}>
                 Projecting {inputs.projection_years} years of financials for {inputs.industry} company
@@ -465,7 +465,7 @@ export default function DigitalTwinPage() {
 
           {!running && !result && (
             <div style={{ textAlign: 'center', padding: 80 }}>
-              <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>â—ˆ</div>
+              <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>*</div>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>No simulation run yet</div>
               <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 24 }}>Configure your scenario and run the simulation</div>
               <button onClick={() => setActiveTab('inputs')} style={{
@@ -580,7 +580,7 @@ export default function DigitalTwinPage() {
                 {[
                   { title: 'Key Risks', items: result.risks, color: '#FF5C5C', icon: '!' },
                   { title: 'Opportunities', items: result.opportunities, color: '#22C98A', icon: '+' },
-                  { title: 'Recommendations', items: result.recommendations, color: '#1B4FD8', icon: 'â†’' },
+                  { title: 'Recommendations', items: result.recommendations, color: '#1B4FD8', icon: 'down' },
                 ].map(section => (
                   <div key={section.title} style={{ padding: 16, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: section.color, marginBottom: 12 }}>
@@ -605,7 +605,7 @@ export default function DigitalTwinPage() {
         </div>
       )}
 
-      {/* â”€â”€ SAVED SCENARIOS TAB â”€â”€ */}
+      {/* -- SAVED SCENARIOS TAB -- */}
       {activeTab === 'saved' && (
         <div style={{ maxWidth: 600 }}>
           <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 16 }}>
