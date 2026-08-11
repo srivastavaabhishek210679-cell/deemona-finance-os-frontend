@@ -31,6 +31,7 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import DashboardPage from './components/dashboard/DashboardPage';
+import DashboardPage from './components/dashboard/DashboardPage';
 import './styles/global.css';
 
 // ── Nav Groups ──────────────────────────────────────────────
@@ -424,6 +425,7 @@ export default function App() {
     { path: '/team',         title: 'Team and Access',       sub: 'Manage team members, roles, and permissions.',       comp: <RBACPage /> },
     { path: '/billing',      title: 'Billing and Plans',     sub: 'Manage subscription, usage limits, and payments.',   comp: <BillingPage /> },
     { path: '/export',       title: 'Data Export',           sub: 'Export data in JSON, CSV, or Tally XML format.',     comp: <DataExportPage /> },
+    { path: '/dashboard',    title: 'Executive Dashboard',   sub: 'Charts, KPIs, and financial analytics.',  comp: <DashboardPage /> },
     { path: '/admin',        title: 'Platform Admin',        sub: 'Platform-wide tenant management and analytics.',     comp: <AdminPage /> },
   ];
 
@@ -439,4 +441,6 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 
