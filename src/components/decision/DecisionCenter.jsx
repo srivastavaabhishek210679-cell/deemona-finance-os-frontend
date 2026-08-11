@@ -29,7 +29,7 @@ function MarkdownBlock({ text }) {
         return (
           <div key={i} style={{
             display: 'flex', gap: 8, marginBottom: 3, lineHeight: 1.7, fontSize: 14,
-            color: 'var(--text-primary)',
+            color: '#0A1628',
           }}>
             {isBullet && <span style={{ color: '#1B4FD8', flexShrink: 0 }}>•</span>}
             <span>{clean}</span>
@@ -89,7 +89,7 @@ function KpiCard({ label, value, sub, color, trend, sparkData }) {
   const up = (trend || 0) >= 0;
   return (
     <div style={{
-      padding: '18px 20px', background: 'var(--surface-2)',
+      padding: '18px 20px', background: '#F0F5FF',
       border: '1px solid var(--border)', borderRadius: 14,
       display: 'flex', flexDirection: 'column', gap: 12,
     }}>
@@ -112,8 +112,8 @@ function KpiCard({ label, value, sub, color, trend, sparkData }) {
       </div>
       <div>
         <div style={{ fontSize: 26, fontWeight: 800, color: color || '#1B4FD8', lineHeight: 1, marginBottom: 4 }}>{value}</div>
-        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#0A1628' }}>{label}</div>
+        <div style={{ fontSize: 12, color: '#3B5998', marginTop: 2 }}>{sub}</div>
       </div>
       <Sparkline color={color} data={sparkData} width={100} height={28} />
     </div>
@@ -127,7 +127,7 @@ function ActionItem({ title, description, priority, action, color, path }) {
   return (
     <div style={{
       display: 'flex', alignItems: 'flex-start', gap: 14,
-      padding: '14px 16px', background: 'var(--surface-3)',
+      padding: '14px 16px', background: '#DBEAFE',
       borderRadius: 12, border: '1px solid ' + pc + '30', marginBottom: 8,
     }}>
       <div style={{
@@ -144,7 +144,7 @@ function ActionItem({ title, description, priority, action, color, path }) {
             background: pc + '20', color: pc, letterSpacing: '0.05em',
           }}>{priority.toUpperCase()}</span>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{description}</div>
+        <div style={{ fontSize: 13, color: '#1E3A5F', lineHeight: 1.5 }}>{description}</div>
       </div>
       <button onClick={handleClick} style={{
         padding: '6px 12px', borderRadius: 8, flexShrink: 0,
@@ -164,16 +164,16 @@ function RecCard({ title, body, impact, effort }) {
   const ic = { High: '#22C98A', Medium: '#F5A623', Low: '#3B5998' }[impact] || '#3B5998';
   return (
     <div style={{
-      padding: '14px 16px', background: 'var(--surface-2)',
+      padding: '14px 16px', background: '#F0F5FF',
       border: '1px solid var(--border)', borderRadius: 12, marginBottom: 8,
     }}>
       <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>{title}</div>
-      <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 8 }}>{body}</div>
+      <div style={{ fontSize: 13, color: '#1E3A5F', lineHeight: 1.5, marginBottom: 8 }}>{body}</div>
       <div style={{ display: 'flex', gap: 8 }}>
         <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: ic + '20', color: ic, fontWeight: 600 }}>
           Impact: {impact}
         </span>
-        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: 'var(--surface-3)', color: 'var(--text-muted)', fontWeight: 600 }}>
+        <span style={{ fontSize: 11, padding: '2px 8px', borderRadius: 4, background: '#DBEAFE', color: '#3B5998', fontWeight: 600 }}>
           Effort: {effort}
         </span>
       </div>
@@ -252,14 +252,14 @@ export default function DecisionCenter() {
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
         <div style={{
           padding: 20, borderRadius: 14,
-          background: 'var(--surface-2)', border: '1px solid var(--border)',
+          background: '#F0F5FF', border: '1px solid var(--border)',
           display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
         }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text-secondary)', alignSelf: 'flex-start' }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: '#1E3A5F', alignSelf: 'flex-start' }}>
             Business Health Score
           </div>
           <HealthRing score={0} />
-          <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', lineHeight: 1.5 }}>
+          <div style={{ fontSize: 12, color: '#3B5998', textAlign: 'center', lineHeight: 1.5 }}>
             Score improves as you add financial data and resolve actions
           </div>
         </div>
@@ -285,34 +285,34 @@ export default function DecisionCenter() {
             </div>
             <button onClick={generateBrief} disabled={briefLoading} style={{
               padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: 'var(--surface-3)', border: '1px solid var(--border)',
-              color: 'var(--text-secondary)', cursor: briefLoading ? 'not-allowed' : 'pointer',
+              background: '#DBEAFE', border: '1px solid var(--border)',
+              color: '#1E3A5F', cursor: briefLoading ? 'not-allowed' : 'pointer',
             }}>
               {briefLoading ? 'Generating...' : 'Refresh'}
             </button>
           </div>
 
           {briefLoading ? (
-            <div style={{ padding: '20px 0', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
+            <div style={{ padding: '20px 0', textAlign: 'center', color: '#3B5998', fontSize: 14 }}>
               AI is generating your brief...
             </div>
           ) : brief ? (
-            <div style={{ fontSize: 14, lineHeight: 1.8, color: 'var(--text-primary)', whiteSpace: 'pre-wrap' }}>
+            <div style={{ fontSize: 14, lineHeight: 1.8, color: '#0A1628', whiteSpace: 'pre-wrap' }}>
               {brief}
             </div>
           ) : (
-            <div style={{ color: 'var(--text-muted)', fontSize: 14, lineHeight: 1.7 }}>
+            <div style={{ color: '#3B5998', fontSize: 14, lineHeight: 1.7 }}>
               No financial data yet. Click Refresh to generate your first brief.
             </div>
           )}
 
-          <div style={{ marginTop: 12, fontSize: 11, color: 'var(--text-muted)' }}>
+          <div style={{ marginTop: 12, fontSize: 11, color: '#3B5998' }}>
             {'Generated ' + new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}
           </div>
         </div>
 
         {/* Urgent Actions */}
-        <div style={{ padding: 20, borderRadius: 14, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+        <div style={{ padding: 20, borderRadius: 14, background: '#F0F5FF', border: '1px solid var(--border)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 16, color: '#F5A623' }}>!</span>
@@ -327,10 +327,10 @@ export default function DecisionCenter() {
       </div>
 
       {/* Row 3: Recommendations */}
-      <div style={{ padding: 20, borderRadius: 14, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
+      <div style={{ padding: 20, borderRadius: 14, background: '#F0F5FF', border: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
           <span style={{ fontSize: 15, fontWeight: 700 }}>AI Recommendations</span>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Based on your current setup</span>
+          <span style={{ fontSize: 12, color: '#3B5998' }}>Based on your current setup</span>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
           {recs.map((r, i) => <RecCard key={i} {...r} />)}
@@ -342,7 +342,7 @@ export default function DecisionCenter() {
         {risks.map(r => (
           <div key={r.label} style={{
             padding: '16px 18px', borderRadius: 12,
-            background: 'var(--surface-2)', border: '1px solid var(--border)',
+            background: '#F0F5FF', border: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', gap: 14,
           }}>
             <div style={{
@@ -356,7 +356,7 @@ export default function DecisionCenter() {
             <div>
               <div style={{ fontSize: 20, fontWeight: 800, color: r.color, lineHeight: 1 }}>{r.value}</div>
               <div style={{ fontSize: 13, fontWeight: 600, marginTop: 2 }}>{r.label}</div>
-              <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 1 }}>{r.note}</div>
+              <div style={{ fontSize: 11, color: '#3B5998', marginTop: 1 }}>{r.note}</div>
             </div>
           </div>
         ))}
@@ -365,6 +365,7 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
 
 
 
