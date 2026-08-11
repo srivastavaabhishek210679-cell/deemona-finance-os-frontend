@@ -105,7 +105,7 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
           </div>
           <button onClick={() => onLoad(s)} style={{
             padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-            background: '#1B4FD820', border: '1px solid #1B4FD830', color: '#1B4FD8', cursor: 'pointer',
+            background: '#1B4FD820', border: '1px solid #93B4EF', color: '#1B4FD8', cursor: 'pointer',
           }}>Load</button>
           <button onClick={() => onDelete(s.id)} style={{
             padding: '3px 8px', borderRadius: 6, fontSize: 11,
@@ -280,8 +280,8 @@ export default function DigitalTwinPage() {
       {/* Header */}
       <div style={{
         padding: '20px 24px', borderRadius: 14, marginBottom: 24,
-        background: 'linear-gradient(135deg, #13131E 0%, #1A1A35 50%, #22223A 100%)',
-        border: '1px solid #1B4FD830',
+        background: 'linear-gradient(135deg, #1B4FD8 0%, #2563EB 50%, #3B82F6 100%)',
+        border: '1px solid #93B4EF',
         display: 'flex', alignItems: 'center', gap: 20,
       }}>
         <div style={{ flex: 1 }}>
@@ -290,7 +290,7 @@ export default function DigitalTwinPage() {
             <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Financial Digital Twin</h2>
             <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>AI POWERED</span>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', margin: 0, lineHeight: 1.6 }}>
             Simulate financial scenarios before making real decisions. Model hiring plans, new offices,
             product launches, and market changes  -  see projected P&L, cash flow, and ROI.
           </p>
@@ -594,7 +594,7 @@ export default function DigitalTwinPage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 10, fontWeight: 700, marginTop: 1,
                         }}>{section.icon}</span>
-                        <span style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{item}</span>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', lineHeight: 1.5 }}>{item}</span>
                       </div>
                     ))}
                   </div>
@@ -629,6 +629,7 @@ export default function DigitalTwinPage() {
     </div>
   );
 }
+
 
 
 
