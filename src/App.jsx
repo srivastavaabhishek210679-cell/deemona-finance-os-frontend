@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -358,7 +358,7 @@ function Layout({ title, subtitle, children }) {
       <Sidebar user={user} tenant={tenant} onLogout={logout} />
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <TopBar title={title} subtitle={subtitle} />
-        <div style={{ flex: 1, overflow: 'auto' }}>{children}</div>
+        <div style={{ flex: 1, overflow: 'auto', background: '#EEF3FD' }}>{children}</div>
       </div>
       <RightPanel />
     </div>
@@ -437,3 +437,4 @@ export default function App() {
     </BrowserRouter>
   );
 }
+

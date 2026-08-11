@@ -246,7 +246,7 @@ export default function DecisionCenter() {
   useEffect(() => { generateBrief(); }, []);
 
   return (
-    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 20, background: '#EEF3FD', minHeight: '100%' }}>
 
       {/* Row 1: Health + KPIs */}
       <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: 16 }}>
@@ -365,6 +365,7 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
 
 
 
