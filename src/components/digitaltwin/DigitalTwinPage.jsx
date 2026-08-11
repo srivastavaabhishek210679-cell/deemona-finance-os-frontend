@@ -217,7 +217,7 @@ export default function DigitalTwinPage() {
         'Use realistic Indian SME numbers in INR. Return only valid JSON, no markdown.',
       ].filter(Boolean).join('\n');
 
-      const res = await fetch(apiURL('/api/brief'), {
+      const res = await fetch(apiURL('/api/cfo/brief'), {
         method: 'POST',
         headers: headers(),
         body: JSON.stringify({ prompt }),
@@ -629,6 +629,8 @@ export default function DigitalTwinPage() {
     </div>
   );
 }
+
+
 
 
 
