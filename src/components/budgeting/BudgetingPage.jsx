@@ -48,7 +48,7 @@ export default function BudgetingPage() {
     catch(e) { alert('Error: '+e.message); } finally { setAiGenerating(false); }
   };
 
-  const statusColor = {draft:'#8B89A8',active:'#22C98A',closed:'#F5A623'};
+  const statusColor = {draft:'#3B5998',active:'#22C98A',closed:'#F5A623'};
   const inputStyle = { width:'100%', boxSizing:'border-box', padding:'8px 10px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-3)', color:'var(--text-primary)', fontSize:13, outline:'none' };
 
   return (
@@ -93,7 +93,7 @@ export default function BudgetingPage() {
               <div style={{display:'flex',gap:8,alignItems:'center'}}>
                 <span style={{fontSize:11,color:'var(--text-muted)'}}>FY{b.fiscal_year}</span>
                 <span style={{padding:'1px 6px',borderRadius:4,fontSize:10,fontWeight:600,background:(statusColor[b.status]||'#888')+'20',color:statusColor[b.status]||'#888'}}>{b.status?.toUpperCase()}</span>
-                {b.ai_generated&&<span style={{fontSize:10,padding:'1px 5px',borderRadius:4,background:'#6C63FF',color:'#fff',fontWeight:700}}>AI</span>}
+                {b.ai_generated&&<span style={{fontSize:10,padding:'1px 5px',borderRadius:4,background:'#1B4FD8',color:'#fff',fontWeight:700}}>AI</span>}
               </div>
               <div style={{fontSize:12,color:'#22C98A',marginTop:3,fontWeight:700}}>{formatINR(b.total_budgeted)}</div>
             </div>

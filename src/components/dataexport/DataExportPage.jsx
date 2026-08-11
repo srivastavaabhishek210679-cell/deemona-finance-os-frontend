@@ -72,7 +72,7 @@ export default function DataExportPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['export','📦 Export Data'],['backup','💾 Full Backup'],['tally','📒 Tally Export']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -80,7 +80,7 @@ export default function DataExportPage() {
         <div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
             {[
-              { label:'Total Tables', value:summary?.modules?.length||0, color:'#6C63FF' },
+              { label:'Total Tables', value:summary?.modules?.length||0, color:'#1B4FD8' },
               { label:'Total Records', value:summary?.modules?.reduce((s,m)=>s+parseInt(m.count||0),0)||0, color:'#22C98A' },
               { label:'Formats', value:'JSON · CSV · XML', color:'#4FC3F7' },
             ].map(k=>(
@@ -107,7 +107,7 @@ export default function DataExportPage() {
                 <div style={{ fontSize:13, fontWeight:700 }}>{parseInt(m.count||0).toLocaleString()}</div>
                 <div style={{ fontSize:12, color:'var(--text-muted)' }}>{m.value ? INR(m.value) : '—'}</div>
                 <div style={{ display:'flex', gap:6 }}>
-                  <button onClick={()=>downloadJSON(m.table)} disabled={downloading===m.table+'_json'} style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:'#6C63FF20', color:'#9B8FFF', border:'1px solid #6C63FF30', cursor:'pointer' }}>
+                  <button onClick={()=>downloadJSON(m.table)} disabled={downloading===m.table+'_json'} style={{ padding:'4px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:'#6C63FF20', color:'#3B82F6', border:'1px solid #6C63FF30', cursor:'pointer' }}>
                     {downloading===m.table+'_json'?'...':'JSON'}
                   </button>
                   {CSV_TABLES.includes(m.table) && (
@@ -137,7 +137,7 @@ export default function DataExportPage() {
                 </div>
               ))}
             </div>
-            <button onClick={downloadFullBackup} disabled={downloading==='backup'} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:downloading==='backup'?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:downloading==='backup'?'var(--text-muted)':'#fff', border:'none', cursor:downloading==='backup'?'not-allowed':'pointer' }}>
+            <button onClick={downloadFullBackup} disabled={downloading==='backup'} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:downloading==='backup'?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:downloading==='backup'?'var(--text-muted)':'#fff', border:'none', cursor:downloading==='backup'?'not-allowed':'pointer' }}>
               {downloading==='backup'?'⏳ Generating backup...':'⬇ Download Full Backup (JSON)'}
             </button>
           </div>
@@ -173,7 +173,7 @@ export default function DataExportPage() {
               <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:16, lineHeight:1.5 }}>
                 Export journal entries, invoices, and bank transactions as Tally vouchers.
               </div>
-              <button onClick={downloadTallyVouchers} disabled={downloading==='tally_vouchers'} style={{ width:'100%', padding:'10px', borderRadius:9, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+              <button onClick={downloadTallyVouchers} disabled={downloading==='tally_vouchers'} style={{ width:'100%', padding:'10px', borderRadius:9, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
                 {downloading==='tally_vouchers'?'Generating...':'⬇ Download Vouchers XML'}
               </button>
             </div>

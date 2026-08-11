@@ -11,7 +11,7 @@ function formatINR(n) { const num = parseFloat(n||0); if(num>=1e7) return 'Rs '+
 function formatDate(d) { if(!d) return '--'; return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}); }
 
 function StatusBadge({ status }) {
-  const c = {pending:'#F5A623',filed:'#22C98A',late:'#FF5C5C',not_applicable:'#8B89A8'}[status]||'#8B89A8';
+  const c = {pending:'#F5A623',filed:'#22C98A',late:'#FF5C5C',not_applicable:'#3B5998'}[status]||'#3B5998';
   return <span style={{padding:'2px 8px',borderRadius:100,fontSize:11,fontWeight:600,background:c+'20',color:c}}>{status?.replace(/_/g,' ').toUpperCase()}</span>;
 }
 
@@ -59,7 +59,7 @@ export default function TaxPage() {
       {/* Summary */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[
-          {label:'Total Filings',value:summary.total,color:'#6C63FF'},
+          {label:'Total Filings',value:summary.total,color:'#1B4FD8'},
           {label:'Pending',value:summary.pending,color:'#F5A623'},
           {label:'Overdue',value:summary.overdue,color:'#FF5C5C'},
           {label:'Filed',value:summary.filed,color:'#22C98A'},

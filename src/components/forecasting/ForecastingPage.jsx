@@ -9,7 +9,7 @@ function INR(n) { const v=parseFloat(n||0); if(v>=1e7) return 'Rs '+(v/1e7).toFi
 
 function SparkBar({ value, max, color }) {
   const pct = max > 0 ? Math.min(100, (value/max)*100) : 0;
-  return <div style={{ height:6, borderRadius:3, background:'var(--surface-3)', overflow:'hidden', marginTop:4 }}><div style={{ height:'100%', width:pct+'%', background:color||'#6C63FF', borderRadius:3 }}/></div>;
+  return <div style={{ height:6, borderRadius:3, background:'var(--surface-3)', overflow:'hidden', marginTop:4 }}><div style={{ height:'100%', width:pct+'%', background:color||'#1B4FD8', borderRadius:3 }}/></div>;
 }
 
 function ForecastTable({ rows, columns }) {
@@ -63,7 +63,7 @@ export default function ForecastingPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['cashflow','💧 Cash Flow'],['revenue','📈 Revenue'],['expenses','📉 Expenses'],['insights','🤖 AI Insights']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -74,7 +74,7 @@ export default function ForecastingPage() {
             <select value={days} onChange={e=>setDays(parseInt(e.target.value))} style={{ padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13 }}>
               <option value={30}>30 days</option><option value={60}>60 days</option><option value={90}>90 days</option>
             </select>
-            <button onClick={()=>load('cashflow')} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>Refresh</button>
+            <button onClick={()=>load('cashflow')} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>Refresh</button>
           </div>
 
           {loading.cashflow && <div style={{ padding:40, textAlign:'center', color:'var(--text-muted)' }}>Computing forecast...</div>}
@@ -146,7 +146,7 @@ export default function ForecastingPage() {
                   <div style={{ fontSize:13, color:'var(--text-muted)' }}>Monthly Growth Rate</div>
                 </div>
                 <div style={{ padding:'14px 16px', borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:20, fontWeight:800, color:'#6C63FF' }}>{INR(revForecast.pipeline_value)}</div>
+                  <div style={{ fontSize:20, fontWeight:800, color:'#1B4FD8' }}>{INR(revForecast.pipeline_value)}</div>
                   <div style={{ fontSize:13, color:'var(--text-muted)' }}>Weighted Pipeline</div>
                 </div>
               </div>
@@ -195,7 +195,7 @@ export default function ForecastingPage() {
                   <div style={{ fontSize:13, color:'var(--text-muted)' }}>Avg Monthly Expenses</div>
                 </div>
                 <div style={{ padding:'14px 16px', borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)' }}>
-                  <div style={{ fontSize:20, fontWeight:800, color:'#6C63FF' }}>{INR(expForecast.avg_payroll)}</div>
+                  <div style={{ fontSize:20, fontWeight:800, color:'#1B4FD8' }}>{INR(expForecast.avg_payroll)}</div>
                   <div style={{ fontSize:13, color:'var(--text-muted)' }}>Monthly Payroll</div>
                 </div>
               </div>
@@ -218,7 +218,7 @@ export default function ForecastingPage() {
           <div style={{ marginBottom:16, padding:16, borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)', fontSize:13, color:'var(--text-secondary)' }}>
             AI analyzes your cash flow, revenue, and expense forecasts together to identify risks, opportunities, and recommended actions.
           </div>
-          <button onClick={getInsights} disabled={insightLoading} style={{ marginBottom:20, padding:'12px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:insightLoading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:insightLoading?'var(--text-muted)':'#fff', border:'none', cursor:insightLoading?'not-allowed':'pointer' }}>
+          <button onClick={getInsights} disabled={insightLoading} style={{ marginBottom:20, padding:'12px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:insightLoading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:insightLoading?'var(--text-muted)':'#fff', border:'none', cursor:insightLoading?'not-allowed':'pointer' }}>
             {insightLoading?'🤖 Analyzing all forecasts...':'🤖 Generate AI Insights'}
           </button>
 

@@ -5,7 +5,7 @@ const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${
 const get  = async url => { const r = await fetch(apiURL(url), { headers: h() }); return r.json(); };
 const post = async (url, body) => { const r = await fetch(apiURL(url), { method:'POST', headers:h(), body:JSON.stringify(body) }); return r.json(); };
 
-const CAT_COLORS = { Tax:'#FF9800', Payroll:'#6C63FF', Treasury:'#22C98A', 'Accounts Receivable':'#4FC3F7', Compliance:'#FF5C5C', 'Accounts Payable':'#F5A623', Budgeting:'#9C27B0', Analytics:'#2196F3', Custom:'#607D8B' };
+const CAT_COLORS = { Tax:'#FF9800', Payroll:'#1B4FD8', Treasury:'#22C98A', 'Accounts Receivable':'#4FC3F7', Compliance:'#FF5C5C', 'Accounts Payable':'#F5A623', Budgeting:'#9C27B0', Analytics:'#2196F3', Custom:'#607D8B' };
 
 function cronLabel(cron) {
   const MAP = { '0 9 18 * *':'Monthly — 18th at 9 AM', '0 9 5 * *':'Monthly — 5th at 9 AM', '0 9 25 * *':'Monthly — 25th at 9 AM', '0 8 * * *':'Daily at 8 AM', '0 9 * * 1':'Weekly — Monday 9 AM', '0 9 12 * *':'Monthly — 12th at 9 AM', '0 9 1 * *':'Monthly — 1st at 9 AM', '0 6 * * *':'Daily at 6 AM' };
@@ -64,7 +64,7 @@ export default function SchedulerPage() {
           <div style={{ fontSize:13, color:'var(--text-muted)' }}>Active Jobs</div>
         </div>
         <div style={{ padding:'14px 16px', borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)' }}>
-          <div style={{ fontSize:24, fontWeight:800, color:'#6C63FF' }}>{jobs.length}</div>
+          <div style={{ fontSize:24, fontWeight:800, color:'#1B4FD8' }}>{jobs.length}</div>
           <div style={{ fontSize:13, color:'var(--text-muted)' }}>Total Jobs</div>
         </div>
         <div style={{ padding:'14px 16px', borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)' }}>
@@ -75,7 +75,7 @@ export default function SchedulerPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['jobs','⚡ All Jobs'],['logs','📋 Run Logs'],['custom','+ Custom Job']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -90,9 +90,9 @@ export default function SchedulerPage() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:14, fontWeight:700, marginBottom:3 }}>{job.name}</div>
-                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(CAT_COLORS[job.category]||'#6C63FF')+'20', color:CAT_COLORS[job.category]||'#6C63FF' }}>{job.category}</span>
+                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(CAT_COLORS[job.category]||'#1B4FD8')+'20', color:CAT_COLORS[job.category]||'#1B4FD8' }}>{job.category}</span>
                   </div>
-                  <button onClick={()=>toggle(job)} disabled={toggling===job.id} style={{ width:44, height:24, borderRadius:12, background:job.enabled?'#6C63FF':'var(--surface-3)', border:'none', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
+                  <button onClick={()=>toggle(job)} disabled={toggling===job.id} style={{ width:44, height:24, borderRadius:12, background:job.enabled?'#1B4FD8':'var(--surface-3)', border:'none', cursor:'pointer', position:'relative', transition:'background 0.2s', flexShrink:0 }}>
                     <div style={{ width:18, height:18, borderRadius:'50%', background:'#fff', position:'absolute', top:3, left:job.enabled?23:3, transition:'left 0.2s', boxShadow:'0 1px 3px rgba(0,0,0,0.3)' }}/>
                   </button>
                 </div>
@@ -139,7 +139,7 @@ export default function SchedulerPage() {
               Cron format: minute hour day month weekday{'\n'}
               Examples: 0 9 * * * (daily 9 AM) · 0 9 1 * * (1st of month) · 0 9 * * 1 (Mondays)
             </div>
-            <button onClick={saveJob} disabled={!newJob.name||saving||saved} style={{ width:'100%', padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:saved?'#22C98A':(!newJob.name||saving)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!newJob.name||saving)?'var(--text-muted)':'#fff', border:'none', cursor:(!newJob.name||saving)?'not-allowed':'pointer' }}>
+            <button onClick={saveJob} disabled={!newJob.name||saving||saved} style={{ width:'100%', padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:saved?'#22C98A':(!newJob.name||saving)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!newJob.name||saving)?'var(--text-muted)':'#fff', border:'none', cursor:(!newJob.name||saving)?'not-allowed':'pointer' }}>
               {saved?'✓ Saved!':saving?'Saving...':'Create Job'}
             </button>
           </div>

@@ -6,11 +6,11 @@ const get  = async url => { const r = await fetch(apiURL(url), { headers: h() })
 const post = async (url, body) => { const r = await fetch(apiURL(url), { method: 'POST', headers: h(), body: JSON.stringify(body) }); return r.json(); };
 const del  = async url => { const r = await fetch(apiURL(url), { method: 'DELETE', headers: h() }); return r.json(); };
 
-const STEP_COLORS = { ai_read:'#6C63FF', validate:'#22C98A', check:'#4FC3F7', notify:'#F5A623', approve:'#FF9800', pay:'#22C98A', post:'#9C27B0', schedule:'#2196F3', alert:'#FF5C5C' };
+const STEP_COLORS = { ai_read:'#1B4FD8', validate:'#22C98A', check:'#4FC3F7', notify:'#F5A623', approve:'#FF9800', pay:'#22C98A', post:'#9C27B0', schedule:'#2196F3', alert:'#FF5C5C' };
 const STEP_ICONS  = { ai_read:'🤖', validate:'✓', check:'🔍', notify:'📧', approve:'👤', pay:'💳', post:'📒', schedule:'⏰', alert:'⚠️' };
 
 function StepBadge({ type }) {
-  return <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(STEP_COLORS[type]||'#6C63FF')+'20', color:STEP_COLORS[type]||'#6C63FF' }}>{STEP_ICONS[type]||'•'} {type}</span>;
+  return <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(STEP_COLORS[type]||'#1B4FD8')+'20', color:STEP_COLORS[type]||'#1B4FD8' }}>{STEP_ICONS[type]||'•'} {type}</span>;
 }
 
 function WorkflowCard({ wf, onRun, onDelete, running }) {
@@ -45,7 +45,7 @@ function WorkflowCard({ wf, onRun, onDelete, running }) {
       </div>
 
       <div style={{ display:'flex', gap:8 }}>
-        <button onClick={() => onRun(wf.id)} disabled={running === wf.id} style={{ flex:1, padding:'8px', borderRadius:8, fontSize:13, fontWeight:700, background: running===wf.id ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: running===wf.id ? 'var(--text-muted)' : '#fff', border:'none', cursor: running===wf.id ? 'not-allowed':'pointer' }}>
+        <button onClick={() => onRun(wf.id)} disabled={running === wf.id} style={{ flex:1, padding:'8px', borderRadius:8, fontSize:13, fontWeight:700, background: running===wf.id ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: running===wf.id ? 'var(--text-muted)' : '#fff', border:'none', cursor: running===wf.id ? 'not-allowed':'pointer' }}>
           {running===wf.id ? '⏳ Running...' : '▶ Run Now'}
         </button>
         <button onClick={() => onDelete(wf.id)} style={{ padding:'8px 14px', borderRadius:8, fontSize:13, background:'var(--surface-3)', border:'1px solid var(--border)', color:'#FF5C5C', cursor:'pointer' }}>Delete</button>
@@ -118,7 +118,7 @@ export default function AutomationPage() {
       {/* Tabs */}
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['templates','📋 Templates'],['ai','✨ AI Generate'],['workflows','⚡ My Workflows'],['logs','📊 Run Logs']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#6C63FF' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -130,7 +130,7 @@ export default function AutomationPage() {
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
                 <div>
                   <div style={{ fontSize:15, fontWeight:700, marginBottom:3 }}>{t.name}</div>
-                  <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#6C63FF' }}>{t.category}</span>
+                  <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#1B4FD8' }}>{t.category}</span>
                 </div>
                 <span style={{ fontSize:11, color:'var(--text-muted)', fontWeight:600 }}>{t.steps.length} steps</span>
               </div>
@@ -139,7 +139,7 @@ export default function AutomationPage() {
                 {t.steps.slice(0,5).map((s,i) => <StepBadge key={i} type={s.type} />)}
                 {t.steps.length > 5 && <span style={{ fontSize:11, color:'var(--text-muted)' }}>+{t.steps.length-5} more</span>}
               </div>
-              <button onClick={() => installTemplate(t)} disabled={saving} style={{ width:'100%', padding:'8px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+              <button onClick={() => installTemplate(t)} disabled={saving} style={{ width:'100%', padding:'8px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
                 + Install Workflow
               </button>
             </div>
@@ -155,7 +155,7 @@ export default function AutomationPage() {
             <p style={{ fontSize:13, color:'var(--text-muted)', marginBottom:16 }}>AI will generate a complete workflow with steps, triggers, and configuration</p>
             <textarea value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="e.g. When a vendor invoice arrives, read it with AI, check if there's a matching PO, verify GST, route for approval above Rs 1 lakh, then schedule payment and send WhatsApp to vendor..." rows={5}
               style={{ width:'100%', boxSizing:'border-box', padding:'12px 16px', borderRadius:10, border:'1px solid var(--border)', background:'var(--surface-1)', color:'var(--text-primary)', fontSize:14, resize:'vertical', outline:'none', fontFamily:'inherit' }} />
-            <button onClick={generateWorkflow} disabled={!aiPrompt.trim()||generating} style={{ marginTop:12, padding:'11px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: (!aiPrompt.trim()||generating) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: (!aiPrompt.trim()||generating) ? 'var(--text-muted)' : '#fff', border:'none', cursor: (!aiPrompt.trim()||generating) ? 'not-allowed':'pointer' }}>
+            <button onClick={generateWorkflow} disabled={!aiPrompt.trim()||generating} style={{ marginTop:12, padding:'11px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: (!aiPrompt.trim()||generating) ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: (!aiPrompt.trim()||generating) ? 'var(--text-muted)' : '#fff', border:'none', cursor: (!aiPrompt.trim()||generating) ? 'not-allowed':'pointer' }}>
               {generating ? '✨ Generating...' : '✨ Generate Workflow'}
             </button>
           </div>
@@ -169,7 +169,7 @@ export default function AutomationPage() {
               <div style={{ marginBottom:16 }}>
                 {generated.steps?.map((s, i) => (
                   <div key={i} style={{ display:'flex', gap:12, padding:'10px 0', borderBottom:'1px solid var(--border)' }}>
-                    <div style={{ width:24, height:24, borderRadius:'50%', background:'#6C63FF', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#fff', flexShrink:0 }}>{i+1}</div>
+                    <div style={{ width:24, height:24, borderRadius:'50%', background:'#1B4FD8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:700, color:'#fff', flexShrink:0 }}>{i+1}</div>
                     <div>
                       <div style={{ fontSize:13, fontWeight:600, marginBottom:2 }}>{s.name} <StepBadge type={s.type} /></div>
                       <div style={{ fontSize:12, color:'var(--text-muted)' }}>{s.description}</div>
@@ -177,7 +177,7 @@ export default function AutomationPage() {
                   </div>
                 ))}
               </div>
-              <button onClick={saveGenerated} disabled={saving||saved} style={{ padding:'10px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: saved ? '#22C98A' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+              <button onClick={saveGenerated} disabled={saving||saved} style={{ padding:'10px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: saved ? '#22C98A' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
                 {saved ? '✓ Saved!' : saving ? 'Saving...' : 'Save Workflow'}
               </button>
             </div>

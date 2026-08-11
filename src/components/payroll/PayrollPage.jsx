@@ -39,7 +39,7 @@ function TabBar({ tabs, active, onChange }) {
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
           borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
-          color: active === t.id ? '#6C63FF' : 'var(--text-secondary)', marginBottom: -1,
+          color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom: -1,
         }}>{t.label}</button>
       ))}
     </div>
@@ -48,11 +48,11 @@ function TabBar({ tabs, active, onChange }) {
 
 function StatusBadge({ status }) {
   const colors = {
-    active: '#22C98A', inactive: '#8B89A8', terminated: '#FF5C5C',
-    draft: '#8B89A8', processing: '#F5A623', approved: '#4FC3F7',
+    active: '#22C98A', inactive: '#3B5998', terminated: '#FF5C5C',
+    draft: '#3B5998', processing: '#F5A623', approved: '#4FC3F7',
     paid: '#22C98A', cancelled: '#FF5C5C', pending: '#F5A623',
   };
-  const c = colors[status] || '#8B89A8';
+  const c = colors[status] || '#3B5998';
   return (
     <span style={{
       padding: '2px 8px', borderRadius: 100, fontSize: 11, fontWeight: 600,
@@ -65,7 +65,7 @@ function StatusBadge({ status }) {
 function SummaryCards({ summary }) {
   if (!summary) return null;
   const cards = [
-    { label: 'Total Employees',   value: summary.total_employees || 0,  color: '#6C63FF', note: summary.active_employees + ' active' },
+    { label: 'Total Employees',   value: summary.total_employees || 0,  color: '#1B4FD8', note: summary.active_employees + ' active' },
     { label: 'Full-Time Staff',   value: summary.full_time || 0,         color: '#4FC3F7', note: 'Permanent employees' },
     { label: 'Monthly Payroll',   value: formatINR(summary.monthly_payroll), color: '#22C98A', note: 'Gross salary bill' },
     { label: 'Last Payroll',      value: summary.last_run ? MONTHS[(summary.last_run.month - 1)] + ' ' + summary.last_run.year : 'None',
@@ -382,7 +382,7 @@ function PayrollRunsTab({ onRefreshSummary }) {
                   <div style={{ display: 'flex', gap: 24, fontSize: 13 }}>
                     <span>Gross: <strong style={{ color: '#22C98A' }}>{formatINR(run.total_gross)}</strong></span>
                     <span>Deductions: <strong style={{ color: '#FF5C5C' }}>{formatINR(run.total_deductions)}</strong></span>
-                    <span>Net Payable: <strong style={{ color: '#6C63FF' }}>{formatINR(run.total_net)}</strong></span>
+                    <span>Net Payable: <strong style={{ color: '#1B4FD8' }}>{formatINR(run.total_net)}</strong></span>
                     <span>TDS: <strong>{formatINR(run.total_tds)}</strong></span>
                     <span>Employer PF: <strong>{formatINR(run.total_employer_pf)}</strong></span>
                   </div>
@@ -445,8 +445,8 @@ function PayrollRunsTab({ onRefreshSummary }) {
                           <span style={{ textAlign: 'right', fontWeight: 600, color: '#22C98A' }}>{formatINR(p.gross_salary)}</span>
                           <span style={{ textAlign: 'right', color: '#FF5C5C' }}>{formatINR(p.total_deductions)}</span>
                           <span style={{ textAlign: 'right', color: '#F5A623' }}>{formatINR(p.tds)}</span>
-                          <span style={{ textAlign: 'right', color: '#8B89A8' }}>{formatINR(p.pf_employee)}</span>
-                          <span style={{ textAlign: 'right', fontWeight: 800, color: '#6C63FF' }}>{formatINR(p.net_salary)}</span>
+                          <span style={{ textAlign: 'right', color: '#3B5998' }}>{formatINR(p.pf_employee)}</span>
+                          <span style={{ textAlign: 'right', fontWeight: 800, color: '#1B4FD8' }}>{formatINR(p.net_salary)}</span>
                         </div>
                       ))}
                       {/* Totals row */}
@@ -460,8 +460,8 @@ function PayrollRunsTab({ onRefreshSummary }) {
                         <span style={{ textAlign: 'right', color: '#22C98A' }}>{formatINR(run.total_gross)}</span>
                         <span style={{ textAlign: 'right', color: '#FF5C5C' }}>{formatINR(run.total_deductions)}</span>
                         <span style={{ textAlign: 'right', color: '#F5A623' }}>{formatINR(run.total_tds)}</span>
-                        <span style={{ textAlign: 'right', color: '#8B89A8' }}>{formatINR(payslips.reduce((s,p)=>s+parseFloat(p.pf_employee||0),0))}</span>
-                        <span style={{ textAlign: 'right', color: '#6C63FF' }}>{formatINR(run.total_net)}</span>
+                        <span style={{ textAlign: 'right', color: '#3B5998' }}>{formatINR(payslips.reduce((s,p)=>s+parseFloat(p.pf_employee||0),0))}</span>
+                        <span style={{ textAlign: 'right', color: '#1B4FD8' }}>{formatINR(run.total_net)}</span>
                       </div>
                     </div>
                   )}

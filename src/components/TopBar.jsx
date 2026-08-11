@@ -15,7 +15,7 @@ const QUICK_LINKS = [
 
 const NOTIFICATIONS = [
   { icon: '⚠️', text: 'GST GSTR-3B due in 12 days',    time: '2h ago', color: '#F5A623', path: '/tax-agent'  },
-  { icon: '💰', text: 'Invoice awaiting approval',       time: '3h ago', color: '#6C63FF', path: '/accounting' },
+  { icon: '💰', text: 'Invoice awaiting approval',       time: '3h ago', color: '#1B4FD8', path: '/accounting' },
   { icon: '✅', text: 'July payroll approved',           time: '1d ago', color: '#22C98A', path: '/payroll'    },
   { icon: '🔴', text: 'Low cash — runway 8 months',     time: '1d ago', color: '#FF5C5C', path: '/cfo'        },
   { icon: '📋', text: 'PF challan due on 15th',         time: '2d ago', color: '#F5A623', path: '/compliance' },

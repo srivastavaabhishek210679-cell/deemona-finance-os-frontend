@@ -14,7 +14,7 @@ function INR(n) {
 
 function SeverityBadge({ sev }) {
   const c = { high:'#FF5C5C', medium:'#F5A623', low:'#22C98A' };
-  return <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(c[sev]||'#6C63FF')+'20', color:c[sev]||'#6C63FF' }}>{sev?.toUpperCase()}</span>;
+  return <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(c[sev]||'#1B4FD8')+'20', color:c[sev]||'#1B4FD8' }}>{sev?.toUpperCase()}</span>;
 }
 
 function RiskGauge({ score }) {
@@ -65,7 +65,7 @@ export default function AuditAgentPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['dashboard','🛡 Risk Dashboard'],['anomalies','⚠ Anomalies'],['analysis','🤖 AI Analysis'],['trail','📋 Audit Trail']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#6C63FF' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -97,7 +97,7 @@ export default function AuditAgentPage() {
             </div>
           )}
 
-          <button onClick={() => setTab('analysis')} style={{ padding:'10px 20px', borderRadius:10, fontSize:14, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+          <button onClick={() => setTab('analysis')} style={{ padding:'10px 20px', borderRadius:10, fontSize:14, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
             Run Full AI Audit Analysis
           </button>
         </div>
@@ -108,7 +108,7 @@ export default function AuditAgentPage() {
         <div>
           <div style={{ display:'flex', gap:8, marginBottom:16 }}>
             {[['all','All'],['high','High'],['medium','Medium'],['low','Low']].map(([val,label]) => (
-              <button key={val} onClick={() => setFilter(val)} style={{ padding:'6px 16px', borderRadius:100, fontSize:13, fontWeight:600, background: filter===val ? '#6C63FF' : 'var(--surface-2)', color: filter===val ? '#fff' : 'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>{label}</button>
+              <button key={val} onClick={() => setFilter(val)} style={{ padding:'6px 16px', borderRadius:100, fontSize:13, fontWeight:600, background: filter===val ? '#1B4FD8' : 'var(--surface-2)', color: filter===val ? '#fff' : 'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>{label}</button>
             ))}
             <span style={{ marginLeft:'auto', fontSize:13, color:'var(--text-muted)', alignSelf:'center' }}>{filtered.length} anomalies</span>
           </div>
@@ -127,7 +127,7 @@ export default function AuditAgentPage() {
                     <div style={{ display:'flex', gap:8, alignItems:'center' }}>
                       <SeverityBadge sev={a.severity} />
                       <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'var(--surface-3)', color:'var(--text-secondary)' }}>{a.category}</span>
-                      <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'#6C63FF20', color:'#9B8FFF' }}>{a.anomaly_type?.replace(/_/g,' ')}</span>
+                      <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:600, background:'#6C63FF20', color:'#3B82F6' }}>{a.anomaly_type?.replace(/_/g,' ')}</span>
                     </div>
                     {a.amount && <span style={{ fontSize:13, fontWeight:700, color:'var(--text-primary)' }}>{INR(a.amount)}</span>}
                   </div>
@@ -147,7 +147,7 @@ export default function AuditAgentPage() {
       {tab === 'analysis' && (
         <div style={{ maxWidth:800 }}>
           <div style={{ marginBottom:16 }}>
-            <button onClick={runAnalysis} disabled={analyzing} style={{ padding:'12px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: analyzing ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: analyzing ? 'var(--text-muted)' : '#fff', border:'none', cursor: analyzing ? 'not-allowed':'pointer' }}>
+            <button onClick={runAnalysis} disabled={analyzing} style={{ padding:'12px 24px', borderRadius:10, fontSize:14, fontWeight:700, background: analyzing ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: analyzing ? 'var(--text-muted)' : '#fff', border:'none', cursor: analyzing ? 'not-allowed':'pointer' }}>
               {analyzing ? '🔍 Analyzing all modules...' : '🤖 Run Full AI Audit Analysis'}
             </button>
             <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:8 }}>Analyzes AP, AR, Payroll, Expenses, Projects and identifies risks, gaps, and recommendations</div>
@@ -181,7 +181,7 @@ export default function AuditAgentPage() {
           ) : trail.map((entry, i) => (
             <div key={i} style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <div style={{ display:'flex', gap:12, alignItems:'center' }}>
-                <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#9B8FFF', flexShrink:0 }}>{entry.module}</span>
+                <span style={{ padding:'2px 8px', borderRadius:100, fontSize:11, fontWeight:600, background:'#6C63FF20', color:'#3B82F6', flexShrink:0 }}>{entry.module}</span>
                 <div>
                   <div style={{ fontSize:13, fontWeight:600 }}>{entry.reference}</div>
                   <div style={{ fontSize:11, color:'var(--text-muted)' }}>{new Date(entry.updated_at||entry.date).toLocaleString('en-IN')}</div>

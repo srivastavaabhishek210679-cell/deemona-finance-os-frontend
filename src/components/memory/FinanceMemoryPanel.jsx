@@ -33,16 +33,16 @@ const TYPE_CONFIG = {
   rejection:       { color:'#FF5C5C', bg:'#FF5C5C18', label:'Rejection' },
   anomaly:         { color:'#FF5C5C', bg:'#FF5C5C18', label:'Anomaly' },
   alert:           { color:'#F5A623', bg:'#F5A62318', label:'Alert' },
-  recommendation:  { color:'#6C63FF', bg:'#6C63FF18', label:'AI Recommendation' },
+  recommendation:  { color:'#1B4FD8', bg:'#6C63FF18', label:'AI Recommendation' },
   vendor_event:    { color:'#4FC3F7', bg:'#4FC3F718', label:'Vendor Event' },
-  transaction:     { color:'#9B8FFF', bg:'#9B8FFF18', label:'Transaction' },
-  ai_insight:      { color:'#6C63FF', bg:'#6C63FF18', label:'AI Insight' },
+  transaction:     { color:'#3B82F6', bg:'#9B8FFF18', label:'Transaction' },
+  ai_insight:      { color:'#1B4FD8', bg:'#6C63FF18', label:'AI Insight' },
   decision:        { color:'#4FC3F7', bg:'#4FC3F718', label:'Decision' },
-  audit_comment:   { color:'#8B89A8', bg:'#8B89A818', label:'Audit Comment' },
+  audit_comment:   { color:'#3B5998', bg:'#8B89A818', label:'Audit Comment' },
   policy_change:   { color:'#F5A623', bg:'#F5A62318', label:'Policy Change' },
   compliance_event:{ color:'#22C98A', bg:'#22C98A18', label:'Compliance' },
   contract_event:  { color:'#4FC3F7', bg:'#4FC3F718', label:'Contract' },
-  simulation_result:{ color:'#6C63FF',bg:'#6C63FF18', label:'Digital Twin' },
+  simulation_result:{ color:'#1B4FD8',bg:'#6C63FF18', label:'Digital Twin' },
 };
 
 function formatINR(amount) {
@@ -62,7 +62,7 @@ function timeAgo(dateStr) {
   return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
 }
 
-function Sparkline({ color='#6C63FF', data=[2,4,3,6,5,8,7,9] }) {
+function Sparkline({ color='#1B4FD8', data=[2,4,3,6,5,8,7,9] }) {
   const w=70, h=24;
   const min=Math.min(...data), max=Math.max(...data);
   const pts=data.map((v,i)=>{
@@ -198,7 +198,7 @@ function MemoryCard({ memory, onClick }) {
       transition:'border-color 0.15s,box-shadow 0.15s',
       marginBottom:8,
     }}
-      onMouseEnter={e=>{e.currentTarget.style.borderColor=cfg.color??'#6C63FF';e.currentTarget.style.boxShadow=`0 0 0 3px ${cfg.bg??'#6C63FF11'}`}}
+      onMouseEnter={e=>{e.currentTarget.style.borderColor=cfg.color??'#1B4FD8';e.currentTarget.style.boxShadow=`0 0 0 3px ${cfg.bg??'#6C63FF11'}`}}
       onMouseLeave={e=>{e.currentTarget.style.borderColor='var(--border)';e.currentTarget.style.boxShadow='none'}}
     >
       <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6,flexWrap:'wrap'}}>
@@ -210,7 +210,7 @@ function MemoryCard({ memory, onClick }) {
       <div style={{fontSize:15,fontWeight:600,color:'var(--text-primary)',lineHeight:1.35,marginBottom:4}}>{memory.title}</div>
       <div style={{fontSize:15,color:'var(--text-secondary)',lineHeight:1.5,display:'-webkit-box',WebkitLineClamp:2,WebkitBoxOrient:'vertical',overflow:'hidden'}}>{memory.summary}</div>
       <div style={{display:'flex',alignItems:'center',gap:12,marginTop:8}}>
-        {memory.amount&&<span style={{fontSize:15,fontWeight:700,color:cfg.color??'#6C63FF'}}>{formatINR(memory.amount)}</span>}
+        {memory.amount&&<span style={{fontSize:15,fontWeight:700,color:cfg.color??'#1B4FD8'}}>{formatINR(memory.amount)}</span>}
         <span style={{fontSize:15,color:'var(--text-muted)'}}>{memory.actorName}</span>
       </div>
     </button>
@@ -302,7 +302,7 @@ function AskPanel() {
           {EXAMPLES.map(q=>(
             <button key={q} onClick={()=>{setQuestion(q);textareaRef.current?.focus();}} style={{
               padding:'4px 10px',borderRadius:100,fontSize:15,
-              background:'#6C63FF18',color:'#9B8FFF',border:'1px solid #6C63FF30',
+              background:'#6C63FF18',color:'#3B82F6',border:'1px solid #6C63FF30',
               cursor:'pointer',fontWeight:500,
             }}>{q.length>42?q.slice(0,42)+'...':q}</button>
           ))}
@@ -319,7 +319,7 @@ function AskPanel() {
             background:'var(--surface-3)',color:'var(--text-primary)',
             resize:'vertical',fontFamily:'inherit',outline:'none',
           }}
-          onFocus={e=>e.target.style.borderColor='#6C63FF'}
+          onFocus={e=>e.target.style.borderColor='#1B4FD8'}
           onBlur={e=>e.target.style.borderColor='var(--border)'}
         />
         <button onClick={()=>ask(question)} disabled={loading||!question.trim()} style={{
@@ -393,7 +393,7 @@ export default function FinanceMemoryPanel() {
   };
 
   const statCards=[
-    {icon:'📋',label:'Total Memories', value:stats.total,    subtitle:'All time',       color:'#6C63FF', sparkData:[1,2,2,3,3,4,4,5]},
+    {icon:'📋',label:'Total Memories', value:stats.total,    subtitle:'All time',       color:'#1B4FD8', sparkData:[1,2,2,3,3,4,4,5]},
     {icon:'🔥',label:'Critical',       value:stats.critical, subtitle:'Needs attention', color:'#F5A623', sparkData:[1,3,2,4,3,5,4,6]},
     {icon:'🔴',label:'Anomalies',      value:stats.anomalies,subtitle:'Detected',        color:'#FF5C5C', sparkData:[1,2,1,3,1,2,1,3]},
     {icon:'✅',label:'Approved',       value:stats.approvals,subtitle:'Decisions',        color:'#22C98A', sparkData:[1,2,3,4,3,5,4,6]},
@@ -422,7 +422,7 @@ export default function FinanceMemoryPanel() {
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
           <div style={{
             width:36,height:36,borderRadius:10,
-            background:'linear-gradient(135deg,#6C63FF,#9B8FFF)',
+            background:'linear-gradient(135deg,#1B4FD8,#3B82F6)',
             display:'flex',alignItems:'center',justifyContent:'center',
             fontSize:18,color:'#fff',flexShrink:0,
           }}>◈</div>
@@ -445,11 +445,11 @@ export default function FinanceMemoryPanel() {
               padding:'8px 16px',fontSize:15,fontWeight:600,
               background:'none',border:'none',cursor:'pointer',
               borderBottom:tab===t.id?'2px solid #6C63FF':'2px solid transparent',
-              color:tab===t.id?'#6C63FF':'var(--text-secondary)',
+              color:tab===t.id?'#1B4FD8':'var(--text-secondary)',
               marginBottom:-1,transition:'color 0.15s',
             }}>
               {t.label}
-              {t.badge&&<span style={{fontSize:9,fontWeight:700,padding:'1px 5px',borderRadius:4,background:'#6C63FF',color:'#fff'}}>{t.badge}</span>}
+              {t.badge&&<span style={{fontSize:9,fontWeight:700,padding:'1px 5px',borderRadius:4,background:'#1B4FD8',color:'#fff'}}>{t.badge}</span>}
             </button>
           ))}
         </div>

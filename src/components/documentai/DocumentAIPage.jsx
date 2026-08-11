@@ -13,7 +13,7 @@ function INR(n) {
 
 function Badge({ text, color }) {
   const colors = { high:'#22C98A', medium:'#F5A623', low:'#FF5C5C' };
-  return <span style={{ padding:'2px 10px', borderRadius:100, fontSize:11, fontWeight:700, background:(colors[color]||colors[text]||'#6C63FF')+'20', color:colors[color]||colors[text]||'#6C63FF' }}>{text}</span>;
+  return <span style={{ padding:'2px 10px', borderRadius:100, fontSize:11, fontWeight:700, background:(colors[color]||colors[text]||'#1B4FD8')+'20', color:colors[color]||colors[text]||'#1B4FD8' }}>{text}</span>;
 }
 
 function Field({ label, value }) {
@@ -103,7 +103,7 @@ export default function DocumentAIPage() {
             padding:'10px 20px', fontSize:14, fontWeight:600,
             background:'none', border:'none', cursor:'pointer',
             borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent',
-            color: tab===id ? '#6C63FF' : 'var(--text-secondary)', marginBottom:-1,
+            color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1,
           }}>{label}</button>
         ))}
       </div>
@@ -119,7 +119,7 @@ export default function DocumentAIPage() {
               onDrop={e => { e.preventDefault(); setDragging(false); handleFile(e.dataTransfer.files[0]); }}
               onClick={() => document.getElementById('fileInput').click()}
               style={{
-                border:`2px dashed ${dragging ? '#6C63FF' : 'var(--border)'}`,
+                border:`2px dashed ${dragging ? '#1B4FD8' : 'var(--border)'}`,
                 borderRadius:16, padding:'40px 24px', textAlign:'center', cursor:'pointer',
                 background: dragging ? '#6C63FF08' : 'var(--surface-2)',
                 transition:'all 0.2s', marginBottom:16,
@@ -149,7 +149,7 @@ export default function DocumentAIPage() {
 
             <button onClick={readInvoice} disabled={!file||loading} style={{
               width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700,
-              background: (!file||loading) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)',
+              background: (!file||loading) ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)',
               color: (!file||loading) ? 'var(--text-muted)' : '#fff',
               border:'none', cursor: (!file||loading) ? 'not-allowed' : 'pointer',
             }}>
@@ -183,7 +183,7 @@ export default function DocumentAIPage() {
                     {extracted.igst > 0 && <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}><span style={{ fontSize:13, color:'var(--text-secondary)' }}>IGST</span><span style={{ fontSize:13 }}>{INR(extracted.igst)}</span></div>}
                     <div style={{ display:'flex', justifyContent:'space-between', paddingTop:8, borderTop:'1px solid var(--border)' }}>
                       <span style={{ fontSize:14, fontWeight:700 }}>Total Amount</span>
-                      <span style={{ fontSize:16, fontWeight:800, color:'#6C63FF' }}>{INR(extracted.total_amount)}</span>
+                      <span style={{ fontSize:16, fontWeight:800, color:'#1B4FD8' }}>{INR(extracted.total_amount)}</span>
                     </div>
                   </div>
 
@@ -251,7 +251,7 @@ export default function DocumentAIPage() {
           </div>
           <button onClick={analyzeText} disabled={!text.trim()||textLoading} style={{
             padding:'11px 24px', borderRadius:10, fontSize:14, fontWeight:700, marginBottom:20,
-            background: (!text.trim()||textLoading) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)',
+            background: (!text.trim()||textLoading) ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)',
             color: (!text.trim()||textLoading) ? 'var(--text-muted)' : '#fff',
             border:'none', cursor: (!text.trim()||textLoading) ? 'not-allowed' : 'pointer',
           }}>

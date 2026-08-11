@@ -37,12 +37,12 @@ function formatDate(d) {
 }
 function statusColor(s) {
   const map = {
-    draft: '#8B89A8', posted: '#22C98A', paid: '#22C98A',
+    draft: '#3B5998', posted: '#22C98A', paid: '#22C98A',
     approved: '#22C98A', pending_approval: '#F5A623',
     overdue: '#FF5C5C', rejected: '#FF5C5C', reversed: '#FF5C5C',
-    sent: '#4FC3F7', partially_paid: '#6C63FF', cancelled: '#8B89A8',
+    sent: '#4FC3F7', partially_paid: '#1B4FD8', cancelled: '#3B5998',
   };
-  return map[s] || '#8B89A8';
+  return map[s] || '#3B5998';
 }
 
 // ── Shared components ─────────────────────────────────────────
@@ -54,7 +54,7 @@ function TabBar({ tabs, active, onChange }) {
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
           borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
-          color: active === t.id ? '#6C63FF' : 'var(--text-secondary)',
+          color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)',
           marginBottom: -1,
         }}>{t.label}</button>
       ))}
@@ -148,7 +148,7 @@ function AccountsTab() {
 
   const typeColors = {
     asset: '#22C98A', liability: '#FF5C5C',
-    equity: '#6C63FF', income: '#4FC3F7', expense: '#F5A623',
+    equity: '#1B4FD8', income: '#4FC3F7', expense: '#F5A623',
   };
 
   const types = ['all', 'asset', 'liability', 'equity', 'income', 'expense'];
@@ -330,7 +330,7 @@ function JournalEntriesTab() {
           <div style={{ marginBottom: 12 }}>
             <button onClick={suggestEntry} disabled={suggesting} style={{
               padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: 600,
-              background: '#6C63FF18', color: '#6C63FF',
+              background: '#6C63FF18', color: '#1B4FD8',
               border: '1px solid #6C63FF30', cursor: 'pointer',
             }}>
               {suggesting ? 'Thinking...' : '* AI: Suggest Journal Entry'}
@@ -455,7 +455,7 @@ function JournalEntriesTab() {
                 <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(e.date)}</span>
                 <StatusBadge status={e.status} />
                 {e.entry_type === 'ai_suggested' && (
-                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: '#6C63FF', color: '#fff', fontWeight: 700 }}>AI</span>
+                  <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>AI</span>
                 )}
                 <span style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 500 }}>{e.description}</span>
               </div>
@@ -646,7 +646,7 @@ function AgentTab() {
     finally { setAnomalyLoading(false); }
   };
 
-  const sevColor = { CRITICAL: '#FF5C5C', HIGH: '#F5A623', MEDIUM: '#6C63FF', LOW: '#8B89A8', INFO: '#4FC3F7' };
+  const sevColor = { CRITICAL: '#FF5C5C', HIGH: '#F5A623', MEDIUM: '#1B4FD8', LOW: '#3B5998', INFO: '#4FC3F7' };
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20 }}>
@@ -658,7 +658,7 @@ function AgentTab() {
           border: '1px solid #6C63FF40',
           display: 'flex', alignItems: 'center', gap: 10,
         }}>
-          <span style={{ fontSize: 20, color: '#6C63FF' }}>*</span>
+          <span style={{ fontSize: 20, color: '#1B4FD8' }}>*</span>
           <div>
             <div style={{ fontSize: 14, fontWeight: 700 }}>Accounting Agent</div>
             <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -675,7 +675,7 @@ function AgentTab() {
               {EXAMPLES.map(q => (
                 <button key={q} onClick={() => ask(q)} style={{
                   padding: '5px 10px', borderRadius: 100, fontSize: 12,
-                  background: '#6C63FF18', color: '#9B8FFF',
+                  background: '#6C63FF18', color: '#3B82F6',
                   border: '1px solid #6C63FF30', cursor: 'pointer',
                 }}>{q}</button>
               ))}
@@ -698,7 +698,7 @@ function AgentTab() {
               color: 'var(--text-primary)',
             }}>
               {m.role === 'assistant' && (
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#6C63FF', marginBottom: 4 }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: '#1B4FD8', marginBottom: 4 }}>
                   ACCOUNTING AGENT
                 </div>
               )}

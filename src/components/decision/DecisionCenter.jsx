@@ -8,7 +8,7 @@ function MarkdownBlock({ text }) {
     <div>
       {lines.map((line, i) => {
         if (line.startsWith('### ')) {
-          return <div key={i} style={{ fontSize: 13, fontWeight: 700, color: '#9B8FFF', marginTop: 10, marginBottom: 3 }}>{line.slice(4)}</div>;
+          return <div key={i} style={{ fontSize: 13, fontWeight: 700, color: '#3B82F6', marginTop: 10, marginBottom: 3 }}>{line.slice(4)}</div>;
         }
         if (line.startsWith('## ')) {
           return <div key={i} style={{ fontSize: 15, fontWeight: 700, marginTop: 12, marginBottom: 4 }}>{line.slice(3)}</div>;
@@ -30,7 +30,7 @@ function MarkdownBlock({ text }) {
             display: 'flex', gap: 8, marginBottom: 3, lineHeight: 1.7, fontSize: 14,
             color: 'var(--text-primary)',
           }}>
-            {isBullet && <span style={{ color: '#6C63FF', flexShrink: 0 }}>•</span>}
+            {isBullet && <span style={{ color: '#1B4FD8', flexShrink: 0 }}>•</span>}
             <span>{clean}</span>
           </div>
         );
@@ -50,7 +50,7 @@ function Sparkline({ color, data, width = 80, height = 28 }) {
   }).join(' ');
   return (
     <svg width={width} height={height} style={{ overflow: 'visible' }}>
-      <polyline points={points} fill="none" stroke={color || '#6C63FF'}
+      <polyline points={points} fill="none" stroke={color || '#1B4FD8'}
         strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
@@ -77,7 +77,7 @@ function HealthRing({ score }) {
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       }}>
         <div style={{ fontSize: 28, fontWeight: 800, color, lineHeight: 1 }}>{s}</div>
-        <div style={{ fontSize: 13, color: '#8B89A8', marginTop: 2 }}>{label}</div>
+        <div style={{ fontSize: 13, color: '#3B5998', marginTop: 2 }}>{label}</div>
       </div>
     </div>
   );
@@ -95,9 +95,9 @@ function KpiCard({ label, value, sub, color, trend, sparkData }) {
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <div style={{
           width: 36, height: 36, borderRadius: 10,
-          background: (color || '#6C63FF') + '20',
+          background: (color || '#1B4FD8') + '20',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: 16, color: color || '#6C63FF', fontWeight: 700,
+          fontSize: 16, color: color || '#1B4FD8', fontWeight: 700,
         }}>
           {label.slice(0, 2)}
         </div>
@@ -110,7 +110,7 @@ function KpiCard({ label, value, sub, color, trend, sparkData }) {
         </div>
       </div>
       <div>
-        <div style={{ fontSize: 26, fontWeight: 800, color: color || '#6C63FF', lineHeight: 1, marginBottom: 4 }}>{value}</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: color || '#1B4FD8', lineHeight: 1, marginBottom: 4 }}>{value}</div>
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{label}</div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{sub}</div>
       </div>
@@ -121,7 +121,7 @@ function KpiCard({ label, value, sub, color, trend, sparkData }) {
 
 // ── Action Item ───────────────────────────────────────────────
 function ActionItem({ title, description, priority, action, color, path }) {
-  const pc = { critical: '#FF5C5C', high: '#F5A623', medium: '#6C63FF' }[priority] || '#8B89A8';
+  const pc = { critical: '#FF5C5C', high: '#F5A623', medium: '#1B4FD8' }[priority] || '#3B5998';
   const handleClick = () => { if (path) window.location.href = path; };
   return (
     <div style={{
@@ -160,7 +160,7 @@ function ActionItem({ title, description, priority, action, color, path }) {
 
 // ── Recommendation Card ───────────────────────────────────────
 function RecCard({ title, body, impact, effort }) {
-  const ic = { High: '#22C98A', Medium: '#F5A623', Low: '#8B89A8' }[impact] || '#8B89A8';
+  const ic = { High: '#22C98A', Medium: '#F5A623', Low: '#3B5998' }[impact] || '#3B5998';
   return (
     <div style={{
       padding: '14px 16px', background: 'var(--surface-2)',
@@ -188,14 +188,14 @@ export default function DecisionCenter() {
   const kpis = [
     { label: 'Monthly Revenue',   value: 'Rs 0', sub: 'vs last month', color: '#22C98A', trend: 0, sparkData: [0,0,0,0,0,0,0,0] },
     { label: 'Monthly Expenses',  value: 'Rs 0', sub: 'vs last month', color: '#FF5C5C', trend: 0, sparkData: [0,0,0,0,0,0,0,0] },
-    { label: 'Cash Position',     value: 'Rs 0', sub: 'Available now', color: '#6C63FF', trend: 0, sparkData: [0,0,0,0,0,0,0,0] },
+    { label: 'Cash Position',     value: 'Rs 0', sub: 'Available now', color: '#1B4FD8', trend: 0, sparkData: [0,0,0,0,0,0,0,0] },
     { label: 'Pending Approvals', value: '0',    sub: 'Needs action',  color: '#F5A623', trend: 0, sparkData: [0,0,0,0,0,0,0,0] },
   ];
 
   const actions = [
     { title: 'No vendors configured',    description: 'Add your vendor master to start tracking payables and approvals.',      priority: 'high',   action: 'Set up',    color: '#F5A623', path: '/procurement' },
     { title: 'Chart of accounts missing', description: 'Configure your general ledger accounts to enable financial reporting.', priority: 'high',   action: 'Configure', color: '#F5A623', path: '/accounting'  },
-    { title: 'Bank accounts not linked',  description: 'Link your bank accounts to track cash position in real time.',          priority: 'medium', action: 'Link',      color: '#6C63FF', path: '/treasury'    },
+    { title: 'Bank accounts not linked',  description: 'Link your bank accounts to track cash position in real time.',          priority: 'medium', action: 'Link',      color: '#1B4FD8', path: '/treasury'    },
   ];
 
   const recs = [
@@ -205,8 +205,8 @@ export default function DecisionCenter() {
   ];
 
   const risks = [
-    { label: 'Cash Runway',      value: '--',  color: '#8B89A8', note: 'Add bank data' },
-    { label: 'Budget Burn Rate', value: '--',  color: '#8B89A8', note: 'Add budgets' },
+    { label: 'Cash Runway',      value: '--',  color: '#3B5998', note: 'Add bank data' },
+    { label: 'Budget Burn Rate', value: '--',  color: '#3B5998', note: 'Add budgets' },
     { label: 'Overdue Invoices', value: '0',   color: '#22C98A', note: 'All clear' },
     { label: 'Compliance Risk',  value: 'Low', color: '#22C98A', note: 'No issues' },
   ];
@@ -278,9 +278,9 @@ export default function DecisionCenter() {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 16, color: '#6C63FF' }}>*</span>
+              <span style={{ fontSize: 16, color: '#1B4FD8' }}>*</span>
               <span style={{ fontSize: 15, fontWeight: 700 }}>AI Daily Brief</span>
-              <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#6C63FF', color: '#fff', fontWeight: 700 }}>LIVE</span>
+              <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>LIVE</span>
             </div>
             <button onClick={generateBrief} disabled={briefLoading} style={{
               padding: '5px 12px', borderRadius: 8, fontSize: 12, fontWeight: 600,

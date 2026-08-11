@@ -13,7 +13,7 @@ function INR(n){const v=parseFloat(n||0);if(v>=1e7)return'Rs '+(v/1e7).toFixed(2
 function fmtDate(d){if(!d)return'--';return new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});}
 
 function SBadge({status}){
-  const c={draft:'#8B89A8',submitted:'#F5A623',approved:'#22C98A',rejected:'#FF5C5C',paid:'#22C98A',pending:'#F5A623',active:'#22C98A',inactive:'#8B89A8',disposed:'#FF5C5C',planning:'#8B89A8',on_hold:'#F5A623',completed:'#22C98A',cancelled:'#FF5C5C',new:'#4FC3F7',qualified:'#6C63FF',won:'#22C98A',lost:'#FF5C5C',overdue:'#FF5C5C'}[status]||'#8B89A8';
+  const c={draft:'#3B5998',submitted:'#F5A623',approved:'#22C98A',rejected:'#FF5C5C',paid:'#22C98A',pending:'#F5A623',active:'#22C98A',inactive:'#3B5998',disposed:'#FF5C5C',planning:'#3B5998',on_hold:'#F5A623',completed:'#22C98A',cancelled:'#FF5C5C',new:'#4FC3F7',qualified:'#1B4FD8',won:'#22C98A',lost:'#FF5C5C',overdue:'#FF5C5C'}[status]||'#3B5998';
   return <span style={{padding:'2px 8px',borderRadius:100,fontSize:11,fontWeight:600,background:c+'20',color:c}}>{status?.replace(/_/g,' ').toUpperCase()}</span>;
 }
 
@@ -53,7 +53,7 @@ export function ExpensesPage() {
   return(
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
-        {[{label:'Total Claims',value:summary.total,color:'#6C63FF'},{label:'Pending Approval',value:summary.pending,color:'#F5A623'},{label:'Approved',value:summary.approved,color:'#22C98A'},{label:'Total Amount',value:INR(summary.totalAmt),color:'#4FC3F7'}].map(c=>(
+        {[{label:'Total Claims',value:summary.total,color:'#1B4FD8'},{label:'Pending Approval',value:summary.pending,color:'#F5A623'},{label:'Approved',value:summary.approved,color:'#22C98A'},{label:'Total Amount',value:INR(summary.totalAmt),color:'#4FC3F7'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
             <div style={{fontSize:24,fontWeight:800,color:c.color,marginBottom:4}}>{c.value}</div>
             <div style={{fontSize:14,fontWeight:600}}>{c.label}</div>
@@ -152,7 +152,7 @@ export function AssetsPage() {
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[
-          {label:'Total Assets',value:assets.length,color:'#6C63FF'},
+          {label:'Total Assets',value:assets.length,color:'#1B4FD8'},
           {label:'Active',value:assets.filter(a=>a.status==='active').length,color:'#22C98A'},
           {label:'Book Value',value:INR(totalValue),color:'#4FC3F7'},
           {label:'Disposed',value:assets.filter(a=>a.status==='disposed').length,color:'#FF5C5C'},
@@ -254,7 +254,7 @@ export function InventoryPage() {
   return(
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
-        {[{label:'Total SKUs',value:items.length,color:'#6C63FF'},{label:'Low Stock',value:lowStock.length,color:'#FF5C5C'},{label:'Inventory Value',value:INR(totalValue),color:'#22C98A'},{label:'Active Items',value:items.filter(i=>i.is_active).length,color:'#4FC3F7'}].map(c=>(
+        {[{label:'Total SKUs',value:items.length,color:'#1B4FD8'},{label:'Low Stock',value:lowStock.length,color:'#FF5C5C'},{label:'Inventory Value',value:INR(totalValue),color:'#22C98A'},{label:'Active Items',value:items.filter(i=>i.is_active).length,color:'#4FC3F7'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
             <div style={{fontSize:24,fontWeight:800,color:c.color,marginBottom:4}}>{c.value}</div>
             <div style={{fontSize:14,fontWeight:600}}>{c.label}</div>
@@ -337,15 +337,15 @@ export function ProjectsPage() {
 
   const save=async()=>{setSaving(true);try{await post(apiURL('/api/projects'),form);setShowForm(false);await load();}catch(e){alert('Error: '+e.message);}finally{setSaving(false);};};
 
-  const prColor={planning:'#8B89A8',active:'#22C98A',on_hold:'#F5A623',completed:'#6C63FF',cancelled:'#FF5C5C'};
-  const priColor={low:'#8B89A8',normal:'#6C63FF',high:'#F5A623',urgent:'#FF5C5C'};
+  const prColor={planning:'#3B5998',active:'#22C98A',on_hold:'#F5A623',completed:'#1B4FD8',cancelled:'#FF5C5C'};
+  const priColor={low:'#3B5998',normal:'#1B4FD8',high:'#F5A623',urgent:'#FF5C5C'};
   const totalBudget=projects.reduce((s,p)=>s+parseFloat(p.budget||0),0);
   const totalSpent=projects.reduce((s,p)=>s+parseFloat(p.spent||0),0);
 
   return(
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
-        {[{label:'Total Projects',value:projects.length,color:'#6C63FF'},{label:'Active',value:projects.filter(p=>p.status==='active').length,color:'#22C98A'},{label:'Total Budget',value:INR(totalBudget),color:'#4FC3F7'},{label:'Total Spent',value:INR(totalSpent),color:'#F5A623'}].map(c=>(
+        {[{label:'Total Projects',value:projects.length,color:'#1B4FD8'},{label:'Active',value:projects.filter(p=>p.status==='active').length,color:'#22C98A'},{label:'Total Budget',value:INR(totalBudget),color:'#4FC3F7'},{label:'Total Spent',value:INR(totalSpent),color:'#F5A623'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
             <div style={{fontSize:24,fontWeight:800,color:c.color,marginBottom:4}}>{c.value}</div>
             <div style={{fontSize:14,fontWeight:600}}>{c.label}</div>
@@ -452,12 +452,12 @@ export function CompliancePage() {
   const now=new Date();
   const overdue=items.filter(i=>i.status==='pending'&&new Date(i.due_date)<now);
   const upcoming=items.filter(i=>i.status==='pending'&&new Date(i.due_date)>=now&&new Date(i.due_date)<=new Date(now.getTime()+30*24*60*60*1000));
-  const catColor={tax:'#F5A623',labour:'#22C98A',statutory:'#6C63FF',environmental:'#4FC3F7',roc:'#9B8FFF',other:'#8B89A8'};
+  const catColor={tax:'#F5A623',labour:'#22C98A',statutory:'#1B4FD8',environmental:'#4FC3F7',roc:'#3B82F6',other:'#3B5998'};
 
   return(
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
-        {[{label:'Total Items',value:items.length,color:'#6C63FF'},{label:'Overdue',value:overdue.length,color:'#FF5C5C'},{label:'Due in 30 Days',value:upcoming.length,color:'#F5A623'},{label:'Completed',value:items.filter(i=>i.status==='completed').length,color:'#22C98A'}].map(c=>(
+        {[{label:'Total Items',value:items.length,color:'#1B4FD8'},{label:'Overdue',value:overdue.length,color:'#FF5C5C'},{label:'Due in 30 Days',value:upcoming.length,color:'#F5A623'},{label:'Completed',value:items.filter(i=>i.status==='completed').length,color:'#22C98A'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
             <div style={{fontSize:24,fontWeight:800,color:c.color,marginBottom:4}}>{c.value}</div>
             <div style={{fontSize:14,fontWeight:600}}>{c.label}</div>
@@ -552,8 +552,8 @@ export function CRMPage() {
   const moveStage=async(id,stage)=>{try{await patch(apiURL('/api/crm/leads/'+id),{stage});await load();}catch(e){alert('Error: '+e.message);}};
 
   const STAGES=['new','contacted','qualified','proposal','negotiation','won','lost'];
-  const stageColor={new:'#4FC3F7',contacted:'#6C63FF',qualified:'#9B8FFF',proposal:'#F5A623',negotiation:'#F5A623',won:'#22C98A',lost:'#FF5C5C'};
-  const sourceColor={website:'#6C63FF',referral:'#22C98A',cold_call:'#F5A623',exhibition:'#4FC3F7',social:'#9B8FFF',other:'#8B89A8'};
+  const stageColor={new:'#4FC3F7',contacted:'#1B4FD8',qualified:'#3B82F6',proposal:'#F5A623',negotiation:'#F5A623',won:'#22C98A',lost:'#FF5C5C'};
+  const sourceColor={website:'#1B4FD8',referral:'#22C98A',cold_call:'#F5A623',exhibition:'#4FC3F7',social:'#3B82F6',other:'#3B5998'};
 
   const filtered=filter==='all'?leads:leads.filter(l=>l.stage===filter);
   const pipeline=leads.filter(l=>!['won','lost'].includes(l.stage)).reduce((s,l)=>s+parseFloat(l.value||0)*parseFloat(l.probability||0)/100,0);
@@ -562,7 +562,7 @@ export function CRMPage() {
   return(
     <div style={{padding:24}}>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
-        {[{label:'Total Leads',value:leads.length,color:'#6C63FF'},{label:'Pipeline Value',value:INR(pipeline),color:'#4FC3F7'},{label:'Won Revenue',value:INR(won),color:'#22C98A'},{label:'Active',value:leads.filter(l=>!['won','lost'].includes(l.stage)).length,color:'#F5A623'}].map(c=>(
+        {[{label:'Total Leads',value:leads.length,color:'#1B4FD8'},{label:'Pipeline Value',value:INR(pipeline),color:'#4FC3F7'},{label:'Won Revenue',value:INR(won),color:'#22C98A'},{label:'Active',value:leads.filter(l=>!['won','lost'].includes(l.stage)).length,color:'#F5A623'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
             <div style={{fontSize:24,fontWeight:800,color:c.color,marginBottom:4}}>{c.value}</div>
             <div style={{fontSize:14,fontWeight:600}}>{c.label}</div>
@@ -572,7 +572,7 @@ export function CRMPage() {
 
       <div style={{display:'flex',gap:8,marginBottom:16,flexWrap:'wrap',alignItems:'center'}}>
         {['all',...STAGES].map(s=>(
-          <button key={s} onClick={()=>setFilter(s)} style={{padding:'5px 14px',borderRadius:100,fontSize:12,fontWeight:600,background:filter===s?(stageColor[s]||'#6C63FF')+'20':'var(--surface-3)',color:filter===s?(stageColor[s]||'#6C63FF'):'var(--text-secondary)',border:'1px solid '+(filter===s?(stageColor[s]||'#6C63FF')+'40':'var(--border)'),cursor:'pointer'}}>
+          <button key={s} onClick={()=>setFilter(s)} style={{padding:'5px 14px',borderRadius:100,fontSize:12,fontWeight:600,background:filter===s?(stageColor[s]||'#1B4FD8')+'20':'var(--surface-3)',color:filter===s?(stageColor[s]||'#1B4FD8'):'var(--text-secondary)',border:'1px solid '+(filter===s?(stageColor[s]||'#1B4FD8')+'40':'var(--border)'),cursor:'pointer'}}>
             {s==='all'?'All':s}
           </button>
         ))}
@@ -634,7 +634,7 @@ export function CRMPage() {
               <div style={{textAlign:'right',flexShrink:0}}>
                 <div style={{fontSize:18,fontWeight:800,color:'#22C98A'}}>{INR(lead.value)}</div>
                 <div style={{fontSize:12,color:'var(--text-muted)'}}>{lead.probability}% probability</div>
-                <div style={{fontSize:12,fontWeight:600,color:'#6C63FF'}}>{INR(parseFloat(lead.value||0)*parseFloat(lead.probability||0)/100)} weighted</div>
+                <div style={{fontSize:12,fontWeight:600,color:'#1B4FD8'}}>{INR(parseFloat(lead.value||0)*parseFloat(lead.probability||0)/100)} weighted</div>
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:5,flexShrink:0}}>
                 {lead.stage!=='won'&&lead.stage!=='lost'&&(

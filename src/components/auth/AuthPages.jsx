@@ -4,13 +4,13 @@ import { useAuth } from '../../context/AuthContext';
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '';
 const inp = { width:'100%', boxSizing:'border-box', padding:'11px 14px', borderRadius:10, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:15, outline:'none', transition:'border-color 0.15s' };
-const focusBlue = e => e.target.style.borderColor = '#6C63FF';
+const focusBlue = e => e.target.style.borderColor = '#1B4FD8';
 const blurGray  = e => e.target.style.borderColor = 'var(--border)';
 
 function Logo() {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:28 }}>
-      <div style={{ width:44, height:44, borderRadius:12, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:900, color:'#fff', fontStyle:'italic' }}>D</div>
+      <div style={{ width:44, height:44, borderRadius:12, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24, fontWeight:900, color:'#fff', fontStyle:'italic' }}>D</div>
       <div>
         <div style={{ fontSize:18, fontWeight:800, color:'#fff', letterSpacing:'0.02em' }}>DEEMONA</div>
         <div style={{ fontSize:11, color:'var(--text-muted)', letterSpacing:'0.05em' }}>AI Finance OS</div>
@@ -93,7 +93,7 @@ function GoogleCompanyModal({ googleData, onComplete, onCancel }) {
             </select>
           </div>
           <div style={{ display:'flex', gap:10 }}>
-            <button type="submit" disabled={loading} style={{ flex:1, padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>{loading?'Setting up...':'Create Finance OS'}</button>
+            <button type="submit" disabled={loading} style={{ flex:1, padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>{loading?'Setting up...':'Create Finance OS'}</button>
             <button type="button" onClick={onCancel} style={{ padding:'11px 16px', borderRadius:10, background:'var(--surface-3)', border:'1px solid var(--border)', color:'var(--text-secondary)', cursor:'pointer', fontSize:14 }}>Cancel</button>
           </div>
         </form>
@@ -145,7 +145,7 @@ function ForgotPasswordPage({ onBack }) {
       <div style={{ width:'100%', maxWidth:420, padding:'36px', background:'var(--surface-1)', borderRadius:20, border:'1px solid var(--border)', boxShadow:'0 24px 80px rgba(0,0,0,0.4)' }}>
         <Logo />
         <div style={{ display:'flex', gap:8, marginBottom:24 }}>
-          {[1,2].map(s=><div key={s} style={{ flex:1, height:4, borderRadius:2, background:step>=s?'#6C63FF':'var(--surface-3)', transition:'background 0.3s' }}/>)}
+          {[1,2].map(s=><div key={s} style={{ flex:1, height:4, borderRadius:2, background:step>=s?'#1B4FD8':'var(--surface-3)', transition:'background 0.3s' }}/>)}
         </div>
 
         {step===1 ? (
@@ -158,7 +158,7 @@ function ForgotPasswordPage({ onBack }) {
                 <div style={{ fontSize:13, fontWeight:600, marginBottom:5 }}>Email</div>
                 <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@company.com" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
               </div>
-              <button type="submit" disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
+              <button type="submit" disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
                 {loading ? 'Sending OTP...' : 'Send OTP'}
               </button>
             </form>
@@ -166,7 +166,7 @@ function ForgotPasswordPage({ onBack }) {
         ) : (
           <>
             <h2 style={{ fontSize:22, fontWeight:700, marginBottom:4 }}>Reset password</h2>
-            <p style={{ fontSize:14, color:'var(--text-muted)', marginBottom:24 }}>OTP sent to <strong style={{ color:'#6C63FF' }}>{email}</strong></p>
+            <p style={{ fontSize:14, color:'var(--text-muted)', marginBottom:24 }}>OTP sent to <strong style={{ color:'#1B4FD8' }}>{email}</strong></p>
             <Alert msg={error} type="error" />
             <Alert msg={success} type="success" />
             <form onSubmit={resetPassword}>
@@ -177,7 +177,7 @@ function ForgotPasswordPage({ onBack }) {
                   onFocus={focusBlue} onBlur={blurGray}/>
                 <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:4, display:'flex', justifyContent:'space-between' }}>
                   <span>Expires in 15 minutes</span>
-                  <button type="button" onClick={()=>{setStep(1);setError('');setSuccess('');setOtp('');}} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Resend OTP</button>
+                  <button type="button" onClick={()=>{setStep(1);setError('');setSuccess('');setOtp('');}} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Resend OTP</button>
                 </div>
               </div>
               <div style={{ marginBottom:12 }}>
@@ -191,14 +191,14 @@ function ForgotPasswordPage({ onBack }) {
                   onFocus={focusBlue} onBlur={e=>e.target.style.borderColor=confirmPassword!==newPassword?'#FF5C5C':'var(--border)'}/>
                 {confirmPassword&&confirmPassword!==newPassword&&<div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
               </div>
-              <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
+              <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
                 {loading?'Resetting...':success?'Redirecting...':'Reset Password'}
               </button>
             </form>
           </>
         )}
         <div style={{ textAlign:'center', marginTop:20, fontSize:13, color:'var(--text-muted)' }}>
-          <button onClick={onBack} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontWeight:600, fontSize:13 }}>Back to Sign In</button>
+          <button onClick={onBack} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontWeight:600, fontSize:13 }}>Back to Sign In</button>
         </div>
       </div>
     </div>
@@ -261,15 +261,15 @@ export function LoginPage({ onSwitch }) {
             <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Enter your password" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
           </div>
           <div style={{ textAlign:'right', marginBottom:20 }}>
-            <button type="button" onClick={()=>setShowForgot(true)} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:13, fontWeight:600, padding:0 }}>Forgot password?</button>
+            <button type="button" onClick={()=>setShowForgot(true)} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontSize:13, fontWeight:600, padding:0 }}>Forgot password?</button>
           </div>
-          <button type="submit" disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
+          <button type="submit" disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
         <div style={{ textAlign:'center', marginTop:20, fontSize:13, color:'var(--text-muted)' }}>
           Don't have an account?{' '}
-          <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontWeight:600, fontSize:13 }}>Create one</button>
+          <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontWeight:600, fontSize:13 }}>Create one</button>
         </div>
       </div>
     </div>
@@ -331,7 +331,7 @@ export function RegisterPage({ onSwitch }) {
         <GoogleBtn onClick={handleGoogle} loading={googleLoading} label="Sign up with Google" />
         <Divider />
         <form onSubmit={handleRegister}>
-          <div style={{ fontSize:11, fontWeight:700, color:'#6C63FF', marginBottom:8, letterSpacing:'0.08em' }}>COMPANY</div>
+          <div style={{ fontSize:11, fontWeight:700, color:'#1B4FD8', marginBottom:8, letterSpacing:'0.08em' }}>COMPANY</div>
           <div style={{ marginBottom:10 }}>
             <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Company Name *</div>
             <input value={form.company_name} onChange={e=>set('company_name',e.target.value)} placeholder="Acme Technologies Pvt Ltd" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
@@ -376,13 +376,13 @@ export function RegisterPage({ onSwitch }) {
               {pwMatch && <div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
             </div>
           </div>
-          <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
+          <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
             {loading?'Creating account...':success?'Redirecting to sign in...':'Create Account'}
           </button>
         </form>
         <div style={{ textAlign:'center', marginTop:20, fontSize:13, color:'var(--text-muted)' }}>
           Already have an account?{' '}
-          <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontWeight:600, fontSize:13 }}>Sign in</button>
+          <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontWeight:600, fontSize:13 }}>Sign in</button>
         </div>
       </div>
     </div>

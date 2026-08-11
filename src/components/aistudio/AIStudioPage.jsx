@@ -59,7 +59,7 @@ export default function AIStudioPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['templates','🏭 Industry Templates'],['train','🧠 Custom Training'],['test','🧪 Test Model']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -91,11 +91,11 @@ export default function AIStudioPage() {
                   <div style={{ fontSize:12, color:'var(--text-secondary)' }}>{t.kpis?.slice(0,4).join(' · ')}</div>
                 </div>
 
-                <div style={{ marginBottom:14, padding:'8px 10px', borderRadius:7, background:'#6C63FF08', border:'1px solid #6C63FF20', fontSize:11, color:'#9B8FFF' }}>
+                <div style={{ marginBottom:14, padding:'8px 10px', borderRadius:7, background:'#6C63FF08', border:'1px solid #6C63FF20', fontSize:11, color:'#3B82F6' }}>
                   GST: {t.gst_rate}% · TDS: {t.tds_section}
                 </div>
 
-                <button onClick={()=>applyTemplate(t)} disabled={applying===t.id} style={{ width:'100%', padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:applying===t.id?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:applying===t.id?'var(--text-muted)':'#fff', border:'none', cursor:applying===t.id?'not-allowed':'pointer' }}>
+                <button onClick={()=>applyTemplate(t)} disabled={applying===t.id} style={{ width:'100%', padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:applying===t.id?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:applying===t.id?'var(--text-muted)':'#fff', border:'none', cursor:applying===t.id?'not-allowed':'pointer' }}>
                   {applying===t.id?'Applying...':'Apply Template'}
                 </button>
               </div>
@@ -110,7 +110,7 @@ export default function AIStudioPage() {
             <div style={{ fontSize:14, fontWeight:700, marginBottom:8 }}>Starter Templates</div>
             <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:16 }}>
               {STARTER_INSTRUCTIONS.map(s=>(
-                <button key={s.label} onClick={()=>setInstructions(s.text)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#9B8FFF', border:'1px solid #6C63FF25', cursor:'pointer' }}>{s.label}</button>
+                <button key={s.label} onClick={()=>setInstructions(s.text)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{s.label}</button>
               ))}
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function AIStudioPage() {
             <textarea value={instructions} onChange={e=>setInstructions(e.target.value)} placeholder="Describe your company, industry, key metrics to focus on, specific Indian regulations applicable, preferred tone and format..." rows={10} style={{ width:'100%', boxSizing:'border-box', padding:'12px 14px', borderRadius:10, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13, resize:'vertical', fontFamily:'inherit', lineHeight:1.6 }} />
           </div>
 
-          <button onClick={saveInstructions} disabled={!instructions.trim()||training||trained} style={{ padding:'11px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:trained?'#22C98A':(!instructions.trim()||training)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!instructions.trim()||training)?'var(--text-muted)':'#fff', border:'none', cursor:(!instructions.trim()||training)?'not-allowed':'pointer' }}>
+          <button onClick={saveInstructions} disabled={!instructions.trim()||training||trained} style={{ padding:'11px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:trained?'#22C98A':(!instructions.trim()||training)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!instructions.trim()||training)?'var(--text-muted)':'#fff', border:'none', cursor:(!instructions.trim()||training)?'not-allowed':'pointer' }}>
             {trained?'✓ Saved!':training?'Saving...':'Save AI Instructions'}
           </button>
 
@@ -141,11 +141,11 @@ export default function AIStudioPage() {
 
           <div style={{ display:'flex', gap:8, marginBottom:20, flexWrap:'wrap' }}>
             {['What is our GST liability this month?','Explain working capital to our CFO','What TDS rate applies to our software vendor?','Should we take an overdraft for this month?'].map(q=>(
-              <button key={q} onClick={()=>setTestPrompt(q)} style={{ padding:'5px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#9B8FFF', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
+              <button key={q} onClick={()=>setTestPrompt(q)} style={{ padding:'5px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
             ))}
           </div>
 
-          <button onClick={testModel} disabled={!testPrompt.trim()||testing} style={{ padding:'11px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:(!testPrompt.trim()||testing)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!testPrompt.trim()||testing)?'var(--text-muted)':'#fff', border:'none', cursor:(!testPrompt.trim()||testing)?'not-allowed':'pointer' }}>
+          <button onClick={testModel} disabled={!testPrompt.trim()||testing} style={{ padding:'11px 28px', borderRadius:10, fontSize:14, fontWeight:700, background:(!testPrompt.trim()||testing)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!testPrompt.trim()||testing)?'var(--text-muted)':'#fff', border:'none', cursor:(!testPrompt.trim()||testing)?'not-allowed':'pointer' }}>
             {testing?'🧪 Testing...':'🧪 Test Model'}
           </button>
 

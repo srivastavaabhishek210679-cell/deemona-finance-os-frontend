@@ -93,7 +93,7 @@ export default function CFOAgentPage() {
             { label: 'Cash Position',    value: INR(dashboard.cash),             color: '#22C98A', sub: dashboard.runway_months + ' months runway' },
             { label: 'AR Outstanding',   value: INR(dashboard.ar),               color: '#4FC3F7', sub: 'Receivables due' },
             { label: 'AP Outstanding',   value: INR(dashboard.ap),               color: '#FF5C5C', sub: 'Payables due' },
-            { label: 'Pipeline (Wtd)',   value: INR(dashboard.pipeline_weighted), color: '#6C63FF', sub: dashboard.active_projects + ' active projects' },
+            { label: 'Pipeline (Wtd)',   value: INR(dashboard.pipeline_weighted), color: '#1B4FD8', sub: dashboard.active_projects + ' active projects' },
             { label: 'Compliance Risk',  value: dashboard.overdue_compliance + ' overdue', color: dashboard.overdue_compliance > 0 ? '#FF5C5C' : '#22C98A', sub: 'Statutory deadlines' },
           ].map(k => (
             <div key={k.label} style={{ padding: '14px 16px', borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
@@ -120,7 +120,7 @@ export default function CFOAgentPage() {
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
-            background: 'linear-gradient(135deg, #6C63FF, #9B8FFF)',
+            background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 900, color: '#fff',
           }}>◈</div>
@@ -157,7 +157,7 @@ export default function CFOAgentPage() {
                 {EXAMPLE_QUESTIONS.map(q => (
                   <button key={q} onClick={() => ask(q)} style={{
                     padding: '7px 14px', borderRadius: 100, fontSize: 12,
-                    background: '#6C63FF12', color: '#9B8FFF',
+                    background: '#6C63FF12', color: '#3B82F6',
                     border: '1px solid #6C63FF25', cursor: 'pointer',
                     transition: 'background 0.15s',
                   }}
@@ -179,7 +179,7 @@ export default function CFOAgentPage() {
               <div style={{
                 width: 32, height: 32, borderRadius: '50%', flexShrink: 0,
                 background: msg.role === 'user'
-                  ? 'linear-gradient(135deg, #6C63FF, #9B8FFF)'
+                  ? 'linear-gradient(135deg, #1B4FD8, #3B82F6)'
                   : 'linear-gradient(135deg, #22C98A, #1AAF74)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 fontSize: 14, fontWeight: 700, color: '#fff',
@@ -242,7 +242,7 @@ export default function CFOAgentPage() {
                 color: 'var(--text-primary)', fontSize: 14, outline: 'none',
                 transition: 'border-color 0.15s',
               }}
-              onFocus={e => e.target.style.borderColor = '#6C63FF'}
+              onFocus={e => e.target.style.borderColor = '#1B4FD8'}
               onBlur={e => e.target.style.borderColor = 'var(--border)'}
             />
             <button
@@ -250,7 +250,7 @@ export default function CFOAgentPage() {
               disabled={loading || !input.trim()}
               style={{
                 padding: '12px 20px', borderRadius: 10,
-                background: loading || !input.trim() ? 'var(--surface-3)' : 'linear-gradient(135deg, #6C63FF, #9B8FFF)',
+                background: loading || !input.trim() ? 'var(--surface-3)' : 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
                 color: loading || !input.trim() ? 'var(--text-muted)' : '#fff',
                 border: 'none', cursor: loading || !input.trim() ? 'not-allowed' : 'pointer',
                 fontSize: 14, fontWeight: 700, transition: 'all 0.15s',

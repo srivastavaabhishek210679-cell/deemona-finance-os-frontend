@@ -59,13 +59,13 @@ export default function EmailAIPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:20 }}>
         {[['analyze','🔍 Analyze'],['reply','✉️ Draft Reply']].map(([id,label]) => (
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
       <div style={{ display:'flex', gap:6, marginBottom:14, flexWrap:'wrap' }}>
         <span style={{ fontSize:12, fontWeight:600, color:'var(--text-muted)' }}>Try sample:</span>
-        {SAMPLES.map((s,i)=><button key={i} onClick={()=>loadSample(s)} style={{ padding:'4px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#9B8FFF', border:'1px solid #6C63FF25', cursor:'pointer' }}>Sample {i+1}</button>)}
+        {SAMPLES.map((s,i)=><button key={i} onClick={()=>loadSample(s)} style={{ padding:'4px 12px', borderRadius:100, fontSize:11, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>Sample {i+1}</button>)}
       </div>
 
       <div style={{ display:'grid', gridTemplateColumns:result&&tab==='analyze'?'1fr 1fr':'1fr', gap:20 }}>
@@ -77,7 +77,7 @@ export default function EmailAIPage() {
           </div>
 
           {tab==='analyze' && (
-            <button onClick={analyze} disabled={!body.trim()||analyzing} style={{ width:'100%', padding:'12px', borderRadius:10, fontSize:14, fontWeight:700, background:(!body.trim()||analyzing)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!body.trim()||analyzing)?'var(--text-muted)':'#fff', border:'none', cursor:(!body.trim()||analyzing)?'not-allowed':'pointer' }}>
+            <button onClick={analyze} disabled={!body.trim()||analyzing} style={{ width:'100%', padding:'12px', borderRadius:10, fontSize:14, fontWeight:700, background:(!body.trim()||analyzing)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!body.trim()||analyzing)?'var(--text-muted)':'#fff', border:'none', cursor:(!body.trim()||analyzing)?'not-allowed':'pointer' }}>
               {analyzing?'🔍 Analyzing...':'🔍 Analyze with AI'}
             </button>
           )}
@@ -85,7 +85,7 @@ export default function EmailAIPage() {
           {tab==='reply' && (
             <div>
               <div style={{ marginBottom:10 }}><div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Reply instructions</div><input value={replyCtx} onChange={e=>setReplyCtx(e.target.value)} placeholder="e.g. Confirm payment received, ask for credit note..." style={inp} /></div>
-              <button onClick={draftReplyFn} disabled={!body.trim()||drafting} style={{ width:'100%', padding:'12px', borderRadius:10, fontSize:14, fontWeight:700, background:(!body.trim()||drafting)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!body.trim()||drafting)?'var(--text-muted)':'#fff', border:'none', cursor:(!body.trim()||drafting)?'not-allowed':'pointer' }}>
+              <button onClick={draftReplyFn} disabled={!body.trim()||drafting} style={{ width:'100%', padding:'12px', borderRadius:10, fontSize:14, fontWeight:700, background:(!body.trim()||drafting)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!body.trim()||drafting)?'var(--text-muted)':'#fff', border:'none', cursor:(!body.trim()||drafting)?'not-allowed':'pointer' }}>
                 {drafting?'✍️ Drafting...':'✍️ Draft Reply'}
               </button>
               {reply && <div style={{ marginTop:14, padding:16, borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)', fontSize:13, whiteSpace:'pre-wrap', lineHeight:1.7 }}>
@@ -101,11 +101,11 @@ export default function EmailAIPage() {
           <div style={{ borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
             <div style={{ padding:'14px 16px', background:'var(--surface-3)', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
               <span style={{ fontSize:14, fontWeight:700 }}>Analysis Result</span>
-              <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(URGENCY_COLORS[result.urgency]||'#6C63FF')+'20', color:URGENCY_COLORS[result.urgency]||'#6C63FF' }}>{result.urgency?.toUpperCase()}</span>
+              <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:(URGENCY_COLORS[result.urgency]||'#1B4FD8')+'20', color:URGENCY_COLORS[result.urgency]||'#1B4FD8' }}>{result.urgency?.toUpperCase()}</span>
             </div>
             <div style={{ padding:16 }}>
               <div style={{ padding:'10px 14px', borderRadius:8, background:'var(--surface-2)', marginBottom:12, fontSize:13 }}>{result.summary}</div>
-              {result.action_required!=='none' && <div style={{ padding:'8px 12px', borderRadius:8, background:(ACTION_COLORS[result.action_required]||'#6C63FF')+'15', border:`1px solid ${ACTION_COLORS[result.action_required]||'#6C63FF'}30`, marginBottom:12, fontSize:12, fontWeight:700, color:ACTION_COLORS[result.action_required]||'#6C63FF' }}>
+              {result.action_required!=='none' && <div style={{ padding:'8px 12px', borderRadius:8, background:(ACTION_COLORS[result.action_required]||'#1B4FD8')+'15', border:`1px solid ${ACTION_COLORS[result.action_required]||'#1B4FD8'}30`, marginBottom:12, fontSize:12, fontWeight:700, color:ACTION_COLORS[result.action_required]||'#1B4FD8' }}>
                 ACTION: {result.action_required?.replace(/_/g,' ').toUpperCase()}
               </div>}
               {[['Type',result.email_type?.replace(/_/g,' ')],['Invoice #',result.extracted?.invoice_number],['Amount',result.extracted?.amount?INR(result.extracted.amount):null],['Tax',result.extracted?.tax_amount?INR(result.extracted.tax_amount):null],['Date',result.extracted?.date],['Due Date',result.extracted?.due_date],['Vendor',result.extracted?.vendor_name],['Customer',result.extracted?.customer_name],['GSTIN',result.extracted?.gstin]].filter(([,v])=>v).map(([k,v])=>(

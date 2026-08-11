@@ -149,7 +149,7 @@ export default function WhatsAppPage() {
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Describe what to communicate</div>
             <textarea value={aiContext} onChange={e => setAiContext(e.target.value)} placeholder="e.g. Remind Reliance Jio that their invoice TVI-2026-023 for Rs 8.85 lakh is due in 3 days and we'd appreciate early payment..." rows={4} style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14, resize: 'vertical', fontFamily: 'inherit' }} />
           </div>
-          <button onClick={generateAI} disabled={!aiContext.trim() || generating} style={{ marginBottom: 20, padding: '10px 24px', borderRadius: 9, fontSize: 14, fontWeight: 700, background: (!aiContext.trim() || generating) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: (!aiContext.trim() || generating) ? 'var(--text-muted)' : '#fff', border: 'none', cursor: (!aiContext.trim() || generating) ? 'not-allowed' : 'pointer' }}>
+          <button onClick={generateAI} disabled={!aiContext.trim() || generating} style={{ marginBottom: 20, padding: '10px 24px', borderRadius: 9, fontSize: 14, fontWeight: 700, background: (!aiContext.trim() || generating) ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: (!aiContext.trim() || generating) ? 'var(--text-muted)' : '#fff', border: 'none', cursor: (!aiContext.trim() || generating) ? 'not-allowed' : 'pointer' }}>
             {generating ? '✨ Writing...' : '✨ Generate with AI'}
           </button>
 
@@ -176,7 +176,7 @@ export default function WhatsAppPage() {
           {[
             { id: 'overdue_ar', icon: '💰', title: 'Overdue AR Reminders', desc: 'Send payment reminders to all customers with overdue invoices', color: '#FF5C5C' },
             { id: 'compliance_deadlines', icon: '⚖️', title: 'Compliance Deadline Alerts', desc: 'Alert team about upcoming GST, TDS, and ROC filing deadlines', color: '#F5A623' },
-            { id: 'invoice_approval', icon: '✅', title: 'Pending Approvals', desc: 'Notify approvers about AP invoices waiting for their approval', color: '#6C63FF' },
+            { id: 'invoice_approval', icon: '✅', title: 'Pending Approvals', desc: 'Notify approvers about AP invoices waiting for their approval', color: '#1B4FD8' },
             { id: 'low_cash', icon: '🚨', title: 'Low Cash Alert', desc: 'Alert CFO and finance team if cash falls below threshold', color: '#FF5C5C' },
           ].map(alert => (
             <div key={alert.id} style={{ borderRadius: 12, border: '1px solid var(--border)', padding: 20, background: 'var(--surface-2)' }}>

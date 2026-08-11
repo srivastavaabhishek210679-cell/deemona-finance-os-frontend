@@ -58,7 +58,7 @@ export default function BillingPage() {
           setPayResult(verify);
           if (verify.success) get('/api/billing/subscription').then(setSubscription);
         },
-        theme: { color:'#6C63FF' },
+        theme: { color:'#1B4FD8' },
       });
       rzp.open();
     } else {
@@ -102,7 +102,7 @@ export default function BillingPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['overview','📊 Overview'],['plans','💎 Plans'],['invoices','🧾 Invoices']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -111,7 +111,7 @@ export default function BillingPage() {
           {/* Current plan */}
           <div style={{ borderRadius:14, border:'2px solid #6C63FF40', padding:24, background:'#6C63FF06' }}>
             <div style={{ fontSize:12, fontWeight:700, color:'var(--text-muted)', marginBottom:8, letterSpacing:'0.05em' }}>CURRENT PLAN</div>
-            <div style={{ fontSize:28, fontWeight:900, color:'#6C63FF', marginBottom:4 }}>{subscription.subscription?.plan_name||'Free'}</div>
+            <div style={{ fontSize:28, fontWeight:900, color:'#1B4FD8', marginBottom:4 }}>{subscription.subscription?.plan_name||'Free'}</div>
             <div style={{ fontSize:14, color:'var(--text-muted)', marginBottom:16 }}>
               {subscription.subscription?.status==='trial' ? `Trial — ${trialDays} days left` :
                subscription.subscription?.status==='active' ? `Active until ${new Date(subscription.subscription?.current_period_end).toLocaleDateString('en-IN')}` :
@@ -123,7 +123,7 @@ export default function BillingPage() {
               </div>
             )}
             <div style={{ display:'flex', gap:10 }}>
-              <button onClick={()=>setTab('plans')} style={{ flex:1, padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>Upgrade Plan</button>
+              <button onClick={()=>setTab('plans')} style={{ flex:1, padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>Upgrade Plan</button>
               {currentPlanId!=='free' && <button onClick={handleCancel} disabled={cancelling} style={{ padding:'9px 14px', borderRadius:9, fontSize:13, background:'var(--surface-3)', border:'1px solid var(--border)', color:'#FF5C5C', cursor:'pointer' }}>Cancel</button>}
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function BillingPage() {
           <div style={{ display:'flex', gap:10, marginBottom:24, alignItems:'center' }}>
             <span style={{ fontSize:14, fontWeight:600 }}>Billing:</span>
             {['monthly','yearly'].map(b=>(
-              <button key={b} onClick={()=>setBilling(b)} style={{ padding:'7px 18px', borderRadius:8, fontSize:13, fontWeight:600, background:billing===b?'#6C63FF':'var(--surface-2)', color:billing===b?'#fff':'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>
+              <button key={b} onClick={()=>setBilling(b)} style={{ padding:'7px 18px', borderRadius:8, fontSize:13, fontWeight:600, background:billing===b?'#1B4FD8':'var(--surface-2)', color:billing===b?'#fff':'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>
                 {b==='yearly'?'Yearly (save 17%)':'Monthly'}
               </button>
             ))}
@@ -160,10 +160,10 @@ export default function BillingPage() {
               const price = billing==='yearly' ? plan.price_yearly : plan.price_monthly;
               const features = typeof plan.features==='string' ? JSON.parse(plan.features) : plan.features;
               return (
-                <div key={plan.id} style={{ borderRadius:14, border:`2px solid ${isCurrent?'#6C63FF':'var(--border)'}`, padding:20, background:isCurrent?'#6C63FF06':'var(--surface-2)', position:'relative' }}>
-                  {isCurrent && <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', padding:'3px 12px', borderRadius:100, background:'#6C63FF', fontSize:11, fontWeight:700, color:'#fff' }}>CURRENT</div>}
+                <div key={plan.id} style={{ borderRadius:14, border:`2px solid ${isCurrent?'#1B4FD8':'var(--border)'}`, padding:20, background:isCurrent?'#6C63FF06':'var(--surface-2)', position:'relative' }}>
+                  {isCurrent && <div style={{ position:'absolute', top:-12, left:'50%', transform:'translateX(-50%)', padding:'3px 12px', borderRadius:100, background:'#1B4FD8', fontSize:11, fontWeight:700, color:'#fff' }}>CURRENT</div>}
                   <div style={{ fontSize:16, fontWeight:800, marginBottom:4 }}>{plan.name}</div>
-                  <div style={{ fontSize:28, fontWeight:900, color: plan.price_monthly>0?'#6C63FF':'#22C98A', marginBottom:4 }}>
+                  <div style={{ fontSize:28, fontWeight:900, color: plan.price_monthly>0?'#1B4FD8':'#22C98A', marginBottom:4 }}>
                     {price===0?'Free':INR(price)}
                   </div>
                   {price>0 && <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:16 }}>per {billing==='yearly'?'year':'month'}</div>}
@@ -176,7 +176,7 @@ export default function BillingPage() {
                     {features?.map((f,i)=><div key={i} style={{ fontSize:12, color:'var(--text-secondary)', padding:'2px 0', display:'flex', gap:6 }}><span style={{ color:'#22C98A' }}>✓</span>{f}</div>)}
                   </div>
 
-                  <button onClick={()=>handleUpgrade(plan.id)} disabled={isCurrent||paying===plan.id||plan.price_monthly===0} style={{ width:'100%', padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:(isCurrent||plan.price_monthly===0)?'var(--surface-3)':paying===plan.id?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(isCurrent||plan.price_monthly===0||paying===plan.id)?'var(--text-muted)':'#fff', border:'none', cursor:(isCurrent||plan.price_monthly===0)?'not-allowed':'pointer' }}>
+                  <button onClick={()=>handleUpgrade(plan.id)} disabled={isCurrent||paying===plan.id||plan.price_monthly===0} style={{ width:'100%', padding:'9px', borderRadius:9, fontSize:13, fontWeight:700, background:(isCurrent||plan.price_monthly===0)?'var(--surface-3)':paying===plan.id?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(isCurrent||plan.price_monthly===0||paying===plan.id)?'var(--text-muted)':'#fff', border:'none', cursor:(isCurrent||plan.price_monthly===0)?'not-allowed':'pointer' }}>
                     {isCurrent?'Current Plan':paying===plan.id?'Processing...':plan.price_monthly===0?'Default':'Upgrade'}
                   </button>
                 </div>

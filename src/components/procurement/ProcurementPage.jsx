@@ -48,7 +48,7 @@ function TabBar({ tabs, active, onChange }) {
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
           borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
-          color: active === t.id ? '#6C63FF' : 'var(--text-secondary)',
+          color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)',
           marginBottom: -1,
         }}>{t.label}</button>
       ))}
@@ -58,11 +58,11 @@ function TabBar({ tabs, active, onChange }) {
 
 function StatusBadge({ status, priority }) {
   const statusColors = {
-    draft: '#8B89A8', submitted: '#F5A623', approved: '#22C98A',
+    draft: '#3B5998', submitted: '#F5A623', approved: '#22C98A',
     received: '#22C98A', cancelled: '#FF5C5C', rejected: '#FF5C5C',
     partially_received: '#4FC3F7',
   };
-  const priorityColors = { low: '#8B89A8', normal: '#6C63FF', high: '#F5A623', urgent: '#FF5C5C' };
+  const priorityColors = { low: '#3B5998', normal: '#1B4FD8', high: '#F5A623', urgent: '#FF5C5C' };
   if (priority) {
     return (
       <span style={{
@@ -85,7 +85,7 @@ function StatusBadge({ status, priority }) {
 function SummaryCards({ summary }) {
   if (!summary) return null;
   const cards = [
-    { label: 'Active POs',        value: summary.active || 0,        color: '#6C63FF', note: 'In progress' },
+    { label: 'Active POs',        value: summary.active || 0,        color: '#1B4FD8', note: 'In progress' },
     { label: 'Pending Approval',  value: summary.pending_approval || 0, color: '#F5A623', note: formatINR(summary.pending_value) },
     { label: 'Approved',          value: summary.approved || 0,       color: '#22C98A', note: 'Ready to receive' },
     { label: 'Total PO Value',    value: formatINR(summary.total_value), color: '#4FC3F7', note: 'All time' },
@@ -239,7 +239,7 @@ function NewPOForm({ onSaved, onCancel }) {
       <div style={{ marginBottom: 16 }}>
         <button onClick={getAISuggestion} disabled={suggesting} style={{
           padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600,
-          background: '#6C63FF18', color: '#6C63FF',
+          background: '#6C63FF18', color: '#1B4FD8',
           border: '1px solid #6C63FF30', cursor: 'pointer',
         }}>
           {suggesting ? 'Getting AI advice...' : '* AI: Vendor & Price Recommendation'}
@@ -441,7 +441,7 @@ function PODetail({ po, onClose, onRefresh }) {
                     <span style={{ color: 'var(--text-muted)', width: 120, flexShrink: 0 }}>
                       {formatDate(h.created_at)}
                     </span>
-                    <span style={{ fontWeight: 600, color: '#6C63FF', width: 80, flexShrink: 0 }}>
+                    <span style={{ fontWeight: 600, color: '#1B4FD8', width: 80, flexShrink: 0 }}>
                       {h.action.toUpperCase()}
                     </span>
                     <span style={{ color: 'var(--text-secondary)' }}>{h.actor_name}</span>
@@ -510,13 +510,13 @@ function PurchaseOrdersTab({ onRefreshSummary }) {
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap', alignItems: 'center' }}>
         {statuses.map(s => {
-          const colors = { draft:'#8B89A8', submitted:'#F5A623', approved:'#22C98A', received:'#22C98A', cancelled:'#FF5C5C' };
+          const colors = { draft:'#3B5998', submitted:'#F5A623', approved:'#22C98A', received:'#22C98A', cancelled:'#FF5C5C' };
           return (
             <button key={s} onClick={() => setFilter(s)} style={{
               padding: '5px 14px', borderRadius: 100, fontSize: 12, fontWeight: 600,
-              background: filter === s ? (colors[s] || '#6C63FF') + '20' : 'var(--surface-3)',
-              color: filter === s ? (colors[s] || '#6C63FF') : 'var(--text-secondary)',
-              border: '1px solid ' + (filter === s ? (colors[s] || '#6C63FF') + '40' : 'var(--border)'),
+              background: filter === s ? (colors[s] || '#1B4FD8') + '20' : 'var(--surface-3)',
+              color: filter === s ? (colors[s] || '#1B4FD8') : 'var(--text-secondary)',
+              border: '1px solid ' + (filter === s ? (colors[s] || '#1B4FD8') + '40' : 'var(--border)'),
               cursor: 'pointer',
             }}>{s === 'all' ? 'All' : s.replace(/_/g, ' ')}</button>
           );
@@ -635,7 +635,7 @@ function AgentTab() {
             {EXAMPLES.map(q => (
               <button key={q} onClick={() => ask(q)} style={{
                 padding: '5px 12px', borderRadius: 100, fontSize: 12,
-                background: '#6C63FF18', color: '#9B8FFF',
+                background: '#6C63FF18', color: '#3B82F6',
                 border: '1px solid #6C63FF30', cursor: 'pointer',
               }}>{q}</button>
             ))}
@@ -653,7 +653,7 @@ function AgentTab() {
             maxWidth: '85%', whiteSpace: 'pre-wrap',
           }}>
             {m.role === 'assistant' && (
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#6C63FF', marginBottom: 4 }}>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#1B4FD8', marginBottom: 4 }}>
                 PROCUREMENT AGENT
               </div>
             )}

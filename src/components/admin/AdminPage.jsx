@@ -7,7 +7,7 @@ const post = async (url, body) => { const r = await fetch(apiURL(url), { method:
 
 function INR(n) { const v=parseFloat(n||0); if(v>=1e7) return 'Rs '+(v/1e7).toFixed(2)+' Cr'; if(v>=1e5) return 'Rs '+(v/1e5).toFixed(2)+' L'; return 'Rs '+v.toLocaleString('en-IN'); }
 
-const PLAN_COLORS = { free:'var(--text-muted)', starter:'#22C98A', pro:'#6C63FF', enterprise:'#F5A623' };
+const PLAN_COLORS = { free:'var(--text-muted)', starter:'#22C98A', pro:'#1B4FD8', enterprise:'#F5A623' };
 
 export default function AdminPage() {
   const [tab, setTab] = useState('overview');
@@ -73,7 +73,7 @@ export default function AdminPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['overview','📊 Overview'],['tenants','🏢 All Tenants'],['revenue','💰 Revenue'],['tenant-detail',selectedTenant?'🔍 Tenant Detail':'']].filter(([,l])=>l).map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -81,7 +81,7 @@ export default function AdminPage() {
         <div>
           <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:24 }}>
             {[
-              { label:'Total Tenants',    value:stats.tenants?.total||0,            sub:`+${stats.tenants?.new_30d||0} this month`, color:'#6C63FF' },
+              { label:'Total Tenants',    value:stats.tenants?.total||0,            sub:`+${stats.tenants?.new_30d||0} this month`, color:'#1B4FD8' },
               { label:'Active Tenants',   value:stats.tenants?.active||0,           sub:'Currently active', color:'#22C98A' },
               { label:'Total Users',      value:stats.users?.total||0,              sub:'All users', color:'#4FC3F7' },
               { label:'MRR',              value:INR(stats.revenue?.this_month||0),  sub:'This month', color:'#22C98A' },
@@ -100,10 +100,10 @@ export default function AdminPage() {
               <div style={{ fontSize:14, fontWeight:700, marginBottom:14 }}>Plan Distribution</div>
               {stats.plan_distribution?.map(p=>(
                 <div key={p.plan_id} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:10 }}>
-                  <span style={{ fontSize:13, fontWeight:600, color:PLAN_COLORS[p.plan_id]||'#6C63FF', textTransform:'capitalize' }}>{p.plan_id}</span>
+                  <span style={{ fontSize:13, fontWeight:600, color:PLAN_COLORS[p.plan_id]||'#1B4FD8', textTransform:'capitalize' }}>{p.plan_id}</span>
                   <div style={{ display:'flex', alignItems:'center', gap:10 }}>
                     <div style={{ width:80, height:6, borderRadius:3, background:'var(--surface-3)' }}>
-                      <div style={{ height:'100%', width:Math.min(100,(p.count/stats.tenants?.total)*100)+'%', background:PLAN_COLORS[p.plan_id]||'#6C63FF', borderRadius:3 }}/>
+                      <div style={{ height:'100%', width:Math.min(100,(p.count/stats.tenants?.total)*100)+'%', background:PLAN_COLORS[p.plan_id]||'#1B4FD8', borderRadius:3 }}/>
                     </div>
                     <span style={{ fontSize:13, fontWeight:700, width:20 }}>{p.count}</span>
                   </div>
@@ -119,7 +119,7 @@ export default function AdminPage() {
                     <div style={{ fontSize:13, fontWeight:600 }}>{t.name}</div>
                     <div style={{ fontSize:11, color:'var(--text-muted)' }}>{new Date(t.created_at).toLocaleDateString('en-IN')}</div>
                   </div>
-                  <span style={{ fontSize:11, padding:'2px 8px', borderRadius:100, background:(PLAN_COLORS[t.plan_id]||'#6C63FF')+'20', color:PLAN_COLORS[t.plan_id]||'#6C63FF', fontWeight:700, alignSelf:'center' }}>{t.plan_name||t.plan_id}</span>
+                  <span style={{ fontSize:11, padding:'2px 8px', borderRadius:100, background:(PLAN_COLORS[t.plan_id]||'#1B4FD8')+'20', color:PLAN_COLORS[t.plan_id]||'#1B4FD8', fontWeight:700, alignSelf:'center' }}>{t.plan_name||t.plan_id}</span>
                 </div>
               ))}
             </div>
@@ -148,7 +148,7 @@ export default function AdminPage() {
                   <div style={{ fontSize:11, color:'var(--text-muted)' }}>{t.industry}</div>
                 </div>
                 <div style={{ fontSize:12, color:'var(--text-muted)', fontFamily:'monospace' }}>{t.slug}</div>
-                <span style={{ fontSize:11, padding:'2px 6px', borderRadius:100, background:(PLAN_COLORS[t.plan_id]||'#6C63FF')+'20', color:PLAN_COLORS[t.plan_id]||'#6C63FF', fontWeight:700, textAlign:'center' }}>{t.plan_id}</span>
+                <span style={{ fontSize:11, padding:'2px 6px', borderRadius:100, background:(PLAN_COLORS[t.plan_id]||'#1B4FD8')+'20', color:PLAN_COLORS[t.plan_id]||'#1B4FD8', fontWeight:700, textAlign:'center' }}>{t.plan_id}</span>
                 <div style={{ fontSize:12, textAlign:'center' }}>{t.user_count||0}</div>
                 <div style={{ fontSize:12, textAlign:'center' }}>{t.invoice_count||0}</div>
                 <div style={{ fontSize:11, color:'var(--text-muted)' }}>{new Date(t.created_at).toLocaleDateString('en-IN')}</div>
@@ -181,7 +181,7 @@ export default function AdminPage() {
               {revenue.by_plan?.map((p,i)=>(
                 <div key={i} style={{ padding:'12px 16px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between' }}>
                   <div>
-                    <span style={{ fontSize:13, fontWeight:600, color:PLAN_COLORS[p.plan_id]||'#6C63FF', textTransform:'capitalize' }}>{p.plan_name}</span>
+                    <span style={{ fontSize:13, fontWeight:600, color:PLAN_COLORS[p.plan_id]||'#1B4FD8', textTransform:'capitalize' }}>{p.plan_name}</span>
                     <div style={{ fontSize:11, color:'var(--text-muted)' }}>{p.count} payments</div>
                   </div>
                   <div style={{ fontSize:14, fontWeight:700, color:'#22C98A' }}>{INR(p.revenue)}</div>
@@ -207,7 +207,7 @@ export default function AdminPage() {
                 <div style={{ fontSize:12, fontWeight:600, marginBottom:6 }}>Change Plan</div>
                 <div style={{ display:'flex', gap:6 }}>
                   {['free','starter','pro','enterprise'].map(p=>(
-                    <button key={p} onClick={()=>changePlan(tenantDetail.tenant?.id,p)} style={{ padding:'5px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:tenantDetail.tenant?.plan_id===p?'#6C63FF':'var(--surface-3)', color:tenantDetail.tenant?.plan_id===p?'#fff':'var(--text-secondary)', border:'none', cursor:'pointer' }}>{p}</button>
+                    <button key={p} onClick={()=>changePlan(tenantDetail.tenant?.id,p)} style={{ padding:'5px 10px', borderRadius:6, fontSize:11, fontWeight:700, background:tenantDetail.tenant?.plan_id===p?'#1B4FD8':'var(--surface-3)', color:tenantDetail.tenant?.plan_id===p?'#fff':'var(--text-secondary)', border:'none', cursor:'pointer' }}>{p}</button>
                   ))}
                 </div>
               </div>
@@ -226,7 +226,7 @@ export default function AdminPage() {
                 {tenantDetail.users?.map(u=>(
                   <div key={u.id} style={{ padding:'9px 14px', borderBottom:'1px solid var(--border)', display:'flex', justifyContent:'space-between', fontSize:12 }}>
                     <div><div style={{ fontWeight:600 }}>{u.first_name} {u.last_name}</div><div style={{ color:'var(--text-muted)' }}>{u.email}</div></div>
-                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:'#6C63FF20', color:'#9B8FFF', alignSelf:'center' }}>{u.role_name}</span>
+                    <span style={{ padding:'2px 8px', borderRadius:100, fontSize:10, fontWeight:700, background:'#6C63FF20', color:'#3B82F6', alignSelf:'center' }}>{u.role_name}</span>
                   </div>
                 ))}
               </div>

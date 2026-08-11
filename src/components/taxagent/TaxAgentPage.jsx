@@ -79,7 +79,7 @@ export default function TaxAgentPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['dashboard','📊 Dashboard'],['gst','🧾 GST Computation'],['tds','📋 TDS Management'],['calendar','📅 Tax Calendar'],['ask','🤖 Ask Tax Agent']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#6C63FF' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={() => setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom: tab===id ? '2px solid #6C63FF' : '2px solid transparent', color: tab===id ? '#1B4FD8' : 'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -126,7 +126,7 @@ export default function TaxAgentPage() {
             <select value={year} onChange={e => setYear(parseInt(e.target.value))} style={{ padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13 }}>
               {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
-            <button onClick={loadGST} disabled={gstLoading} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+            <button onClick={loadGST} disabled={gstLoading} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
               {gstLoading ? 'Computing...' : 'Compute GST'}
             </button>
           </div>
@@ -197,7 +197,7 @@ export default function TaxAgentPage() {
             <select value={year} onChange={e => setYear(parseInt(e.target.value))} style={{ padding:'8px 12px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13 }}>
               {[2024,2025,2026].map(y => <option key={y} value={y}>{y}</option>)}
             </select>
-            <button onClick={loadTDS} disabled={tdsLoading} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:'#fff', border:'none', cursor:'pointer' }}>
+            <button onClick={loadTDS} disabled={tdsLoading} style={{ padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:700, background:'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:'#fff', border:'none', cursor:'pointer' }}>
               {tdsLoading ? 'Computing...' : 'Compute TDS'}
             </button>
           </div>
@@ -212,7 +212,7 @@ export default function TaxAgentPage() {
 
               <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
                 <div style={{ borderRadius:12, border:'1px solid var(--border)', overflow:'hidden' }}>
-                  <div style={{ padding:'12px 16px', background:'#6C63FF20', fontSize:13, fontWeight:700, color:'#6C63FF' }}>SALARY TDS — Section 192</div>
+                  <div style={{ padding:'12px 16px', background:'#6C63FF20', fontSize:13, fontWeight:700, color:'#1B4FD8' }}>SALARY TDS — Section 192</div>
                   <div style={{ maxHeight:300, overflowY:'auto' }}>
                     {tds.salary_tds?.employees?.length === 0 ? (
                       <div style={{ padding:20, textAlign:'center', color:'var(--text-muted)', fontSize:13 }}>No employee data</div>
@@ -248,7 +248,7 @@ export default function TaxAgentPage() {
         <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))', gap:12 }}>
           {calendar.map((c, i) => (
             <div key={i} style={{ borderRadius:12, border:'1px solid var(--border)', padding:16, background:'var(--surface-2)' }}>
-              <div style={{ fontSize:14, fontWeight:800, color:'#6C63FF', marginBottom:6 }}>{c.date}</div>
+              <div style={{ fontSize:14, fontWeight:800, color:'#1B4FD8', marginBottom:6 }}>{c.date}</div>
               <div style={{ fontSize:14, fontWeight:700, marginBottom:4 }}>{c.filing}</div>
               <div style={{ fontSize:12, color:'var(--text-muted)', marginBottom:8 }}>Section: {c.section}</div>
               <div style={{ padding:'6px 10px', borderRadius:6, background:'#FF5C5C12', border:'1px solid #FF5C5C25', fontSize:12, color:'#FF5C5C' }}>
@@ -264,12 +264,12 @@ export default function TaxAgentPage() {
         <div style={{ maxWidth:700 }}>
           <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:20 }}>
             {TAX_QS.map(q => (
-              <button key={q} onClick={() => setQuestion(q)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#9B8FFF', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
+              <button key={q} onClick={() => setQuestion(q)} style={{ padding:'6px 14px', borderRadius:100, fontSize:12, background:'#6C63FF12', color:'#3B82F6', border:'1px solid #6C63FF25', cursor:'pointer' }}>{q}</button>
             ))}
           </div>
           <div style={{ display:'flex', gap:10, marginBottom:16 }}>
             <input value={question} onChange={e => setQuestion(e.target.value)} onKeyDown={e => e.key==='Enter' && askTax()} placeholder="Ask any Indian tax question..." style={{ flex:1, padding:'12px 16px', borderRadius:10, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:14, outline:'none' }} />
-            <button onClick={askTax} disabled={!question.trim()||asking} style={{ padding:'12px 20px', borderRadius:10, fontSize:14, fontWeight:700, background: (!question.trim()||asking) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: (!question.trim()||asking) ? 'var(--text-muted)' : '#fff', border:'none', cursor: (!question.trim()||asking) ? 'not-allowed':'pointer' }}>
+            <button onClick={askTax} disabled={!question.trim()||asking} style={{ padding:'12px 20px', borderRadius:10, fontSize:14, fontWeight:700, background: (!question.trim()||asking) ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: (!question.trim()||asking) ? 'var(--text-muted)' : '#fff', border:'none', cursor: (!question.trim()||asking) ? 'not-allowed':'pointer' }}>
               {asking ? '...' : 'Ask'}
             </button>
           </div>

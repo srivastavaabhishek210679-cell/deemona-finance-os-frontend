@@ -56,7 +56,7 @@ function ScenarioField({ label, value, onChange, type = 'number', unit, hint }) 
           color: 'var(--text-primary)', fontSize: 14, outline: 'none',
           transition: 'border-color 0.15s',
         }}
-        onFocus={e => e.target.style.borderColor = '#6C63FF'}
+        onFocus={e => e.target.style.borderColor = '#1B4FD8'}
         onBlur={e => e.target.style.borderColor = 'var(--border)'}
       />
       {hint && <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>{hint}</div>}
@@ -73,7 +73,7 @@ function MetricCard({ label, value, change, color, note }) {
       background: 'var(--surface-2)', border: '1px solid var(--border)',
     }}>
       <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 22, fontWeight: 800, color: color || '#F0EEF8', lineHeight: 1, marginBottom: 4 }}>{value}</div>
+      <div style={{ fontSize: 22, fontWeight: 800, color: color || '#0A1628', lineHeight: 1, marginBottom: 4 }}>{value}</div>
       {change !== undefined && (
         <div style={{ fontSize: 12, fontWeight: 600, color: isPositive ? '#22C98A' : '#FF5C5C' }}>
           {isPositive ? '+' : ''}{change}% vs current
@@ -105,7 +105,7 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
           </div>
           <button onClick={() => onLoad(s)} style={{
             padding: '3px 10px', borderRadius: 6, fontSize: 11, fontWeight: 600,
-            background: '#6C63FF20', border: '1px solid #6C63FF30', color: '#6C63FF', cursor: 'pointer',
+            background: '#6C63FF20', border: '1px solid #6C63FF30', color: '#1B4FD8', cursor: 'pointer',
           }}>Load</button>
           <button onClick={() => onDelete(s.id)} style={{
             padding: '3px 8px', borderRadius: 6, fontSize: 11,
@@ -286,9 +286,9 @@ export default function DigitalTwinPage() {
       }}>
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 24, color: '#6C63FF' }}>â—ˆ</span>
+            <span style={{ fontSize: 24, color: '#1B4FD8' }}>â—ˆ</span>
             <h2 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Financial Digital Twin</h2>
-            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#6C63FF', color: '#fff', fontWeight: 700 }}>AI POWERED</span>
+            <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 4, background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>AI POWERED</span>
           </div>
           <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, lineHeight: 1.6 }}>
             Simulate financial scenarios before making real decisions. Model hiring plans, new offices,
@@ -302,7 +302,7 @@ export default function DigitalTwinPage() {
             { label: 'Saved Scenarios', value: savedScenarios.length },
           ].map(m => (
             <div key={m.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#6C63FF' }}>{m.value}</div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#1B4FD8' }}>{m.value}</div>
               <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{m.label}</div>
             </div>
           ))}
@@ -316,7 +316,7 @@ export default function DigitalTwinPage() {
             padding: '10px 20px', fontSize: 14, fontWeight: 600,
             background: 'none', border: 'none', cursor: 'pointer',
             borderBottom: activeTab === t.id ? '2px solid #6C63FF' : '2px solid transparent',
-            color: activeTab === t.id ? '#6C63FF' : 'var(--text-secondary)',
+            color: activeTab === t.id ? '#1B4FD8' : 'var(--text-secondary)',
             marginBottom: -1,
           }}>{t.label}</button>
         ))}
@@ -328,7 +328,7 @@ export default function DigitalTwinPage() {
 
           {/* Column 1: Company Baseline */}
           <div style={{ padding: 20, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
-            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#6C63FF' }}>Company Baseline</div>
+            <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1B4FD8' }}>Company Baseline</div>
             <ScenarioField label="Current Annual Revenue" value={inputs.current_revenue} onChange={v => set('current_revenue', v)} unit="INR" hint="Your current year's total revenue" />
             <ScenarioField label="Current Employees" value={inputs.current_employees} onChange={v => set('current_employees', v)} hint="Full-time headcount today" />
             <ScenarioField label="Monthly Operating Expenses" value={inputs.current_monthly_expenses} onChange={v => set('current_monthly_expenses', v)} unit="INR" hint="Total monthly burn rate" />
@@ -371,7 +371,7 @@ export default function DigitalTwinPage() {
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 10 }}>
                   <div style={{
                     width: 40, height: 22, borderRadius: 11,
-                    background: inputs.new_office ? '#6C63FF' : 'var(--surface-3)',
+                    background: inputs.new_office ? '#1B4FD8' : 'var(--surface-3)',
                     border: '1px solid var(--border)', position: 'relative',
                     transition: 'background 0.2s', flexShrink: 0, cursor: 'pointer',
                   }} onClick={() => set('new_office', !inputs.new_office)}>
@@ -394,7 +394,7 @@ export default function DigitalTwinPage() {
                 <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', marginBottom: 10 }}>
                   <div style={{
                     width: 40, height: 22, borderRadius: 11,
-                    background: inputs.new_product ? '#6C63FF' : 'var(--surface-3)',
+                    background: inputs.new_product ? '#1B4FD8' : 'var(--surface-3)',
                     border: '1px solid var(--border)', position: 'relative',
                     transition: 'background 0.2s', flexShrink: 0, cursor: 'pointer',
                   }} onClick={() => set('new_product', !inputs.new_product)}>
@@ -433,7 +433,7 @@ export default function DigitalTwinPage() {
             {/* Run button */}
             <button onClick={runSimulation} disabled={running} style={{
               width: '100%', padding: '14px', borderRadius: 12,
-              background: running ? 'var(--surface-3)' : 'linear-gradient(135deg, #6C63FF, #9B8FFF)',
+              background: running ? 'var(--surface-3)' : 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
               color: running ? 'var(--text-muted)' : '#fff',
               border: 'none', cursor: running ? 'not-allowed' : 'pointer',
               fontSize: 15, fontWeight: 700, letterSpacing: '0.02em',
@@ -493,7 +493,7 @@ export default function DigitalTwinPage() {
                 }}>
                   <div style={{
                     width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
-                    background: verdictConfig[result.verdict]?.color || '#6C63FF',
+                    background: verdictConfig[result.verdict]?.color || '#1B4FD8',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 18, color: '#fff', fontWeight: 800,
                   }}>{verdictConfig[result.verdict]?.icon || '~'}</div>
@@ -539,15 +539,15 @@ export default function DigitalTwinPage() {
                         padding: '16px 18px', borderRadius: 12,
                         background: 'var(--surface-2)', border: '1px solid var(--border)',
                       }}>
-                        <div style={{ fontSize: 13, fontWeight: 800, color: '#6C63FF', marginBottom: 12 }}>Year {yr.year}</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#1B4FD8', marginBottom: 12 }}>Year {yr.year}</div>
                         {[
                           { label: 'Revenue', value: yr.revenue, color: '#22C98A' },
                           { label: 'Gross Profit', value: yr.gross_profit, color: '#4FC3F7' },
-                          { label: 'EBITDA', value: yr.ebitda, color: '#9B8FFF' },
+                          { label: 'EBITDA', value: yr.ebitda, color: '#3B82F6' },
                           { label: 'Net Profit', value: yr.net_profit, color: yr.net_profit >= 0 ? '#22C98A' : '#FF5C5C' },
                           { label: 'Cash Flow', value: yr.cash_flow, color: yr.cash_flow >= 0 ? '#22C98A' : '#FF5C5C' },
                           { label: 'Tax', value: yr.tax, color: '#F5A623' },
-                          { label: 'Headcount', value: yr.headcount + ' people', color: '#8B89A8', noFormat: true },
+                          { label: 'Headcount', value: yr.headcount + ' people', color: '#3B5998', noFormat: true },
                           { label: 'Monthly Burn', value: yr.monthly_burn, color: '#FF5C5C' },
                         ].map(m => (
                           <div key={m.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
@@ -580,7 +580,7 @@ export default function DigitalTwinPage() {
                 {[
                   { title: 'Key Risks', items: result.risks, color: '#FF5C5C', icon: '!' },
                   { title: 'Opportunities', items: result.opportunities, color: '#22C98A', icon: '+' },
-                  { title: 'Recommendations', items: result.recommendations, color: '#6C63FF', icon: 'â†’' },
+                  { title: 'Recommendations', items: result.recommendations, color: '#1B4FD8', icon: 'â†’' },
                 ].map(section => (
                   <div key={section.title} style={{ padding: 16, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: section.color, marginBottom: 12 }}>

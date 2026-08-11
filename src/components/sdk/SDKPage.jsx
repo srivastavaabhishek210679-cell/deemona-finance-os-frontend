@@ -6,7 +6,7 @@ const get  = async url => { const r = await fetch(apiURL(url), { headers: h() })
 const post = async (url, body) => { const r = await fetch(apiURL(url), { method:'POST', headers:h(), body:JSON.stringify(body) }); return r.json(); };
 const del  = async url => { const r = await fetch(apiURL(url), { method:'DELETE', headers:h() }); return r.json(); };
 
-const METHOD_COLORS = { GET:'#22C98A', POST:'#6C63FF', PUT:'#F5A623', DELETE:'#FF5C5C' };
+const METHOD_COLORS = { GET:'#22C98A', POST:'#1B4FD8', PUT:'#F5A623', DELETE:'#FF5C5C' };
 
 export default function SDKPage() {
   const [tab, setTab] = useState('overview');
@@ -47,7 +47,7 @@ export default function SDKPage() {
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['overview','🚀 Overview'],['keys','🔑 API Keys'],['docs','📚 API Docs'],['examples','💻 Code Examples']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -56,7 +56,7 @@ export default function SDKPage() {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
             {[
               { label:'API Requests Today', value:usage?.requests_today||0, color:'#22C98A' },
-              { label:'Requests This Month', value:usage?.requests_month||0, color:'#6C63FF' },
+              { label:'Requests This Month', value:usage?.requests_month||0, color:'#1B4FD8' },
               { label:'Rate Limit', value:usage?.rate_limit||'1000/hr', color:'#F5A623' },
             ].map(k=>(
               <div key={k.label} style={{ padding:'14px 16px', borderRadius:12, background:'var(--surface-2)', border:'1px solid var(--border)' }}>
@@ -113,7 +113,7 @@ export default function SDKPage() {
 
           <div style={{ display:'flex', gap:10, marginBottom:20 }}>
             <input value={newKeyName} onChange={e=>setNewKeyName(e.target.value)} placeholder="Key name (e.g. Production App)" style={{ flex:1, padding:'10px 14px', borderRadius:9, border:'1px solid var(--border)', background:'var(--surface-2)', color:'var(--text-primary)', fontSize:13 }} onKeyDown={e=>e.key==='Enter'&&createKey()} />
-            <button onClick={createKey} disabled={!newKeyName.trim()||creating} style={{ padding:'10px 20px', borderRadius:9, fontSize:13, fontWeight:700, background:(!newKeyName.trim()||creating)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!newKeyName.trim()||creating)?'var(--text-muted)':'#fff', border:'none', cursor:(!newKeyName.trim()||creating)?'not-allowed':'pointer' }}>
+            <button onClick={createKey} disabled={!newKeyName.trim()||creating} style={{ padding:'10px 20px', borderRadius:9, fontSize:13, fontWeight:700, background:(!newKeyName.trim()||creating)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!newKeyName.trim()||creating)?'var(--text-muted)':'#fff', border:'none', cursor:(!newKeyName.trim()||creating)?'not-allowed':'pointer' }}>
               {creating?'Creating...':'+ Generate Key'}
             </button>
           </div>
@@ -147,7 +147,7 @@ export default function SDKPage() {
           <div style={{ display:'grid', gridTemplateColumns:'repeat(auto-fill,minmax(480px,1fr))', gap:10 }}>
             {docs.endpoints?.map((ep,i)=>(
               <div key={i} style={{ display:'flex', gap:10, padding:'10px 14px', borderRadius:8, border:'1px solid var(--border)', background:'var(--surface-2)', alignItems:'flex-start' }}>
-                <span style={{ padding:'2px 8px', borderRadius:4, fontSize:11, fontWeight:800, background:(METHOD_COLORS[ep.method]||'#6C63FF')+'20', color:METHOD_COLORS[ep.method]||'#6C63FF', flexShrink:0, letterSpacing:'0.03em' }}>{ep.method}</span>
+                <span style={{ padding:'2px 8px', borderRadius:4, fontSize:11, fontWeight:800, background:(METHOD_COLORS[ep.method]||'#1B4FD8')+'20', color:METHOD_COLORS[ep.method]||'#1B4FD8', flexShrink:0, letterSpacing:'0.03em' }}>{ep.method}</span>
                 <div style={{ flex:1 }}>
                   <code style={{ fontSize:12, fontFamily:'monospace', color:'var(--text-primary)' }}>{ep.path}</code>
                   <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:2 }}>{ep.description}</div>
@@ -163,7 +163,7 @@ export default function SDKPage() {
         <div>
           <div style={{ display:'flex', gap:8, marginBottom:16 }}>
             {Object.keys(docs.code_examples||{}).map(lang=>(
-              <button key={lang} onClick={()=>setCodeLang(lang)} style={{ padding:'6px 16px', borderRadius:8, fontSize:13, fontWeight:600, background:codeLang===lang?'#6C63FF':'var(--surface-2)', color:codeLang===lang?'#fff':'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>{lang}</button>
+              <button key={lang} onClick={()=>setCodeLang(lang)} style={{ padding:'6px 16px', borderRadius:8, fontSize:13, fontWeight:600, background:codeLang===lang?'#1B4FD8':'var(--surface-2)', color:codeLang===lang?'#fff':'var(--text-secondary)', border:'1px solid var(--border)', cursor:'pointer' }}>{lang}</button>
             ))}
           </div>
           <pre style={{ padding:20, borderRadius:12, background:'var(--surface-0)', border:'1px solid var(--border)', fontSize:13, fontFamily:'monospace', overflowX:'auto', lineHeight:1.6, color:'var(--text-primary)' }}>

@@ -41,7 +41,7 @@ export default function TallyPage() {
   const STEPS = [
     { num: 1, title: 'Export Masters', desc: 'Download ledger masters (accounts, vendors, customers) first. Import once when setting up.', action: () => download('masters'), btn: '⬇ Download Masters XML', color: '#22C98A' },
     { num: 2, title: 'Import Masters in Tally', desc: 'In Tally: Gateway → Import → Masters → Select the downloaded XML file → Yes to import.', action: null, btn: null, color: '#4FC3F7' },
-    { num: 3, title: 'Export Vouchers', desc: 'Download transactions (journal entries, invoices, payments) for the selected period.', action: () => download('vouchers'), btn: '⬇ Download Vouchers XML', color: '#6C63FF' },
+    { num: 3, title: 'Export Vouchers', desc: 'Download transactions (journal entries, invoices, payments) for the selected period.', action: () => download('vouchers'), btn: '⬇ Download Vouchers XML', color: '#1B4FD8' },
     { num: 4, title: 'Import Vouchers in Tally', desc: 'In Tally: Gateway → Import → Vouchers → Select the XML file → Import. All entries will be posted.', action: null, btn: null, color: '#F5A623' },
   ];
 
@@ -75,7 +75,7 @@ export default function TallyPage() {
               <input type="date" value={to} onChange={e => setTo(e.target.value)} style={{ width: '100%', boxSizing: 'border-box', padding: '8px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-1)', color: 'var(--text-primary)', fontSize: 13 }} />
             </div>
           </div>
-          <button onClick={loadSummary} disabled={loading} style={{ width: '100%', padding: '9px', borderRadius: 8, fontSize: 13, fontWeight: 700, background: loading ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: loading ? 'var(--text-muted)' : '#fff', border: 'none', cursor: 'pointer' }}>
+          <button onClick={loadSummary} disabled={loading} style={{ width: '100%', padding: '9px', borderRadius: 8, fontSize: 13, fontWeight: 700, background: loading ? 'var(--surface-3)' : 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: loading ? 'var(--text-muted)' : '#fff', border: 'none', cursor: 'pointer' }}>
             {loading ? 'Loading...' : 'Load Summary'}
           </button>
         </div>
@@ -96,7 +96,7 @@ export default function TallyPage() {
               </div>
             ))}
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, fontWeight: 700, paddingTop: 8, borderTop: '1px solid var(--border)', marginTop: 4 }}>
-              <span>Total Vouchers</span><span style={{ color: '#6C63FF' }}>{summary.vouchers?.total || 0}</span>
+              <span>Total Vouchers</span><span style={{ color: '#1B4FD8' }}>{summary.vouchers?.total || 0}</span>
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-muted)', marginTop: 12, marginBottom: 8, letterSpacing: '0.05em' }}>MASTERS</div>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
@@ -133,7 +133,7 @@ export default function TallyPage() {
         <button onClick={() => download('masters')} disabled={!!downloading} style={{ flex: 1, padding: '13px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: '#22C98A', color: '#fff', border: 'none', cursor: 'pointer' }}>
           {downloading === 'masters' ? '⏳ Generating...' : '⬇ Download Masters XML'}
         </button>
-        <button onClick={() => download('vouchers')} disabled={!!downloading} style={{ flex: 1, padding: '13px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: '#fff', border: 'none', cursor: 'pointer' }}>
+        <button onClick={() => download('vouchers')} disabled={!!downloading} style={{ flex: 1, padding: '13px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: 'linear-gradient(135deg,#1B4FD8,#3B82F6)', color: '#fff', border: 'none', cursor: 'pointer' }}>
           {downloading === 'vouchers' ? '⏳ Generating...' : '⬇ Download Vouchers XML'}
         </button>
       </div>

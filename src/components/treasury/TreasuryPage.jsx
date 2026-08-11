@@ -42,7 +42,7 @@ function TabBar({ tabs, active, onChange }) {
           padding: '10px 18px', fontSize: 14, fontWeight: 600,
           background: 'none', border: 'none', cursor: 'pointer',
           borderBottom: active === t.id ? '2px solid #6C63FF' : '2px solid transparent',
-          color: active === t.id ? '#6C63FF' : 'var(--text-secondary)',
+          color: active === t.id ? '#1B4FD8' : 'var(--text-secondary)',
           marginBottom: -1,
         }}>{t.label}</button>
       ))}
@@ -228,7 +228,7 @@ function BankAccountsTab({ onRefreshSummary }) {
                   <span style={{ fontSize: 15, fontWeight: 700 }}>{acc.name}</span>
                   {acc.is_primary && (
                     <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 4,
-                      background: '#6C63FF', color: '#fff', fontWeight: 700 }}>PRIMARY</span>
+                      background: '#1B4FD8', color: '#fff', fontWeight: 700 }}>PRIMARY</span>
                   )}
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', background: 'var(--surface-3)',
                     padding: '2px 8px', borderRadius: 4 }}>
@@ -484,14 +484,14 @@ function CashFlowTab() {
           <button key={d} onClick={() => setDays(d)} style={{
             padding: '5px 14px', borderRadius: 100, fontSize: 13, fontWeight: 600,
             background: days === d ? '#6C63FF20' : 'var(--surface-3)',
-            color: days === d ? '#6C63FF' : 'var(--text-secondary)',
+            color: days === d ? '#1B4FD8' : 'var(--text-secondary)',
             border: '1px solid ' + (days === d ? '#6C63FF40' : 'var(--border)'),
             cursor: 'pointer',
           }}>{d}D</button>
         ))}
         <button onClick={runAnalysis} disabled={analyzing} style={{
           marginLeft: 'auto', padding: '6px 16px', borderRadius: 8, fontSize: 13,
-          fontWeight: 600, background: '#6C63FF18', color: '#6C63FF',
+          fontWeight: 600, background: '#6C63FF18', color: '#1B4FD8',
           border: '1px solid #6C63FF30', cursor: 'pointer',
         }}>
           {analyzing ? 'Analyzing...' : '* AI Liquidity Analysis'}
@@ -506,7 +506,7 @@ function CashFlowTab() {
           border: '1px solid #6C63FF40',
           fontSize: 14, lineHeight: 1.7, whiteSpace: 'pre-wrap',
         }}>
-          <div style={{ fontSize: 12, fontWeight: 700, color: '#6C63FF', marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 700, color: '#1B4FD8', marginBottom: 8 }}>
             TREASURY AGENT ANALYSIS
           </div>
           {aiAnalysis}
@@ -517,7 +517,7 @@ function CashFlowTab() {
       {data && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 14, marginBottom: 20 }}>
           {[
-            { label: 'Opening Balance', value: formatINR(data.opening_balance), color: '#6C63FF' },
+            { label: 'Opening Balance', value: formatINR(data.opening_balance), color: '#1B4FD8' },
             { label: 'Net Movement',    value: formatINR(data.closing_balance - data.opening_balance), color: data.closing_balance >= data.opening_balance ? '#22C98A' : '#FF5C5C' },
             { label: 'Closing Balance', value: formatINR(data.closing_balance), color: data.closing_balance >= 0 ? '#22C98A' : '#FF5C5C' },
           ].map(c => (

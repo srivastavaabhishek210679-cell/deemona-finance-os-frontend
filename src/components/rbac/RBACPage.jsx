@@ -6,7 +6,7 @@ const get  = async url => { const r = await fetch(apiURL(url), { headers: h() })
 const post = async (url, body) => { const r = await fetch(apiURL(url), { method:'POST', headers:h(), body:JSON.stringify(body) }); return r.json(); };
 const put  = async (url, body) => { const r = await fetch(apiURL(url), { method:'PUT', headers:h(), body:JSON.stringify(body) }); return r.json(); };
 
-const ROLE_COLORS = { owner:'#FF5C5C', admin:'#F5A623', manager:'#6C63FF', accountant:'#22C98A', staff:'#4FC3F7', viewer:'var(--text-muted)' };
+const ROLE_COLORS = { owner:'#FF5C5C', admin:'#F5A623', manager:'#1B4FD8', accountant:'#22C98A', staff:'#4FC3F7', viewer:'var(--text-muted)' };
 const ROLE_DESCS = {
   owner:      'Full access to everything including billing',
   admin:      'All modules, can invite users, no billing',
@@ -62,13 +62,13 @@ export default function RBACPage() {
 
       {myPerms && (
         <div style={{ marginBottom:20, padding:'10px 14px', borderRadius:8, background:'#6C63FF12', border:'1px solid #6C63FF25', fontSize:13 }}>
-          Your role: <strong style={{ color:ROLE_COLORS[myPerms.role]||'#6C63FF' }}>{myPerms.role?.toUpperCase()}</strong> — {ROLE_DESCS[myPerms.role]||''}
+          Your role: <strong style={{ color:ROLE_COLORS[myPerms.role]||'#1B4FD8' }}>{myPerms.role?.toUpperCase()}</strong> — {ROLE_DESCS[myPerms.role]||''}
         </div>
       )}
 
       <div style={{ display:'flex', borderBottom:'1px solid var(--border)', marginBottom:24 }}>
         {[['team','👥 Team Members'],['roles','🔐 Roles & Permissions'],['invite','+ Invite User']].map(([id,label])=>(
-          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#6C63FF':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
+          <button key={id} onClick={()=>setTab(id)} style={{ padding:'10px 20px', fontSize:14, fontWeight:600, background:'none', border:'none', cursor:'pointer', borderBottom:tab===id?'2px solid #6C63FF':'2px solid transparent', color:tab===id?'#1B4FD8':'var(--text-secondary)', marginBottom:-1 }}>{label}</button>
         ))}
       </div>
 
@@ -99,8 +99,8 @@ export default function RBACPage() {
           {roles.map(role=>(
             <div key={role.name} style={{ borderRadius:12, border:`1px solid ${ROLE_COLORS[role.name]||'var(--border)'}40`, padding:18, background:'var(--surface-2)' }}>
               <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-                <span style={{ fontSize:15, fontWeight:800, color:ROLE_COLORS[role.name]||'#6C63FF', textTransform:'uppercase', letterSpacing:'0.04em' }}>{role.name}</span>
-                <span style={{ fontSize:11, padding:'2px 8px', borderRadius:100, background:(ROLE_COLORS[role.name]||'#6C63FF')+'20', color:ROLE_COLORS[role.name]||'#6C63FF', fontWeight:700 }}>{role.permission_count} perms</span>
+                <span style={{ fontSize:15, fontWeight:800, color:ROLE_COLORS[role.name]||'#1B4FD8', textTransform:'uppercase', letterSpacing:'0.04em' }}>{role.name}</span>
+                <span style={{ fontSize:11, padding:'2px 8px', borderRadius:100, background:(ROLE_COLORS[role.name]||'#1B4FD8')+'20', color:ROLE_COLORS[role.name]||'#1B4FD8', fontWeight:700 }}>{role.permission_count} perms</span>
               </div>
               <div style={{ fontSize:13, color:'var(--text-secondary)', marginBottom:12, lineHeight:1.5 }}>{ROLE_DESCS[role.name]}</div>
               <div style={{ display:'flex', flexWrap:'wrap', gap:4 }}>
@@ -130,7 +130,7 @@ export default function RBACPage() {
                 {['admin','manager','accountant','staff','viewer'].map(r=><option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)} — {ROLE_DESCS[r]}</option>)}
               </select>
             </div>
-            <button onClick={sendInvite} disabled={!inviteEmail.trim()||inviting} style={{ width:'100%', padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:(!inviteEmail.trim()||inviting)?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:(!inviteEmail.trim()||inviting)?'var(--text-muted)':'#fff', border:'none', cursor:(!inviteEmail.trim()||inviting)?'not-allowed':'pointer' }}>
+            <button onClick={sendInvite} disabled={!inviteEmail.trim()||inviting} style={{ width:'100%', padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:(!inviteEmail.trim()||inviting)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(!inviteEmail.trim()||inviting)?'var(--text-muted)':'#fff', border:'none', cursor:(!inviteEmail.trim()||inviting)?'not-allowed':'pointer' }}>
               {inviting?'Sending...':'Send Invitation'}
             </button>
           </div>
