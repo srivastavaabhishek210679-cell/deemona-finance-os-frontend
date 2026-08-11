@@ -225,7 +225,7 @@ export default function DecisionCenter() {
         + 'Use plain text only. No emojis. No markdown symbols like ## or **. '
         + 'Use numbered lists and dashes for structure. Keep under 150 words.';
 
-      const res = await fetch(apiURL('/api/cfo/brief', {
+      const res = await fetch(apiURL('/api/cfo/brief'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt }),
@@ -365,6 +365,7 @@ export default function DecisionCenter() {
     </div>
   );
 }
+
 
 
 
