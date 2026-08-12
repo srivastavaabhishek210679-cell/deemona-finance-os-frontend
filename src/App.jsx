@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+﻿import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -452,6 +452,8 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
+
 
 
 
