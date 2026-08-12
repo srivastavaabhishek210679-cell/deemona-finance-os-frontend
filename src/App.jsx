@@ -37,7 +37,7 @@ import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
 import './styles/global.css';
 
-// ── Nav Groups ──────────────────────────────────────────────
+// ── Nav Groups - v2 ──────────────────────────────────────────────
 const NAV_GROUPS = [
   {
     label: 'Intelligence',
@@ -448,6 +448,7 @@ export default function App() {
     </BrowserRouter>
   );
 }
+
 
 
 
