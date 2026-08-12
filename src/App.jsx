@@ -363,19 +363,26 @@ function RightPanel() {
 // ── Layout ──────────────────────────────────────────────────
 function Layout({ title, subtitle, children }) {
   const { user, tenant, logout } = useAuth();
+  const [showRight, setShowRight] = React.useState(true);
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#EEF3FD' }}>
       <Sidebar user={user} tenant={tenant} onLogout={logout} />
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
         <TopBar title={title} subtitle={subtitle} />
-        <div style={{ flex: 1, overflow: 'auto', background: '#EEF3FD' }}>{children}</div>
+        <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>{children}</div>
+          {showRight && <RightPanel />}
+        </div>
       </div>
-      <RightPanel />
+      <button
+        onClick={() => setShowRight(p => !p)}
+        title={showRight ? 'Hide panel' : 'Show panel'}
+        style={{ position: 'fixed', right: showRight ? 252 : 10, bottom: 24, zIndex: 99, width: 30, height: 30, borderRadius: '50%', background: '#1B4FD8', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(27,79,216,0.4)', transition: 'right 0.25s' }}
+      >{showRight ? '›' : '‹'}</button>
     </div>
   );
 }
 
-// ── Auth Gate ───────────────────────────────────────────────
 function AuthGate() {
   const [showRegister, setShowRegister] = useState(false);
   return showRegister
