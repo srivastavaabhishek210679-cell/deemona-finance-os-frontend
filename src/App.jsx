@@ -31,6 +31,9 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import DashboardPage from './components/dashboard/DashboardPage';
+import NewAPIMarketplace from './components/marketplace/APIMarketplace';
+import MultiCompanyPage from './components/admin/MultiCompanyPage';
+import AuditTrailPage from './components/audit/AuditTrailPage';
 import CustomReportBuilder from './components/reports/CustomReportBuilder';
 import OnboardingWizard from './pages/OnboardingWizard';
 import BankStatementImporter from './components/treasury/BankStatementImporter';
@@ -448,6 +451,9 @@ export default function App() {
     { path: '/knowledge-graph', title: 'Knowledge Graph', sub: 'Visual enterprise knowledge explorer.', comp: <KnowledgeGraph /> },
     { path: '/ai-agents', title: 'AI Agents', sub: 'Your intelligent AI workforce.', comp: <AIAgentsPage /> },
     { path: '/dashboard',    title: 'Executive Dashboard',   sub: 'Charts, KPIs, and financial analytics.',  comp: <DashboardPage /> },
+    { path: '/audit-trail', title: 'Audit Trail', sub: 'Complete event history and change log.', comp: <AuditTrailPage /> },
+    { path: '/companies', title: 'Multi-Company', sub: 'Manage subsidiaries, branches, and group P&L.', comp: <MultiCompanyPage /> },
+    { path: '/api-portal', title: 'API Marketplace', sub: 'REST API, webhooks, SDKs, and playground.', comp: <NewAPIMarketplace /> },
     { path: '/admin',        title: 'Platform Admin',        sub: 'Platform-wide tenant management and analytics.',     comp: <AdminPage /> },
   ];
 
