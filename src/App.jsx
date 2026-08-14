@@ -31,6 +31,8 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import DashboardPage from './components/dashboard/DashboardPage';
+import OnboardingWizard from './pages/OnboardingWizard';
+import BankStatementImporter from './components/treasury/BankStatementImporter';
 import AIAgentsPage from './components/agents/AIAgentsPage';
 import KnowledgeGraph from './components/knowledge/KnowledgeGraph';
 import PersonalDashboard from './components/dashboard/PersonalDashboard';
@@ -52,6 +54,7 @@ const NAV_GROUPS = [
     label: 'Finance',
     items: [
       { path: '/accounting',  label: 'Accounting',       icon: 'M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M9 7V4a1 1 0 011-1h9a1 1 0 011 1v9a1 1 0 01-1 1h-3M9 7h6' },
+      { path: '/bank-import',  label: 'Bank Import',    icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
       { path: '/treasury',    label: 'Treasury',         icon: 'M3 6l9-4 9 4M3 6v12l9 4 9-4V6M12 2v20' },
       { path: '/procurement', label: 'Procurement',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 14a2 2 0 110-4 2 2 0 010 4z' },
       { path: '/payroll',     label: 'Payroll',          icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z' },

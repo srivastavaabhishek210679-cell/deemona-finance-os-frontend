@@ -222,7 +222,7 @@ function MemoryDetail({ memory, onClose }) {
   const cfg=TYPE_CONFIG[memory.memoryType]??{color:'#888',bg:'#88888818'};
   const detailEntries=Object.entries(memory.detail??{}).filter(([k])=>!['tenantId'].includes(k));
   return (
-    <div style={{position:'absolute',inset:0,zIndex:20,background:'var(--surface-2)',borderRadius:12,overflow:'auto',padding:24,background:'#EEF3FD',minHeight:'100%'}}>
+    <div style={{position:'absolute',inset:0,zIndex:20,background:'#EEF3FD',borderRadius:12,overflow:'auto',padding:24,minHeight:'100%'}}>
       <div style={{display:'flex',alignItems:'flex-start',gap:12,marginBottom:20}}>
         <button onClick={onClose} style={{background:'none',border:'none',cursor:'pointer',fontSize:20,color:'var(--text-muted)',padding:0,lineHeight:1,flexShrink:0,marginTop:2}}>←</button>
         <div>
@@ -514,4 +514,5 @@ export default function FinanceMemoryPanel() {
     </div>
   );
 }
+
 

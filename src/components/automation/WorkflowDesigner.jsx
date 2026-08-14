@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+﻿import { useState, useRef, useCallback, useEffect } from 'react';
 import { apiURL } from '../../api.js';
 
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
@@ -439,7 +439,6 @@ Space nodes 220px apart horizontally, 180px vertically. Start x at 80, y at 180.
           onDragOver={e => e.preventDefault()}
           onDrop={onCanvasDrop}
           onClick={() => { setSelected(null); setShowPanel('nodes'); setConnecting(null); }}
-          style={{ flex: 1, position: 'relative', overflow: 'hidden', background: '#F0F5FF', cursor: dragging ? 'grabbing' : 'default' }}
         >
           {/* Grid dots */}
           <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
@@ -682,3 +681,4 @@ Space nodes 220px apart horizontally, 180px vertically. Start x at 80, y at 180.
     </div>
   );
 }
+
