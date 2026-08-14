@@ -31,6 +31,7 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import DashboardPage from './components/dashboard/DashboardPage';
+import CustomReportBuilder from './components/reports/CustomReportBuilder';
 import OnboardingWizard from './pages/OnboardingWizard';
 import BankStatementImporter from './components/treasury/BankStatementImporter';
 import AIAgentsPage from './components/agents/AIAgentsPage';
