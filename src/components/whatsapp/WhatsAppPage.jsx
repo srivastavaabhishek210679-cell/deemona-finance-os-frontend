@@ -1,246 +1,201 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiURL } from '../../api.js';
 
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
-const get  = async url => { const r = await fetch(apiURL(url), { headers: h() }); return r.json(); };
-const post = async (url, body) => { const r = await fetch(apiURL(url), { method: 'POST', headers: h(), body: JSON.stringify(body) }); return r.json(); };
+const postAPI = async (url, body) => { try { const r = await fetch(apiURL(url), { method: 'POST', headers: h(), body: JSON.stringify(body) }); return await r.json(); } catch (e) { return { error: e.message }; } };
+const getAPI = async url => { try { const r = await fetch(apiURL(url), { headers: h() }); return await r.json(); } catch { return {}; } };
+
+const TEMPLATES = [
+  { id: 'custom',           label: 'Custom Message' },
+  { id: 'invoice_approval', label: 'Invoice Approval',    fields: ['invoice_number','amount','vendor','due_date'] },
+  { id: 'payment_received', label: 'Payment Received',    fields: ['invoice_number','amount','customer'] },
+  { id: 'gst_reminder',     label: 'GST Filing Reminder', fields: ['filing_type','period','due_date','amount'] },
+  { id: 'payroll_approved', label: 'Payroll Approved',    fields: ['month','year','count','amount'] },
+  { id: 'low_cash_alert',   label: 'Low Cash Alert',      fields: ['cash','runway'] },
+];
 
 export default function WhatsAppPage() {
-  const [tab, setTab] = useState('compose');
   const [status, setStatus] = useState(null);
-  const [templates, setTemplates] = useState([]);
-  const [messages, setMessages] = useState([]);
-  const [to, setTo] = useState('');
-  const [selectedTemplate, setSelectedTemplate] = useState('');
+  const [tab, setTab] = useState('compose');
+  const [to, setTo] = useState('+91');
+  const [selectedTemplate, setSelectedTemplate] = useState('custom');
   const [customMessage, setCustomMessage] = useState('');
-  const [aiContext, setAiContext] = useState('');
-  const [aiRecipient, setAiRecipient] = useState('');
-  const [aiGenerated, setAiGenerated] = useState('');
-  const [generating, setGenerating] = useState(false);
+  const [fields, setFields] = useState({});
   const [sending, setSending] = useState(false);
-  const [sendResult, setSendResult] = useState(null);
-  const [savingConfig, setSavingConfig] = useState(false);
-  const [cfgPhone, setCfgPhone] = useState('');
-  const [cfgProvider, setCfgProvider] = useState('twilio');
+  const [result, setResult] = useState(null);
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
-    get('/api/whatsapp/status').then(d => { setStatus(d); if (d.config?.phone_number) setCfgPhone(d.config.phone_number); });
-    get('/api/whatsapp/templates').then(d => setTemplates(d.templates||[]));
-    get('/api/whatsapp/messages').then(d => setMessages(d.messages||[]));
+    getAPI('/api/whatsapp/status').then(d => setStatus(d));
+    getAPI('/api/whatsapp/logs').then(d => setLogs(d.logs || []));
   }, []);
 
-  const sendMessage = async () => {
-    if (!to) return;
-    setSending(true); setSendResult(null);
-    const body = { to, template: selectedTemplate||undefined, custom_message: customMessage||aiGenerated||undefined };
-    const data = await post('/api/whatsapp/send', body);
-    setSendResult(data);
+  const tpl = TEMPLATES.find(t => t.id === selectedTemplate);
+
+  const buildPreview = () => {
+    if (selectedTemplate === 'custom') return customMessage || 'Your message will appear here';
+    if (selectedTemplate === 'invoice_approval') return `*Deemona Finance* - Approval Required\n\nInvoice: ${fields.invoice_number||'TVI-2026-001'}\nAmount: Rs ${fields.amount||'51,800'}\nVendor: ${fields.vendor||'AWS India'}\nDue: ${fields.due_date||'20 Aug 2026'}\n\nReply APPROVE or REJECT`;
+    if (selectedTemplate === 'payment_received') return `Payment Received\n\nInvoice: ${fields.invoice_number||'TVI-2026-001'}\nAmount: Rs ${fields.amount||'51,800'}\nFrom: ${fields.customer||'Flipkart'}`;
+    if (selectedTemplate === 'gst_reminder') return `GST Reminder\n\n${fields.filing_type||'GSTR-3B'} for ${fields.period||'August 2026'} due ${fields.due_date||'20 Aug 2026'}\nEstimated: Rs ${fields.amount||'3,42,000'}`;
+    if (selectedTemplate === 'payroll_approved') return `Payroll Approved\n\n${fields.month||'August'} ${fields.year||'2026'} - ${fields.count||'11'} employees\nTotal: Rs ${fields.amount||'10,50,000'}`;
+    if (selectedTemplate === 'low_cash_alert') return `Cash Alert\n\nBalance: Rs ${fields.cash||'91,00,000'}\nRunway: ${fields.runway||'8.2'} months`;
+    return '';
+  };
+
+  const handleSend = async () => {
+    setSending(true);
+    setResult(null);
+    const cleanTo = to.trim().replace(/\s/g, '');
+    const payload = {
+      to: cleanTo.startsWith('+') ? cleanTo : '+' + cleanTo,
+      template: selectedTemplate,
+      message: selectedTemplate === 'custom' ? customMessage : undefined,
+      data: selectedTemplate !== 'custom' ? fields : undefined,
+    };
+    console.log('[WhatsApp UI] Sending:', JSON.stringify(payload));
+    const res = await postAPI('/api/whatsapp/send', payload);
+    console.log('[WhatsApp UI] Result:', JSON.stringify(res));
+    setResult(res);
     setSending(false);
-    if (data.success) {
-      setMessages(prev => [{ to_number: to, message: customMessage||aiGenerated||'Template message', status: data.status, created_at: new Date() }, ...prev]);
-    }
+    if (res.success) getAPI('/api/whatsapp/logs').then(d => setLogs(d.logs || []));
   };
-
-  const generateAI = async () => {
-    if (!aiContext.trim()) return;
-    setGenerating(true); setAiGenerated('');
-    const data = await post('/api/whatsapp/ai-message', { context: aiContext, recipient: aiRecipient, tone: 'professional' });
-    setAiGenerated(data.message||'');
-    setGenerating(false);
-  };
-
-  const sendBulk = async (type) => {
-    const data = await post('/api/whatsapp/bulk-alert', { alert_type: type });
-    alert(`${data.total_queued} messages queued for ${data.alert_type?.replace(/_/g,' ')}`);
-  };
-
-  const saveConfig = async () => {
-    setSavingConfig(true);
-    await post('/api/whatsapp/status', { phone_number: cfgPhone, provider: cfgProvider, notifications: { invoice_approval: true, payment_confirmation: true, overdue_alerts: true, gst_reminders: true, payroll_processed: true, low_cash_alert: true, compliance_deadline: true } });
-    setSavingConfig(false);
-    const d = await get('/api/whatsapp/status');
-    setStatus(d);
-  };
-
-  const previewTemplate = templates.find(t => t.id === selectedTemplate)?.preview;
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0, marginBottom: 6 }}>WhatsApp Integration</h2>
-        <p style={{ fontSize: 14, color: 'var(--text-muted)', margin: 0 }}>Send approvals, alerts, and notifications via WhatsApp — preferred channel for Indian businesses</p>
-      </div>
-
-      {/* Status banner */}
-      <div style={{ padding: '12px 16px', borderRadius: 10, marginBottom: 20, background: status?.configured ? '#22C98A12' : '#F5A62312', border: `1px solid ${status?.configured ? '#22C98A30' : '#F5A62330'}` }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: status?.configured ? '#22C98A' : '#F5A623' }}>
-          {status?.configured ? '✓ Twilio Connected · ' + status?.from_number : '⚠ WhatsApp not configured — Add Twilio keys to Render'}
+    <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0A1628', marginBottom: 4 }}>WhatsApp Integration</h1>
+          <div style={{ fontSize: 13, color: '#64748B' }}>Send approvals, alerts, and notifications via WhatsApp.</div>
         </div>
-        {!status?.configured && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Go to Settings tab to connect Twilio, WATI, or another provider</div>}
+        <div style={{ padding: '8px 14px', borderRadius: 8, background: status?.configured ? '#ECFDF5' : '#FEF2F2', border: `1px solid ${status?.configured ? '#A7F3D0' : '#FECACA'}`, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: status?.configured ? '#059669' : '#DC2626' }} />
+          <span style={{ fontSize: 12, fontWeight: 600, color: status?.configured ? '#059669' : '#DC2626' }}>
+            {status?.configured ? 'Twilio Connected · ' + status.from_number : 'Not Configured'}
+          </span>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', marginBottom: 24 }}>
-        {[['compose','✉️ Compose'],['ai','✨ AI Write'],['bulk','📢 Bulk Alerts'],['logs','📋 Message Log'],['settings','⚙️ Settings']].map(([id,label]) => (
-          <button key={id} onClick={() => setTab(id)} style={{ padding: '10px 18px', fontSize: 14, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', borderBottom: tab===id ? '2px solid #25D366' : '2px solid transparent', color: tab===id ? '#25D366' : 'var(--text-secondary)', marginBottom: -1 }}>{label}</button>
+      <div style={{ display: 'flex', borderBottom: '1px solid #C7D9F8', marginBottom: 20 }}>
+        {[['compose','✉️ Compose'],['logs','📋 Message Log'],['templates','📝 Templates']].map(([id, label]) => (
+          <button key={id} onClick={() => setTab(id)} style={{ padding: '10px 18px', fontSize: 13, fontWeight: 600, background: 'none', border: 'none', borderBottom: tab === id ? '2px solid #1B4FD8' : '2px solid transparent', color: tab === id ? '#1B4FD8' : '#64748B', cursor: 'pointer', marginBottom: -1 }}>{label}</button>
         ))}
       </div>
 
-      {/* Compose */}
       {tab === 'compose' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div>
+          <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', padding: 20 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', marginBottom: 16 }}>Compose Message</div>
+
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>To (WhatsApp Number)</div>
-              <input value={to} onChange={e => setTo(e.target.value)} placeholder="+91 98765 43210" style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14 }} />
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 5 }}>To (WhatsApp Number)</label>
+              <input value={to} onChange={e => setTo(e.target.value)} placeholder="+91 9XXXXXXXXX"
+                style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 8, border: '1px solid #C7D9F8', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
             </div>
 
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Template (optional)</div>
-              <select value={selectedTemplate} onChange={e => { setSelectedTemplate(e.target.value); setCustomMessage(''); }} style={{ width: '100%', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14 }}>
-                <option value="">Select a template...</option>
-                {templates.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 5 }}>Template</label>
+              <select value={selectedTemplate} onChange={e => { setSelectedTemplate(e.target.value); setFields({}); setCustomMessage(''); }}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #C7D9F8', fontSize: 13, outline: 'none', background: '#fff' }}>
+                {TEMPLATES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
               </select>
             </div>
 
-            {!selectedTemplate && (
+            {selectedTemplate === 'custom' ? (
               <div style={{ marginBottom: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Custom Message</div>
-                <textarea value={customMessage} onChange={e => setCustomMessage(e.target.value)} placeholder="Type your WhatsApp message..." rows={6} style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14, resize: 'vertical', fontFamily: 'inherit' }} />
+                <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 5 }}>Message</label>
+                <textarea value={customMessage} onChange={e => setCustomMessage(e.target.value)} placeholder="Type your WhatsApp message..." rows={4}
+                  style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px', borderRadius: 8, border: '1px solid #C7D9F8', fontSize: 13, outline: 'none', fontFamily: 'inherit', resize: 'vertical' }} />
+              </div>
+            ) : (
+              <div>
+                {(tpl?.fields || []).map(field => (
+                  <div key={field} style={{ marginBottom: 10 }}>
+                    <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#64748B', marginBottom: 4, textTransform: 'capitalize' }}>{field.replace(/_/g,' ')}</label>
+                    <input value={fields[field] || ''} onChange={e => setFields(p => ({...p, [field]: e.target.value}))} placeholder={field.replace(/_/g,' ')}
+                      style={{ width: '100%', boxSizing: 'border-box', padding: '8px 10px', borderRadius: 7, border: '1px solid #C7D9F8', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} />
+                  </div>
+                ))}
               </div>
             )}
 
-            {sendResult && (
-              <div style={{ padding: '10px 14px', borderRadius: 8, marginBottom: 14, background: sendResult.success ? '#22C98A12' : '#FF5C5C12', border: `1px solid ${sendResult.success ? '#22C98A30' : '#FF5C5C30'}`, color: sendResult.success ? '#22C98A' : '#FF5C5C', fontSize: 13 }}>
-                {sendResult.success ? `✓ Message ${sendResult.status}${sendResult.note ? ` — ${sendResult.note}` : ''}` : `Error: ${sendResult.error}`}
-              </div>
-            )}
-
-            <button onClick={sendMessage} disabled={!to || sending || (!selectedTemplate && !customMessage && !aiGenerated)} style={{ width: '100%', padding: '12px', borderRadius: 10, fontSize: 14, fontWeight: 700, background: (!to || sending) ? 'var(--surface-3)' : 'linear-gradient(135deg,#25D366,#128C7E)', color: (!to || sending) ? 'var(--text-muted)' : '#fff', border: 'none', cursor: (!to || sending) ? 'not-allowed' : 'pointer' }}>
-              {sending ? '⏳ Sending...' : '📱 Send WhatsApp'}
+            <button onClick={handleSend} disabled={sending}
+              style={{ width: '100%', padding: '12px', borderRadius: 9, border: 'none', background: sending ? '#86EFAC' : '#25D366', color: '#fff', fontSize: 14, fontWeight: 700, cursor: sending ? 'not-allowed' : 'pointer', marginTop: 8 }}>
+              {sending ? 'Sending...' : '📱 Send WhatsApp Message'}
             </button>
+
+            {result && (
+              <div style={{ marginTop: 12, padding: '12px', borderRadius: 8, background: result.success ? '#ECFDF5' : '#FEF2F2', border: `1px solid ${result.success ? '#A7F3D0' : '#FECACA'}` }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: result.success ? '#059669' : '#DC2626' }}>
+                  {result.success ? '✅ Message sent! SID: ' + result.sid : '❌ Failed: ' + (result.error || JSON.stringify(result))}
+                </div>
+                {result.success && <div style={{ fontSize: 11, color: '#64748B', marginTop: 4 }}>Note: Sandbox requires recipient to have joined via "join missing-numeral"</div>}
+              </div>
+            )}
           </div>
 
-          {/* Preview */}
           <div>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: 'var(--text-muted)' }}>MESSAGE PREVIEW</div>
-            <div style={{ borderRadius: 12, background: '#ECE5DD', padding: 16, minHeight: 200 }}>
-              <div style={{ background: '#fff', borderRadius: '12px 12px 12px 4px', padding: '10px 14px', maxWidth: '85%', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
-                <div style={{ fontSize: 13, color: '#303030', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>
-                  {previewTemplate || customMessage || aiGenerated || <span style={{ color: '#aaa', fontStyle: 'italic' }}>Your message will appear here</span>}
-                </div>
-                <div style={{ fontSize: 11, color: '#aaa', textAlign: 'right', marginTop: 4 }}>
-                  {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} ✓✓
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', marginBottom: 12 }}>Message Preview</div>
+            <div style={{ background: '#ECE5DD', borderRadius: 12, overflow: 'hidden' }}>
+              <div style={{ background: '#075E54', padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#25D366', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, fontWeight: 800, color: '#fff' }}>D</div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>Deemona Finance</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)' }}>Twilio Sandbox</div>
                 </div>
               </div>
+              <div style={{ padding: 16, minHeight: 200 }}>
+                <div style={{ background: '#fff', borderRadius: '0 8px 8px 8px', padding: '10px 14px', maxWidth: '85%', boxShadow: '0 1px 2px rgba(0,0,0,0.1)' }}>
+                  <div style={{ fontSize: 13, color: '#0A1628', whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{buildPreview()}</div>
+                  <div style={{ fontSize: 10, color: '#94A3B8', textAlign: 'right', marginTop: 4 }}>{new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})} ✓✓</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 12, padding: '10px 12px', borderRadius: 8, background: '#FFFBEB', border: '1px solid #FDE68A', fontSize: 12, color: '#92400E' }}>
+              ⚠️ Twilio sandbox: recipient must send "join missing-numeral" to +14155238886 first.
             </div>
           </div>
         </div>
       )}
 
-      {/* AI Write */}
-      {tab === 'ai' && (
-        <div style={{ maxWidth: 700 }}>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Recipient</div>
-            <input value={aiRecipient} onChange={e => setAiRecipient(e.target.value)} placeholder="e.g. vendor, customer, employee, CFO" style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14 }} />
-          </div>
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Describe what to communicate</div>
-            <textarea value={aiContext} onChange={e => setAiContext(e.target.value)} placeholder="e.g. Remind Reliance Jio that their invoice TVI-2026-023 for Rs 8.85 lakh is due in 3 days and we'd appreciate early payment..." rows={4} style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14, resize: 'vertical', fontFamily: 'inherit' }} />
-          </div>
-          <button onClick={generateAI} disabled={!aiContext.trim() || generating} style={{ marginBottom: 20, padding: '10px 24px', borderRadius: 9, fontSize: 14, fontWeight: 700, background: (!aiContext.trim() || generating) ? 'var(--surface-3)' : 'linear-gradient(135deg,#6C63FF,#9B8FFF)', color: (!aiContext.trim() || generating) ? 'var(--text-muted)' : '#fff', border: 'none', cursor: (!aiContext.trim() || generating) ? 'not-allowed' : 'pointer' }}>
-            {generating ? '✨ Writing...' : '✨ Generate with AI'}
-          </button>
-
-          {aiGenerated && (
-            <div>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Generated Message</div>
-              <div style={{ borderRadius: 12, background: '#ECE5DD', padding: 16, marginBottom: 14 }}>
-                <div style={{ background: '#fff', borderRadius: '12px 12px 12px 4px', padding: '10px 14px', maxWidth: '85%', boxShadow: '0 1px 2px rgba(0,0,0,0.1)', fontSize: 13, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{aiGenerated}</div>
-              </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <input value={to} onChange={e => setTo(e.target.value)} placeholder="+91 phone number" style={{ flex: 1, padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-2)', color: 'var(--text-primary)', fontSize: 14 }} />
-                <button onClick={sendMessage} disabled={!to || sending} style={{ padding: '10px 20px', borderRadius: 9, fontSize: 14, fontWeight: 700, background: (!to || sending) ? 'var(--surface-3)' : 'linear-gradient(135deg,#25D366,#128C7E)', color: (!to || sending) ? 'var(--text-muted)' : '#fff', border: 'none', cursor: (!to || sending) ? 'not-allowed' : 'pointer' }}>
-                  {sending ? '...' : '📱 Send'}
-                </button>
-              </div>
-            </div>
+      {tab === 'logs' && (
+        <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', overflow: 'hidden' }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid #EEF3FD', fontSize: 13, fontWeight: 700 }}>Message Log</div>
+          {logs.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: '#94A3B8' }}>No messages sent yet.</div>
+          ) : (
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+              <thead><tr style={{ background: '#F0F5FF' }}>
+                {['To','Template','Status','Sent At'].map(h => <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, color: '#3B5998', fontSize: 11 }}>{h}</th>)}
+              </tr></thead>
+              <tbody>
+                {logs.map((log, i) => (
+                  <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
+                    <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontSize: 11 }}>{log.to_number}</td>
+                    <td style={{ padding: '10px 14px', color: '#7C3AED' }}>{log.template}</td>
+                    <td style={{ padding: '10px 14px' }}>
+                      <span style={{ padding: '2px 8px', borderRadius: 10, fontSize: 10, fontWeight: 700, background: log.status==='sent'?'#ECFDF5':'#FEF2F2', color: log.status==='sent'?'#059669':'#DC2626' }}>{log.status}</span>
+                    </td>
+                    <td style={{ padding: '10px 14px', color: '#64748B' }}>{log.sent_at ? new Date(log.sent_at).toLocaleString('en-IN') : '—'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       )}
 
-      {/* Bulk Alerts */}
-      {tab === 'bulk' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16 }}>
-          {[
-            { id: 'overdue_ar', icon: '💰', title: 'Overdue AR Reminders', desc: 'Send payment reminders to all customers with overdue invoices', color: '#FF5C5C' },
-            { id: 'compliance_deadlines', icon: '⚖️', title: 'Compliance Deadline Alerts', desc: 'Alert team about upcoming GST, TDS, and ROC filing deadlines', color: '#F5A623' },
-            { id: 'invoice_approval', icon: '✅', title: 'Pending Approvals', desc: 'Notify approvers about AP invoices waiting for their approval', color: '#6C63FF' },
-            { id: 'low_cash', icon: '🚨', title: 'Low Cash Alert', desc: 'Alert CFO and finance team if cash falls below threshold', color: '#FF5C5C' },
-          ].map(alert => (
-            <div key={alert.id} style={{ borderRadius: 12, border: '1px solid var(--border)', padding: 20, background: 'var(--surface-2)' }}>
-              <div style={{ fontSize: 28, marginBottom: 10 }}>{alert.icon}</div>
-              <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{alert.title}</div>
-              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.5 }}>{alert.desc}</div>
-              <button onClick={() => sendBulk(alert.id)} style={{ width: '100%', padding: '9px', borderRadius: 8, fontSize: 13, fontWeight: 700, background: alert.color, color: '#fff', border: 'none', cursor: 'pointer' }}>
-                Send Bulk Alert
+      {tab === 'templates' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+          {TEMPLATES.filter(t => t.id !== 'custom').map(t => (
+            <div key={t.id} style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', padding: 18 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', marginBottom: 8 }}>{t.label}</div>
+              <div style={{ fontSize: 11, color: '#64748B', marginBottom: 12 }}>Fields: {(t.fields||[]).join(', ')||'none'}</div>
+              <button onClick={() => { setSelectedTemplate(t.id); setTab('compose'); }}
+                style={{ padding: '7px 14px', borderRadius: 7, border: 'none', background: '#25D366', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>
+                Use Template
               </button>
             </div>
           ))}
-        </div>
-      )}
-
-      {/* Message Log */}
-      {tab === 'logs' && (
-        <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
-          <div style={{ padding: '14px 16px', background: 'var(--surface-3)', fontSize: 13, fontWeight: 700, color: 'var(--text-muted)' }}>SENT MESSAGES</div>
-          {messages.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>No messages sent yet</div>
-          ) : messages.map((msg, i) => (
-            <div key={i} style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>To: {msg.to_number}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>{msg.message?.substring(0, 80)}...</div>
-              </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ padding: '2px 8px', borderRadius: 100, fontSize: 11, fontWeight: 700, background: msg.status==='sent' ? '#22C98A20' : msg.status==='simulated' ? '#F5A62320' : 'var(--surface-3)', color: msg.status==='sent' ? '#22C98A' : msg.status==='simulated' ? '#F5A623' : 'var(--text-muted)' }}>{msg.status}</span>
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>{new Date(msg.created_at).toLocaleString('en-IN')}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Settings */}
-      {tab === 'settings' && (
-        <div style={{ maxWidth: 600 }}>
-          <div style={{ marginBottom: 20, padding: 20, borderRadius: 12, border: '1px solid var(--border)', background: 'var(--surface-2)' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 14 }}>WhatsApp Provider Setup</div>
-            <div style={{ marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Your WhatsApp Number</div>
-              <input value={cfgPhone} onChange={e => setCfgPhone(e.target.value)} placeholder="+91 98765 43210" style={{ width: '100%', boxSizing: 'border-box', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-1)', color: 'var(--text-primary)', fontSize: 14 }} />
-            </div>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 5 }}>Provider</div>
-              <select value={cfgProvider} onChange={e => setCfgProvider(e.target.value)} style={{ width: '100%', padding: '10px 14px', borderRadius: 9, border: '1px solid var(--border)', background: 'var(--surface-1)', color: 'var(--text-primary)', fontSize: 14 }}>
-                {config?.providers?.map(p => <option key={p.id} value={p.id}>{p.name} — {p.description}</option>)}
-              </select>
-            </div>
-            <button onClick={saveConfig} disabled={savingConfig} style={{ padding: '10px 24px', borderRadius: 9, fontSize: 14, fontWeight: 700, background: savingConfig ? 'var(--surface-3)' : 'linear-gradient(135deg,#25D366,#128C7E)', color: savingConfig ? 'var(--text-muted)' : '#fff', border: 'none', cursor: 'pointer' }}>
-              {savingConfig ? 'Saving...' : 'Save Configuration'}
-            </button>
-          </div>
-
-          <div style={{ padding: 16, borderRadius: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-            <div style={{ fontWeight: 700, marginBottom: 6 }}>Backend environment variables required:</div>
-            <code style={{ display: 'block', background: 'var(--surface-3)', padding: 10, borderRadius: 6, fontSize: 12, fontFamily: 'monospace' }}>
-              TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxx{'\n'}
-              TWILIO_AUTH_TOKEN=your_auth_token{'\n'}
-              TWILIO_WHATSAPP_FROM=whatsapp:+14155238886
-            </code>
-            <div style={{ marginTop: 8 }}>Add these to your Render backend environment variables. Get your Twilio credentials at <a href="https://console.twilio.com" target="_blank" rel="noreferrer" style={{ color: '#25D366' }}>console.twilio.com</a></div>
-          </div>
         </div>
       )}
     </div>
