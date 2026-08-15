@@ -31,6 +31,7 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabelPage';
+import LandingPage from './pages/LandingPage';
 import DashboardPage from './components/dashboard/DashboardPage';
 import GSTPortalPage from './components/tax/GSTPortalPage';
 import NewAPIMarketplace from './components/marketplace/APIMarketplace';
@@ -50,7 +51,8 @@ const NAV_GROUPS = [
   {
     label: 'Intelligence',
     items: [
-      { path: '/memory',      label: 'Finance Memory',   icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z' },
+      { path: '/landing', title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage /> },
+    { path: '/memory',      label: 'Finance Memory',   icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z' },
       { path: '/decision',    label: 'Decision Center',  icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
       { path: '/cfo',         label: 'Digital CFO',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
       { path: '/forecasting', label: 'Forecasting',      icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
@@ -418,7 +420,8 @@ export default function App() {
   if (!user) return <AuthGate />;
 
   const routes = [
-    { path: '/',             title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
+    { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
+    { path: '/app',           title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
     { path: '/gst-portal', title: 'GST Portal', sub: 'File GST returns and track ITC.', comp: <GSTPortalPage /> },
     { path: '/onboarding', title: 'Setup Wizard', sub: 'Company setup.', comp: <OnboardingWizard onComplete={() => { window.location.href = '/dashboard'; }} /> },
     { path: '/memory',       title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
