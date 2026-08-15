@@ -427,6 +427,8 @@ export default function App() {
 
   const routes = [
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
+    { path: '/bank-import',  title: 'Bank Import',    sub: 'Import CSV from Indian banks.', comp: <BankStatementImporter /> },
+    { path: '/reports',      title: 'Custom Reports', sub: 'Build and export reports.', comp: <CustomReportBuilder /> },
     { path: '/app',           title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
     { path: '/gst-portal', title: 'GST Portal', sub: 'File GST returns and track ITC.', comp: <GSTPortalPage /> },
     { path: '/onboarding', title: 'Setup Wizard', sub: 'Company setup.', comp: <OnboardingWizard onComplete={() => { window.location.href = '/dashboard'; }} /> },
