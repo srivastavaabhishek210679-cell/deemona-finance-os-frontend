@@ -115,12 +115,12 @@ export default function CFOAgentPage() {
         {/* Header */}
         <div style={{
           padding: '16px 20px', borderBottom: '1px solid var(--border)',
-          background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)', color: '#FFFFFF',
+          background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
           display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0,
         }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
-            background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)', color: '#FFFFFF',
+            background: 'linear-gradient(135deg, #1B4FD8, #3B82F6)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: 22, fontWeight: 900, color: '#fff',
           }}>◈</div>
