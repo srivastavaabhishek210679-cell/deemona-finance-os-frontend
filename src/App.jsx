@@ -176,21 +176,7 @@ function Sidebar({ user, tenant, onLogout }) {
       </div>
       {/* Nav */}
       <nav style={{ flex: 1, overflowY: 'auto', padding: '6px 8px' }}>
-        {NAV_GROUPS.map(group => (
-          <div key={group.label} style={{ marginBottom: 4 }}>
-            <div style={{ padding: '8px 8px 3px', fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.07em', textTransform: 'uppercase' }}>{group.label}</div>
-            {group.items.map(item => (
-              <NavLink key={item.path} to={item.path} style={({ isActive }) => ({
-                display: 'flex', alignItems: 'center', gap: 8, padding: '6px 8px', borderRadius: 6,
-                marginBottom: 1, fontSize: 12.5, fontWeight: isActive ? 600 : 400, textDecoration: 'none',
-                color: isActive ? '#1B4FD8' : 'rgba(255,255,255,0.85)', background: isActive ? '#FFFFFF' : 'transparent',
-              })}>
-                <Icon d={item.icon} size={14} color="currentColor" />
-                <span style={{ flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        ))}
+        <CollapsibleNav />
       </nav>
       {/* Footer */}
       <div style={{ padding: '10px 8px', borderTop: '1px solid rgba(255,255,255,0.15)', flexShrink: 0 }}>
