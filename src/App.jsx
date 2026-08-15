@@ -31,6 +31,7 @@ import BillingPage from './components/billing/BillingPage';
 import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import DashboardPage from './components/dashboard/DashboardPage';
+import GSTPortalPage from './components/tax/GSTPortalPage';
 import NewAPIMarketplace from './components/marketplace/APIMarketplace';
 import MultiCompanyPage from './components/admin/MultiCompanyPage';
 import AuditTrailPage from './components/audit/AuditTrailPage';
@@ -62,7 +63,8 @@ const NAV_GROUPS = [
       { path: '/treasury',    label: 'Treasury',         icon: 'M3 6l9-4 9 4M3 6v12l9 4 9-4V6M12 2v20' },
       { path: '/procurement', label: 'Procurement',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 14a2 2 0 110-4 2 2 0 010 4z' },
       { path: '/payroll',     label: 'Payroll',          icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z' },
-      { path: '/tax',         label: 'Tax & GST',        icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' },
+      { path: '/gst-portal', title: 'GST Portal', sub: 'File returns, track ITC, and manage compliance.', comp: <GSTPortalPage /> },
+    { path: '/tax',         label: 'Tax & GST',        icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' },
       { path: '/budgeting',   label: 'Budgeting',        icon: 'M18 20V10M12 20V4M6 20v-6' },
       { path: '/statements',  label: 'Statements',       icon: 'M9 17v-2m3 2v-4m3 4v-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z' },
     ],
