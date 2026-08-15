@@ -1,16 +1,15 @@
-﻿// v2 clean rewrite
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { apiURL } from '../../api.js';
 
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 const get = async url => { try { const r = await fetch(apiURL(url), { headers: h() }); const t = await r.text(); return JSON.parse(t); } catch { return {}; } };
 const post = async (url, body) => { try { const r = await fetch(apiURL(url), { method: 'POST', headers: h(), body: JSON.stringify(body) }); const t = await r.text(); return JSON.parse(t); } catch (e) { return { error: e.message }; } };
 
-// â”€â”€ Bank CSV formats â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ── Bank CSV formats ──────────────────────────────────────────
 const BANK_FORMATS = {
   hdfc: {
     name: 'HDFC Bank',
-    logo: 'ðŸŸ¦',
+    logo: '🟦',
     delimiter: ',',
     skipRows: 20,
     columns: { date: 'Date', description: 'Narration', debit: 'Withdrawal Amt.', credit: 'Deposit Amt.', balance: 'Closing Balance' },
@@ -19,7 +18,7 @@ const BANK_FORMATS = {
   },
   icici: {
     name: 'ICICI Bank',
-    logo: 'ðŸŸ§',
+    logo: '🟧',
     delimiter: ',',
     skipRows: 1,
     columns: { date: 'Transaction Date', description: 'Transaction Remarks', debit: 'Withdrawal Amount (INR )', credit: 'Deposit Amount (INR )', balance: 'Balance (INR )' },
@@ -28,7 +27,7 @@ const BANK_FORMATS = {
   },
   sbi: {
     name: 'State Bank of India',
-    logo: 'ðŸ”µ',
+    logo: '🔵',
     delimiter: ',',
     skipRows: 2,
     columns: { date: 'Txn Date', description: 'Description', debit: 'Debit', credit: 'Credit', balance: 'Balance' },
@@ -37,7 +36,7 @@ const BANK_FORMATS = {
   },
   axis: {
     name: 'Axis Bank',
-    logo: 'ðŸŸ¥',
+    logo: '🟥',
     delimiter: ',',
     skipRows: 1,
     columns: { date: 'Tran Date', description: 'PARTICULARS', debit: 'DR', credit: 'CR', balance: 'BAL' },
@@ -46,7 +45,7 @@ const BANK_FORMATS = {
   },
   kotak: {
     name: 'Kotak Bank',
-    logo: 'ðŸŸ«',
+    logo: '🟫',
     delimiter: ',',
     skipRows: 1,
     columns: { date: 'Transaction Date', description: 'Description', debit: 'Debit', credit: 'Credit', balance: 'Balance' },
@@ -57,7 +56,7 @@ const BANK_FORMATS = {
 
 function parseAmount(str) {
   if (!str || str.trim() === '' || str.trim() === '-') return 0;
-  return parseFloat(str.replace(/[,\sâ‚¹Rs]/g, '')) || 0;
+  return parseFloat(str.replace(/[,\s₹Rs]/g, '')) || 0;
 }
 
 function parseDate(str, format) {
@@ -209,7 +208,7 @@ export default function BankStatementImporter() {
     <div style={{ padding: 24, background: '#EEF3FD', minHeight: '100%' }}>
       <div style={{ marginBottom: 24 }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0A1628', marginBottom: 4 }}>Bank Statement Importer</h1>
-        <div style={{ fontSize: 13, color: '#64748B' }}>Import transactions from your bank CSV export â€” supports all major Indian banks.</div>
+        <div style={{ fontSize: 13, color: '#64748B' }}>Import transactions from your bank CSV export — supports all major Indian banks.</div>
       </div>
 
       {step === 'select' && (
@@ -234,7 +233,7 @@ export default function BankStatementImporter() {
             <select value={selectedAccount} onChange={e => setSelectedAccount(e.target.value)}
               style={{ width: '100%', padding: '10px 12px', borderRadius: 8, border: '1px solid #C7D9F8', fontSize: 13, outline: 'none', background: '#fff' }}>
               <option value="">Select bank account...</option>
-              {bankAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} â€” {acc.bank_name}</option>)}
+              {bankAccounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} — {acc.bank_name}</option>)}
             </select>
           </div>
 
@@ -249,17 +248,17 @@ export default function BankStatementImporter() {
               style={{ border: '2px dashed #C7D9F8', borderRadius: 10, padding: '32px', textAlign: 'center', cursor: 'pointer', background: '#F8FAFC', transition: 'all 0.15s' }}
               onMouseEnter={e => { e.currentTarget.style.borderColor = '#1B4FD8'; e.currentTarget.style.background = '#EEF3FD'; }}
               onMouseLeave={e => { e.currentTarget.style.borderColor = '#C7D9F8'; e.currentTarget.style.background = '#F8FAFC'; }}>
-              <div style={{ fontSize: 32, marginBottom: 10 }}>ðŸ“</div>
+              <div style={{ fontSize: 32, marginBottom: 10 }}>📁</div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#334155', marginBottom: 4 }}>Click to upload CSV file</div>
               <div style={{ fontSize: 12, color: '#94A3B8' }}>Export statement from your bank's internet banking portal</div>
-              {file && <div style={{ marginTop: 10, fontSize: 12, color: '#1B4FD8', fontWeight: 600 }}>âœ“ {file.name}</div>}
+              {file && <div style={{ marginTop: 10, fontSize: 12, color: '#1B4FD8', fontWeight: 600 }}>✓ {file.name}</div>}
             </div>
             <input ref={fileRef} type="file" accept=".csv,.txt" onChange={handleFile} style={{ display: 'none' }} />
             {error && <div style={{ marginTop: 10, padding: '10px', borderRadius: 8, background: '#FEF2F2', border: '1px solid #FECACA', color: '#DC2626', fontSize: 12 }}>{error}</div>}
           </div>
 
           <div style={{ padding: '14px 16px', borderRadius: 10, background: '#FFFBEB', border: '1px solid #FDE68A', fontSize: 12, color: '#92400E' }}>
-            <strong>How to export:</strong> Login to your bank â†’ Account Statement â†’ Select date range â†’ Download as CSV
+            <strong>How to export:</strong> Login to your bank → Account Statement → Select date range → Download as CSV
           </div>
         </div>
       )}
@@ -284,7 +283,7 @@ export default function BankStatementImporter() {
           {/* Table */}
           <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', overflow: 'hidden', marginBottom: 20 }}>
             <div style={{ padding: '12px 16px', borderBottom: '1px solid #EEF3FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Preview â€” Select rows to import</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Preview — Select rows to import</div>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button onClick={() => setParsed(p => p.map(r => ({...r, selected: true})))} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Select All</button>
                 <button onClick={() => setParsed(p => p.map(r => ({...r, selected: false})))} style={{ padding: '5px 12px', borderRadius: 6, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', fontSize: 11, cursor: 'pointer' }}>Deselect All</button>
@@ -294,7 +293,7 @@ export default function BankStatementImporter() {
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
                 <thead style={{ position: 'sticky', top: 0, zIndex: 1 }}>
                   <tr style={{ background: '#F0F5FF' }}>
-                    <th style={{ padding: '8px 12px', textAlign: 'center', width: 40 }}>âœ“</th>
+                    <th style={{ padding: '8px 12px', textAlign: 'center', width: 40 }}>✓</th>
                     <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#3B5998', fontSize: 11 }}>Date</th>
                     <th style={{ padding: '8px 12px', textAlign: 'left', fontWeight: 700, color: '#3B5998', fontSize: 11 }}>Description</th>
                     <th style={{ padding: '8px 12px', textAlign: 'right', fontWeight: 700, color: '#3B5998', fontSize: 11 }}>Amount</th>
@@ -330,9 +329,9 @@ export default function BankStatementImporter() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <button onClick={() => { setStep('select'); setParsed([]); setFile(null); }} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>â† Back</button>
+            <button onClick={() => { setStep('select'); setParsed([]); setFile(null); }} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#334155', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>← Back</button>
             <button onClick={handleImport} disabled={importing || !selectedRows.length} style={{ padding: '10px 28px', borderRadius: 8, border: 'none', background: importing ? '#93B4EF' : '#1B4FD8', color: '#fff', fontSize: 13, fontWeight: 700, cursor: importing ? 'not-allowed' : 'pointer' }}>
-              {importing ? 'Importing...' : `Import ${selectedRows.length} Transactions â†’`}
+              {importing ? 'Importing...' : `Import ${selectedRows.length} Transactions →`}
             </button>
           </div>
         </div>
@@ -340,16 +339,15 @@ export default function BankStatementImporter() {
 
       {step === 'done' && (
         <div style={{ maxWidth: 500, margin: '60px auto', textAlign: 'center' }}>
-          <div style={{ fontSize: 56, marginBottom: 16 }}>âœ…</div>
+          <div style={{ fontSize: 56, marginBottom: 16 }}>✅</div>
           <div style={{ fontSize: 22, fontWeight: 800, color: '#0A1628', marginBottom: 8 }}>Import Successful!</div>
           <div style={{ fontSize: 14, color: '#64748B', marginBottom: 24 }}>{imported} transactions imported to your bank account.</div>
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
             <button onClick={() => { setStep('select'); setParsed([]); setFile(null); setImported(0); }} style={{ padding: '10px 20px', borderRadius: 8, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Import Another</button>
-            <a href="/treasury" style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#1B4FD8', color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>View Transactions â†’</a>
+            <a href="/treasury" style={{ padding: '10px 20px', borderRadius: 8, border: 'none', background: '#1B4FD8', color: '#fff', fontSize: 13, fontWeight: 700, textDecoration: 'none', display: 'inline-block' }}>View Transactions →</a>
           </div>
         </div>
       )}
     </div>
   );
 }
-
