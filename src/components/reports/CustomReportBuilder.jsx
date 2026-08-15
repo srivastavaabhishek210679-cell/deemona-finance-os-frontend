@@ -1,3 +1,4 @@
+﻿// v2 clean rewrite
 import { useState, useEffect } from 'react';
 import { apiURL } from '../../api.js';
 
@@ -8,18 +9,18 @@ const post = async (url, body) => { try { const r = await fetch(apiURL(url), { m
 const INR = n => { const v = parseFloat(n||0); if(v>=1e7) return 'Rs '+(v/1e7).toFixed(2)+' Cr'; if(v>=1e5) return 'Rs '+(v/1e5).toFixed(2)+' L'; return 'Rs '+v.toLocaleString('en-IN'); };
 
 const REPORT_TEMPLATES = [
-  { id: 'pl_monthly',    name: 'P&L Monthly',         icon: '📈', desc: 'Revenue, expenses, profit by month',  module: 'statements' },
-  { id: 'ar_aging',      name: 'AR Aging Report',      icon: '📄', desc: 'Outstanding receivables by age',       module: 'accounting' },
-  { id: 'ap_aging',      name: 'AP Aging Report',      icon: '📋', desc: 'Outstanding payables by age',          module: 'accounting' },
-  { id: 'gst_summary',   name: 'GST Summary',          icon: '🧾', desc: 'GST collected, ITC, payable',          module: 'tax' },
-  { id: 'payroll_sum',   name: 'Payroll Summary',      icon: '💰', desc: 'Salary, PF, ESI, TDS by employee',     module: 'payroll' },
-  { id: 'project_pnl',   name: 'Project P&L',          icon: '📊', desc: 'Budget vs actual by project',           module: 'projects' },
-  { id: 'cash_flow',     name: 'Cash Flow',            icon: '💳', desc: 'Monthly cash inflow and outflow',       module: 'treasury' },
-  { id: 'vendor_spend',  name: 'Vendor Spend',         icon: '🏭', desc: 'Spend analysis by vendor and category', module: 'procurement' },
-  { id: 'sales_pipeline',name: 'Sales Pipeline',       icon: '🎯', desc: 'CRM pipeline by stage and value',      module: 'crm' },
-  { id: 'compliance_cal',name: 'Compliance Calendar',  icon: '⚖️', desc: 'All statutory deadlines and status',  module: 'compliance' },
-  { id: 'expense_report',name: 'Expense Analysis',     icon: '💸', desc: 'Employee expenses by category/dept',   module: 'expenses' },
-  { id: 'asset_register',name: 'Asset Register',       icon: '🖥', desc: 'Fixed assets with depreciation',       module: 'assets' },
+  { id: 'pl_monthly',    name: 'P&L Monthly',         icon: 'ðŸ“ˆ', desc: 'Revenue, expenses, profit by month',  module: 'statements' },
+  { id: 'ar_aging',      name: 'AR Aging Report',      icon: 'ðŸ“„', desc: 'Outstanding receivables by age',       module: 'accounting' },
+  { id: 'ap_aging',      name: 'AP Aging Report',      icon: 'ðŸ“‹', desc: 'Outstanding payables by age',          module: 'accounting' },
+  { id: 'gst_summary',   name: 'GST Summary',          icon: 'ðŸ§¾', desc: 'GST collected, ITC, payable',          module: 'tax' },
+  { id: 'payroll_sum',   name: 'Payroll Summary',      icon: 'ðŸ’°', desc: 'Salary, PF, ESI, TDS by employee',     module: 'payroll' },
+  { id: 'project_pnl',   name: 'Project P&L',          icon: 'ðŸ“Š', desc: 'Budget vs actual by project',           module: 'projects' },
+  { id: 'cash_flow',     name: 'Cash Flow',            icon: 'ðŸ’³', desc: 'Monthly cash inflow and outflow',       module: 'treasury' },
+  { id: 'vendor_spend',  name: 'Vendor Spend',         icon: 'ðŸ­', desc: 'Spend analysis by vendor and category', module: 'procurement' },
+  { id: 'sales_pipeline',name: 'Sales Pipeline',       icon: 'ðŸŽ¯', desc: 'CRM pipeline by stage and value',      module: 'crm' },
+  { id: 'compliance_cal',name: 'Compliance Calendar',  icon: 'âš–ï¸', desc: 'All statutory deadlines and status',  module: 'compliance' },
+  { id: 'expense_report',name: 'Expense Analysis',     icon: 'ðŸ’¸', desc: 'Employee expenses by category/dept',   module: 'expenses' },
+  { id: 'asset_register',name: 'Asset Register',       icon: 'ðŸ–¥', desc: 'Fixed assets with depreciation',       module: 'assets' },
 ];
 
 const COLUMNS_MAP = {
@@ -65,7 +66,7 @@ function printReport(title, data) {
       <thead><tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr></thead>
       <tbody>${data.map(r => `<tr>${headers.map(h => `<td>${r[h]||''}</td>`).join('')}</tr>`).join('')}</tbody>
     </table>
-    <div class="footer">Confidential — Deemona Technologies</div>
+    <div class="footer">Confidential â€” Deemona Technologies</div>
   </body></html>`);
   w.document.close();
   w.print();
@@ -113,7 +114,7 @@ export default function CustomReportBuilder() {
           const daysDue = Math.floor((new Date() - new Date(inv.due_date)) / 86400000);
           return {
             'Invoice #': inv.invoice_number,
-            'Customer/Vendor': inv.customer_name || inv.vendor_name || '—',
+            'Customer/Vendor': inv.customer_name || inv.vendor_name || 'â€”',
             'Date': new Date(inv.date).toLocaleDateString('en-IN'),
             'Due Date': new Date(inv.due_date).toLocaleDateString('en-IN'),
             'Amount': INR(inv.total_amount),
@@ -199,7 +200,7 @@ export default function CustomReportBuilder() {
           'Frequency': c.frequency,
           'Due Date': new Date(c.due_date).toLocaleDateString('en-IN'),
           'Status': c.status,
-          'Penalty': c.penalty_if_missed ? INR(c.penalty_if_missed) : '—',
+          'Penalty': c.penalty_if_missed ? INR(c.penalty_if_missed) : 'â€”',
         }));
       } else if (module === 'expenses') {
         const res = await get('/api/expenses/claims');
@@ -306,7 +307,7 @@ export default function CustomReportBuilder() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <input value={reportName} onChange={e => setReportName(e.target.value)} placeholder="Report name" style={{ padding: '6px 10px', borderRadius: 7, border: '1px solid #C7D9F8', fontSize: 12, outline: 'none', width: 160 }} />
                     <button onClick={() => setSavedReports(p => [{name: reportName, template: selectedTemplate.id, lastRun: new Date().toLocaleDateString('en-IN')}, ...p])}
-                      style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>💾 Save</button>
+                      style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>ðŸ’¾ Save</button>
                   </div>
                 </div>
 
@@ -338,7 +339,7 @@ export default function CustomReportBuilder() {
                     {(COLUMNS_MAP[selectedTemplate.module] || []).map(col => (
                       <button key={col} onClick={() => toggleColumn(col)}
                         style={{ padding: '4px 10px', borderRadius: 20, border: `1px solid ${selectedColumns.includes(col) ? '#1B4FD8' : '#E2E8F0'}`, background: selectedColumns.includes(col) ? '#EEF3FD' : '#F8FAFC', color: selectedColumns.includes(col) ? '#1B4FD8' : '#64748B', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
-                        {selectedColumns.includes(col) ? '✓ ' : ''}{col}
+                        {selectedColumns.includes(col) ? 'âœ“ ' : ''}{col}
                       </button>
                     ))}
                   </div>
@@ -346,7 +347,7 @@ export default function CustomReportBuilder() {
 
                 <button onClick={runReport} disabled={running}
                   style={{ width: '100%', padding: '12px', borderRadius: 10, border: 'none', background: running ? '#93B4EF' : '#1B4FD8', color: '#fff', fontSize: 14, fontWeight: 700, cursor: running ? 'not-allowed' : 'pointer' }}>
-                  {running ? '⏳ Generating...' : '▶ Run Report'}
+                  {running ? 'â³ Generating...' : 'â–¶ Run Report'}
                 </button>
               </div>
 
@@ -355,11 +356,11 @@ export default function CustomReportBuilder() {
                 <>
                   <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', overflow: 'hidden', marginBottom: 16 }}>
                     <div style={{ padding: '12px 16px', borderBottom: '1px solid #EEF3FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>{reportName} — {reportData.length} rows</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>{reportName} â€” {reportData.length} rows</div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button onClick={() => downloadCSV(reportData, reportName.replace(/\s/g,'_')+'.csv')} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #A7F3D0', background: '#ECFDF5', color: '#059669', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>⬇ CSV</button>
-                        <button onClick={() => printReport(reportName, reportData)} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>🖨 Print</button>
-                        <button onClick={getAIInsight} disabled={aiLoading} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #DDD6FE', background: '#F5F3FF', color: '#7C3AED', fontSize: 11, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer' }}>🧠 AI Insight</button>
+                        <button onClick={() => downloadCSV(reportData, reportName.replace(/\s/g,'_')+'.csv')} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #A7F3D0', background: '#ECFDF5', color: '#059669', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>â¬‡ CSV</button>
+                        <button onClick={() => printReport(reportName, reportData)} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #C7D9F8', background: '#F0F5FF', color: '#1B4FD8', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>ðŸ–¨ Print</button>
+                        <button onClick={getAIInsight} disabled={aiLoading} style={{ padding: '6px 12px', borderRadius: 7, border: '1px solid #DDD6FE', background: '#F5F3FF', color: '#7C3AED', fontSize: 11, fontWeight: 700, cursor: aiLoading ? 'not-allowed' : 'pointer' }}>ðŸ§  AI Insight</button>
                       </div>
                     </div>
                     <div style={{ overflowX: 'auto' }}>
@@ -386,7 +387,7 @@ export default function CustomReportBuilder() {
 
                   {aiInsight && (
                     <div style={{ background: '#F5F3FF', borderRadius: 12, border: '1px solid #DDD6FE', padding: 20 }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED', marginBottom: 8 }}>🧠 AI Analysis</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#7C3AED', marginBottom: 8 }}>ðŸ§  AI Analysis</div>
                       <div style={{ fontSize: 13, color: '#4C1D95', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{aiInsight}</div>
                     </div>
                   )}
@@ -395,7 +396,7 @@ export default function CustomReportBuilder() {
             </>
           ) : (
             <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', padding: 60, textAlign: 'center' }}>
-              <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>📊</div>
+              <div style={{ fontSize: 48, marginBottom: 16, opacity: 0.3 }}>ðŸ“Š</div>
               <div style={{ fontSize: 16, fontWeight: 700, color: '#334155', marginBottom: 6 }}>Select a report template</div>
               <div style={{ fontSize: 13, color: '#64748B' }}>Choose from 12 pre-built templates or build your own custom report</div>
             </div>
@@ -405,3 +406,4 @@ export default function CustomReportBuilder() {
     </div>
   );
 }
+
