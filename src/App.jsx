@@ -417,7 +417,8 @@ export default function App() {
     </div>
   );
 
-  if (!user) return <AuthGate />;
+  const isPublicRoute = ['/', '/landing'].includes(window.location.pathname);
+  if (!user && !isPublicRoute) return <AuthGate />;
 
   const routes = [
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
