@@ -419,6 +419,7 @@ export default function App() {
 
   const routes = [
     { path: '/',             title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
+    { path: '/gst-portal', title: 'GST Portal', sub: 'File GST returns and track ITC.', comp: <GSTPortalPage /> },
     { path: '/onboarding', title: 'Setup Wizard', sub: 'Company setup.', comp: <OnboardingWizard onComplete={() => { window.location.href = '/dashboard'; }} /> },
     { path: '/memory',       title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
     { path: '/decision',     title: 'AI Decision Center',    sub: 'Your executive financial command center.',            comp: <DecisionCenter /> },
