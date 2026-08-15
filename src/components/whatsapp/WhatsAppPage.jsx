@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import { apiURL } from '../../api.js';
 
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
@@ -7,7 +7,7 @@ const post = async (url, body) => { const r = await fetch(apiURL(url), { method:
 
 export default function WhatsAppPage() {
   const [tab, setTab] = useState('compose');
-  const [config, setConfig] = useState(null);
+  const [status, setStatus] = useState(null);
   const [templates, setTemplates] = useState([]);
   const [messages, setMessages] = useState([]);
   const [to, setTo] = useState('');
@@ -24,7 +24,7 @@ export default function WhatsAppPage() {
   const [cfgProvider, setCfgProvider] = useState('twilio');
 
   useEffect(() => {
-    get('/api/whatsapp/config').then(d => { setConfig(d); if (d.config?.phone_number) setCfgPhone(d.config.phone_number); });
+    get('/api/whatsapp/status').then(d => { setStatus(d); if (d.config?.phone_number) setCfgPhone(d.config.phone_number); });
     get('/api/whatsapp/templates').then(d => setTemplates(d.templates||[]));
     get('/api/whatsapp/messages').then(d => setMessages(d.messages||[]));
   }, []);
@@ -56,10 +56,10 @@ export default function WhatsAppPage() {
 
   const saveConfig = async () => {
     setSavingConfig(true);
-    await post('/api/whatsapp/config', { phone_number: cfgPhone, provider: cfgProvider, notifications: { invoice_approval: true, payment_confirmation: true, overdue_alerts: true, gst_reminders: true, payroll_processed: true, low_cash_alert: true, compliance_deadline: true } });
+    await post('/api/whatsapp/status', { phone_number: cfgPhone, provider: cfgProvider, notifications: { invoice_approval: true, payment_confirmation: true, overdue_alerts: true, gst_reminders: true, payroll_processed: true, low_cash_alert: true, compliance_deadline: true } });
     setSavingConfig(false);
-    const d = await get('/api/whatsapp/config');
-    setConfig(d);
+    const d = await get('/api/whatsapp/status');
+    setStatus(d);
   };
 
   const previewTemplate = templates.find(t => t.id === selectedTemplate)?.preview;
@@ -72,11 +72,11 @@ export default function WhatsAppPage() {
       </div>
 
       {/* Status banner */}
-      <div style={{ padding: '12px 16px', borderRadius: 10, marginBottom: 20, background: config?.configured ? '#22C98A12' : '#F5A62312', border: `1px solid ${config?.configured ? '#22C98A30' : '#F5A62330'}` }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: config?.configured ? '#22C98A' : '#F5A623' }}>
-          {config?.configured ? '✓ WhatsApp connected — messages will be delivered' : '⚠ WhatsApp not configured — messages will be simulated'}
+      <div style={{ padding: '12px 16px', borderRadius: 10, marginBottom: 20, background: status?.configured ? '#22C98A12' : '#F5A62312', border: `1px solid ${status?.configured ? '#22C98A30' : '#F5A62330'}` }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: status?.configured ? '#22C98A' : '#F5A623' }}>
+          {status?.configured ? '✓ Twilio Connected · ' + status?.from_number : '⚠ WhatsApp not configured — Add Twilio keys to Render'}
         </div>
-        {!config?.configured && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Go to Settings tab to connect Twilio, WATI, or another provider</div>}
+        {!status?.configured && <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4 }}>Go to Settings tab to connect Twilio, WATI, or another provider</div>}
       </div>
 
       {/* Tabs */}
