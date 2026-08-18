@@ -32,6 +32,7 @@ import AdminPage from './components/admin/AdminPage';
 import DataExportPage from './components/dataexport/DataExportPage';
 import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabelPage';
 import LandingPage from './pages/LandingPage';
+import DriveMonitorPage from './components/monitor/DriveMonitorPage';
 import DashboardPage from './components/dashboard/DashboardPage';
 import GSTPortalPage from './components/tax/GSTPortalPage';
 import NewAPIMarketplace from './components/marketplace/APIMarketplace';
@@ -440,6 +441,8 @@ export default function App() {
 
   const routes = [
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
+    { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive monitoring.', comp: <DriveMonitorPage /> },
+    { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive financial file monitoring.', comp: <DriveMonitorPage /> },
     { path: '/bank-import',  title: 'Bank Import',    sub: 'Import CSV from Indian banks.', comp: <BankStatementImporter /> },
     { path: '/reports',      title: 'Custom Reports', sub: 'Build and export reports.', comp: <CustomReportBuilder /> },
     { path: '/app',           title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
