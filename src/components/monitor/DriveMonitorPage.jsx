@@ -19,13 +19,8 @@ export default function DriveMonitorPage() {
   const [saveResult, setSaveResult] = useState(null);
   const [toggling, setToggling] = useState(false);
 
-  const load = async () => {
-    const [s, st, p, l] = await Promise.all([
-      get('/api/monitor/settings'),
-      get('/api/monitor/status'),
-      get('/api/monitor/processed'),
-      get('/api/monitor/logs'),
-    ]);
+  const loadSettings = async () => {
+    const s = await get('/api/monitor/settings');
     if (s.settings) {
       setSettings({
         folder_id: s.settings.folder_id || '',
@@ -37,12 +32,26 @@ export default function DriveMonitorPage() {
         enabled: s.settings.enabled || false,
       });
     }
+  };
+
+  const loadStatus = async () => {
+    const [st, p, l] = await Promise.all([
+      get('/api/monitor/status'),
+      get('/api/monitor/processed'),
+      get('/api/monitor/logs'),
+    ]);
     setStatus(st);
     setProcessed(p.files || []);
     setLogs(l.logs || []);
   };
 
-  useEffect(() => { load(); const t = setInterval(load, 30000); return () => clearInterval(t); }, []);
+  const load = async () => { await loadSettings(); await loadStatus(); };
+
+  useEffect(() => {
+    load(); // Initial load - sets both settings and status
+    const t = setInterval(loadStatus, 30000); // Poll only status/logs - never resets form fields
+    return () => clearInterval(t);
+  }, []);
 
   const save = async () => {
     setSaving(true); setSaveResult(null);
