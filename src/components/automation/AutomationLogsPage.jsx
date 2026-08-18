@@ -1,3 +1,4 @@
+// v2 - null safe
 import { useState, useEffect } from 'react';
 import { apiURL } from '../../api.js';
 
@@ -57,8 +58,8 @@ export default function AutomationLogsPage() {
     setTimeout(load, 2000); // Refresh logs after test
   };
 
-  const filteredLogs = filter === 'all' ? logs : logs.filter(l => l.automation_type === filter);
-  const uniqueTypes = [...new Set(logs.map(l => l.automation_type))];
+  const filteredLogs = filter === 'all' ? logs : logs.filter(l => (l.automation_type||'') === filter);
+  const uniqueTypes = [...new Set(logs.map(l => l.automation_type).filter(Boolean))];
 
   const totalSuccess = logs.filter(l => l.status === 'success' || l.status === 'sent' || l.status === 'matched' || l.status === 'notified').length;
   const totalFailed  = logs.filter(l => l.status === 'error' || l.status === 'failed').length;
@@ -139,7 +140,7 @@ export default function AutomationLogsPage() {
                     <div style={{width:8,height:8,borderRadius:'50%',background:log.status==='error'?'#DC2626':log.status==='pending'?'#D97706':'#059669',marginTop:5,flexShrink:0}} />
                     <div style={{flex:1}}>
                       <div style={{display:'flex',gap:6,alignItems:'center',marginBottom:2}}>
-                        <span style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:4,background:(TYPE_COLORS[log.automation_type]||'#64748B')+'15',color:TYPE_COLORS[log.automation_type]||'#64748B'}}>{log.automation_type?.replace(/_/g,' ')}</span>
+                        <span style={{fontSize:10,fontWeight:700,padding:'1px 6px',borderRadius:4,background:(TYPE_COLORS[log.automation_type||'']||'#64748B')+'15',color:TYPE_COLORS[log.automation_type||'']||'#64748B'}}>{(log.automation_type||'').replace(/_/g,' ')}</span>
                         <span style={{fontSize:10,color:log.status==='error'?'#DC2626':'#059669',fontWeight:600}}>{log.status}</span>
                       </div>
                       <div style={{fontSize:11,color:'#64748B',lineHeight:1.4}}>{log.detail?.substring(0,80)}</div>
@@ -213,8 +214,8 @@ export default function AutomationLogsPage() {
                 ) : filteredLogs.map((log,i) => (
                   <tr key={i} style={{borderTop:'1px solid #F1F5F9',background:i%2===0?'#fff':'#FAFBFF'}}>
                     <td style={{padding:'10px 14px'}}>
-                      <span style={{padding:'2px 8px',borderRadius:6,fontSize:10,fontWeight:700,background:(TYPE_COLORS[log.automation_type]||'#64748B')+'15',color:TYPE_COLORS[log.automation_type]||'#64748B',whiteSpace:'nowrap'}}>
-                        {log.automation_type?.replace(/_/g,' ')}
+                      <span style={{padding:'2px 8px',borderRadius:6,fontSize:10,fontWeight:700,background:(TYPE_COLORS[log.automation_type||'']||'#64748B')+'15',color:TYPE_COLORS[log.automation_type||'']||'#64748B',whiteSpace:'nowrap'}}>
+                        {(log.automation_type||'').replace(/_/g,' ')}
                       </span>
                     </td>
                     <td style={{padding:'10px 14px'}}>
