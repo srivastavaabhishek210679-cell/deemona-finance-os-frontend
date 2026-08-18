@@ -446,6 +446,7 @@ export default function App() {
 
   const routes = [
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
+    { path: '/corporate-docs', title: 'Corporate Documents', sub: 'Source documents, loans, risk register, governance.', comp: <MissingDocsPage /> },
     { path: '/automation-logs', title: 'Automation Center', sub: 'Monitor and test all automated workflows.', comp: <AutomationLogsPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive monitoring.', comp: <DriveMonitorPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive financial file monitoring.', comp: <DriveMonitorPage /> },
