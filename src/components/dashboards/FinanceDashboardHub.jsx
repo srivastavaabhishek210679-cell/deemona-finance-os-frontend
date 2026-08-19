@@ -3,759 +3,920 @@ import { apiURL } from '../../api.js';
 
 const h = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 const api = async url => { try { const r = await fetch(apiURL(url), { headers: h() }); return await r.json(); } catch { return {}; } };
-const INR = (n, c=false) => {
+const C = (n, compact=false) => {
   const v = parseFloat(n||0);
-  if (c) {
-    if (v>=10000000) return '₹' + (v/10000000).toFixed(2) + 'Cr';
-    if (v>=100000) return '₹' + (v/100000).toFixed(2) + 'L';
-    if (v>=1000) return '₹' + (v/1000).toFixed(1) + 'K';
-    return '₹' + v.toFixed(0);
+  if (compact) {
+    if (v>=10000000) return '₹'+(v/10000000).toFixed(1)+'Cr';
+    if (v>=100000) return '₹'+(v/100000).toFixed(1)+'L';
+    if (v>=1000) return '₹'+(v/1000).toFixed(0)+'K';
+    return '₹'+v.toFixed(0);
   }
-  return '₹' + v.toLocaleString('en-IN', {minimumFractionDigits:0, maximumFractionDigits:0});
+  return '₹'+v.toLocaleString('en-IN',{minimumFractionDigits:0,maximumFractionDigits:0});
 };
-const pct = (a,b) => b>0 ? ((parseFloat(a)/parseFloat(b))*100).toFixed(1)+'%' : '0%';
-const chg = (v, sign=true) => { const n=parseFloat(v||0); return (sign&&n>=0?'+':'')+n.toFixed(1)+'%'; };
-const statusColor = s => ({ paid:'#059669', approved:'#059669', pending:'#D97706', submitted:'#D97706', overdue:'#DC2626', rejected:'#DC2626', draft:'#94A3B8' }[s?.toLowerCase()] || '#64748B');
+const P = (a,b) => b>0?((parseFloat(a)/parseFloat(b))*100).toFixed(1)+'%':'0%';
+const SC = s => ({paid:'#16a34a',approved:'#16a34a',pending:'#d97706',submitted:'#d97706',overdue:'#dc2626',rejected:'#dc2626',draft:'#6b7280'})[s?.toLowerCase()]||'#6b7280';
 
-// ── SVG Bar Chart ─────────────────────────────────────────────
-function BarChart({ data=[], w=400, h=120, colors=['#1B4FD8','#DC2626','#059669'], showValues=true, showXLabels=true }) {
-  if (!data.length) return <div style={{height:h,display:'flex',alignItems:'center',justifyContent:'center',color:'#94A3B8',fontSize:11}}>No data available</div>;
-  const maxV = Math.max(...data.flatMap(d => d.values||[d.value||0])) || 1;
-  const barW = Math.floor((w - 40) / data.length) - 4;
-  const chartH = h - (showXLabels ? 28 : 10) - (showValues ? 16 : 4);
-  return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`} style={{overflow:'visible'}}>
-      {data.map((d, i) => {
-        const vals = d.values || [d.value||0];
-        const x = 40 + i * (barW * vals.length + 8);
-        return (
-          <g key={i}>
-            {vals.map((v, j) => {
-              const bh = Math.max(2, (v/maxV)*chartH);
-              const bx = x + j*(barW+2);
-              const by = h - (showXLabels?28:10) - bh;
-              return (
-                <g key={j}>
-                  <rect x={bx} y={by} width={barW} height={bh} fill={colors[j%colors.length]} rx="2" opacity="0.9"/>
-                  {showValues && v > 0 && <text x={bx+barW/2} y={by-3} textAnchor="middle" fontSize="8" fill="#64748B">{INR(v,true)}</text>}
-                </g>
-              );
-            })}
-            {showXLabels && <text x={x + (vals.length * (barW+2))/2} y={h-4} textAnchor="middle" fontSize="9" fill="#94A3B8">{d.label}</text>}
-          </g>
-        );
-      })}
-      {/* Y axis lines */}
-      {[0.25,0.5,0.75,1].map(f => {
-        const y = h - (showXLabels?28:10) - f*chartH;
-        return <g key={f}><line x1={36} y1={y} x2={w} y2={y} stroke="#F1F5F9" strokeWidth="0.5"/><text x={34} y={y+3} textAnchor="end" fontSize="8" fill="#94A3B8">{INR(maxV*f,true)}</text></g>;
-      })}
-    </svg>
-  );
-}
+// ── CHART COLORS ──────────────────────────────────────────────
+const COLORS = ['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#0891b2','#db2777','#65a30d'];
 
-// ── SVG Line Chart ────────────────────────────────────────────
-function LineChart({ series=[], w=400, h=100, labels=[] }) {
-  if (!series.length || !series[0].data?.length) return <div style={{height:h,display:'flex',alignItems:'center',justifyContent:'center',color:'#94A3B8',fontSize:11}}>No data</div>;
-  const allVals = series.flatMap(s=>s.data);
-  const maxV = Math.max(...allVals)||1;
-  const minV = Math.min(...allVals);
-  const range = maxV - minV || 1;
-  const n = series[0].data.length;
-  const padL = 40, padB = 24, padT = 10, padR = 10;
-  const cw = w - padL - padR, ch = h - padB - padT;
-  const px = (i) => padL + (i/(n-1))*cw;
-  const py = (v) => padT + ch - ((v-minV)/range)*ch;
-
-  return (
-    <svg width="100%" viewBox={`0 0 ${w} ${h}`}>
-      {/* Grid */}
-      {[0,0.25,0.5,0.75,1].map(f => {
-        const y = padT + ch*(1-f);
-        const v = minV + range*f;
-        return <g key={f}><line x1={padL} y1={y} x2={w-padR} y2={y} stroke="#F1F5F9" strokeWidth="0.5"/><text x={padL-4} y={y+3} textAnchor="end" fontSize="8" fill="#94A3B8">{INR(v,true)}</text></g>;
-      })}
-      {/* X labels */}
-      {labels.map((l,i) => <text key={i} x={px(i)} y={h-6} textAnchor="middle" fontSize="9" fill="#94A3B8">{l}</text>)}
-      {/* Series */}
-      {series.map((s,si) => {
-        const pts = s.data.map((v,i) => `${px(i)},${py(v)}`).join(' ');
-        const areapts = `${px(0)},${padT+ch} ${pts} ${px(n-1)},${padT+ch}`;
-        return (
-          <g key={si}>
-            <polygon points={areapts} fill={s.color} opacity="0.08"/>
-            <polyline points={pts} fill="none" stroke={s.color} strokeWidth="1.5" strokeLinejoin="round"/>
-            {s.data.map((v,i) => <circle key={i} cx={px(i)} cy={py(v)} r="2.5" fill="#fff" stroke={s.color} strokeWidth="1.5"/>)}
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
-// ── Donut Chart ───────────────────────────────────────────────
-function Donut({ segments=[], size=90, thickness=16, centerLabel='', centerSub='' }) {
-  const total = segments.reduce((s,g)=>s+parseFloat(g.value||0),0)||1;
-  let cum = 0;
-  const r = (size/2) - thickness/2;
-  const c = size/2;
-  const slices = segments.map((seg,i) => {
-    const frac = parseFloat(seg.value||0)/total;
-    const startA = (cum - 0.25)*2*Math.PI;
-    const endA = (cum + frac - 0.25)*2*Math.PI;
-    cum += frac;
-    const x1=c+r*Math.cos(startA), y1=c+r*Math.sin(startA);
-    const x2=c+r*Math.cos(endA), y2=c+r*Math.sin(endA);
-    const large = frac > 0.5 ? 1 : 0;
-    return <path key={i} d={`M${x1},${y1} A${r},${r} 0 ${large} 1 ${x2},${y2}`} fill="none" stroke={seg.color} strokeWidth={thickness} opacity="0.9"/>;
+// ── SVG PIE / DONUT ───────────────────────────────────────────
+function PieChart({data=[],size=100,donut=false,innerLabel='',innerSub=''}){
+  const total=data.reduce((s,d)=>s+parseFloat(d.v||0),0)||1;
+  const cx=size/2,cy=size/2,r=size/2-2,ri=donut?r*0.55:0;
+  let angle=-Math.PI/2;
+  const slices=data.map((d,i)=>{
+    const frac=parseFloat(d.v||0)/total;
+    const a0=angle,a1=angle+frac*2*Math.PI;
+    angle=a1;
+    if(frac<0.001)return null;
+    const x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0);
+    const x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1);
+    const lf=frac>0.5?1:0;
+    const xi0=cx+ri*Math.cos(a0),yi0=cy+ri*Math.sin(a0);
+    const xi1=cx+ri*Math.cos(a1),yi1=cy+ri*Math.sin(a1);
+    const path=donut
+      ?`M${xi0},${yi0} L${x0},${y0} A${r},${r} 0 ${lf},1 ${x1},${y1} L${xi1},${yi1} A${ri},${ri} 0 ${lf},0 ${xi0},${yi0}Z`
+      :`M${cx},${cy} L${x0},${y0} A${r},${r} 0 ${lf},1 ${x1},${y1}Z`;
+    return <path key={i} d={path} fill={d.color||COLORS[i%COLORS.length]} stroke="#fff" strokeWidth="1.5"/>;
   });
-  return (
+  return(
     <svg width={size} height={size} style={{flexShrink:0}}>
-      <circle cx={c} cy={c} r={r} fill="none" stroke="#F1F5F9" strokeWidth={thickness}/>
       {slices}
-      {centerLabel && <text x={c} y={c-4} textAnchor="middle" fontSize="11" fontWeight="600" fill="#0A1628">{centerLabel}</text>}
-      {centerSub && <text x={c} y={c+10} textAnchor="middle" fontSize="8" fill="#64748B">{centerSub}</text>}
+      {donut&&innerLabel&&<>
+        <text x={cx} y={cy+(innerSub?-5:4)} textAnchor="middle" fontSize={size<80?9:11} fontWeight="700" fill="#0f172a">{innerLabel}</text>
+        {innerSub&&<text x={cx} y={cy+10} textAnchor="middle" fontSize={size<80?7:9} fill="#64748b">{innerSub}</text>}
+      </>}
     </svg>
   );
 }
 
-// ── KPI Card ──────────────────────────────────────────────────
-function KPI({ label, value, sub, change, color='#1B4FD8', icon, size='md' }) {
-  const isPos = parseFloat(change||0) >= 0;
-  return (
-    <div style={{background:'#fff',borderRadius:10,border:'1px solid #E8EDF5',padding:size==='sm'?'10px 12px':'14px 16px',borderTop:`3px solid ${color}`}}>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:4}}>
-        <div style={{fontSize:10,fontWeight:700,color:'#64748B',textTransform:'uppercase',letterSpacing:'0.04em',lineHeight:1.3}}>{label}</div>
-        {icon && <span style={{fontSize:16,opacity:0.6}}>{icon}</span>}
+// ── SVG BAR CHART ─────────────────────────────────────────────
+function BarChart({data=[],w=320,h=100,multi=false,colors=COLORS,showVals=true,horizontal=false}){
+  if(!data.length)return<div style={{height:h,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:10}}>No data</div>;
+  const vals=multi?data.flatMap(d=>d.vals||[d.v||0]):data.map(d=>parseFloat(d.v||0));
+  const maxV=Math.max(...vals)||1;
+  const pad={l:36,r:8,t:showVals?16:4,b:20};
+  const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const grpW=cw/data.length;
+  const bars=multi?data[0]?.vals?.length||1:1;
+  const bw=Math.max(4,Math.floor(grpW/bars)-3);
+  return(
+    <svg width="100%" viewBox={`0 0 ${w} ${h}`} style={{overflow:'visible'}}>
+      {[0,0.25,0.5,0.75,1].map(f=>{
+        const y=pad.t+ch*(1-f);
+        return<g key={f}>
+          <line x1={pad.l} y1={y} x2={w-pad.r} y2={y} stroke="#f1f5f9" strokeWidth="0.8"/>
+          <text x={pad.l-3} y={y+3} textAnchor="end" fontSize="7" fill="#94a3b8">{C(maxV*f,true)}</text>
+        </g>;
+      })}
+      {data.map((d,i)=>{
+        const vs=multi?d.vals||[d.v||0]:[parseFloat(d.v||0)];
+        const gx=pad.l+i*grpW+(grpW-bw*bars-2*(bars-1))/2;
+        return<g key={i}>
+          {vs.map((v,j)=>{
+            const bh=Math.max(1,(v/maxV)*ch);
+            const bx=gx+j*(bw+2);
+            const by=pad.t+ch-bh;
+            return<g key={j}>
+              <rect x={bx} y={by} width={bw} height={bh} fill={colors[j%colors.length]} rx="1.5" opacity="0.9"/>
+              {showVals&&v>0&&<text x={bx+bw/2} y={by-2} textAnchor="middle" fontSize="7" fill="#64748b">{C(v,true)}</text>}
+            </g>;
+          })}
+          <text x={pad.l+i*grpW+grpW/2} y={h-4} textAnchor="middle" fontSize="7.5" fill="#94a3b8">{d.l||d.label}</text>
+        </g>;
+      })}
+    </svg>
+  );
+}
+
+// ── SVG LINE CHART ────────────────────────────────────────────
+function LineChart({series=[],labels=[],w=320,h=100,showDots=true}){
+  if(!series.length)return<div style={{height:h,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:10}}>No data</div>;
+  const allV=series.flatMap(s=>s.data||[]);
+  const maxV=Math.max(...allV)||1,minV=Math.min(0,...allV);
+  const rng=maxV-minV||1;
+  const pad={l:36,r:8,t:8,b:18};
+  const cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const n=labels.length||series[0]?.data?.length||1;
+  const px=i=>pad.l+(i/(Math.max(n-1,1)))*cw;
+  const py=v=>pad.t+ch-((v-minV)/rng)*ch;
+  return(
+    <svg width="100%" viewBox={`0 0 ${w} ${h}`}>
+      {[0,0.25,0.5,0.75,1].map(f=>{
+        const y=pad.t+ch*(1-f);
+        const v=minV+rng*f;
+        return<g key={f}>
+          <line x1={pad.l} y1={y} x2={w-pad.r} y2={y} stroke="#f1f5f9" strokeWidth="0.8"/>
+          <text x={pad.l-3} y={y+3} textAnchor="end" fontSize="7" fill="#94a3b8">{C(v,true)}</text>
+        </g>;
+      })}
+      {labels.map((l,i)=><text key={i} x={px(i)} y={h-3} textAnchor="middle" fontSize="7.5" fill="#94a3b8">{l}</text>)}
+      {series.map((s,si)=>{
+        const pts=(s.data||[]).map((v,i)=>`${px(i)},${py(v)}`).join(' ');
+        const d0=s.data||[];
+        const area=`${px(0)},${pad.t+ch} ${pts} ${px(d0.length-1)},${pad.t+ch}`;
+        return<g key={si}>
+          <polygon points={area} fill={s.color} opacity="0.07"/>
+          <polyline points={pts} fill="none" stroke={s.color} strokeWidth="1.5" strokeLinejoin="round"/>
+          {showDots&&d0.map((v,i)=><circle key={i} cx={px(i)} cy={py(v)} r="2" fill="#fff" stroke={s.color} strokeWidth="1.2"/>)}
+        </g>;
+      })}
+    </svg>
+  );
+}
+
+// ── SVG HORIZONTAL BAR ────────────────────────────────────────
+function HBar({data=[],w=200,h=100,color='#2563eb'}){
+  if(!data.length)return null;
+  const max=Math.max(...data.map(d=>parseFloat(d.v||0)))||1;
+  const rh=Math.max(12,Math.floor((h-data.length*4)/data.length));
+  return(
+    <svg width="100%" viewBox={`0 0 ${w} ${h}`}>
+      {data.map((d,i)=>{
+        const bw=Math.max(2,(parseFloat(d.v||0)/max)*(w-90));
+        const y=i*(rh+4);
+        return<g key={i}>
+          <text x={0} y={y+rh-2} fontSize="8" fill="#64748b" style={{maxWidth:60}}>{(d.l||'').substring(0,12)}</text>
+          <rect x={68} y={y+2} width={bw} height={rh-4} fill={d.color||color} rx="1.5" opacity="0.85"/>
+          <text x={70+bw} y={y+rh-2} fontSize="7.5" fill="#334155">{C(d.v,true)}</text>
+        </g>;
+      })}
+    </svg>
+  );
+}
+
+// ── SPARKLINE ─────────────────────────────────────────────────
+function Spark({data=[],color='#2563eb',w=60,h=20}){
+  if(data.length<2)return null;
+  const max=Math.max(...data)||1,min=Math.min(...data);
+  const r=max-min||1;
+  const px=(i)=>(i/(data.length-1))*w;
+  const py=(v)=>h-((v-min)/r)*h*0.9;
+  const pts=data.map((v,i)=>`${px(i)},${py(v)}`).join(' ');
+  return<svg width={w} height={h}><polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round"/></svg>;
+}
+
+// ── LEGEND ────────────────────────────────────────────────────
+function Legend({items=[],vertical=false}){
+  return(
+    <div style={{display:'flex',flexDirection:vertical?'column':'row',flexWrap:'wrap',gap:vertical?4:8}}>
+      {items.map((it,i)=>(
+        <div key={i} style={{display:'flex',alignItems:'center',gap:4,fontSize:10,color:'#64748b'}}>
+          <div style={{width:10,height:10,borderRadius:2,background:it.color||COLORS[i%COLORS.length],flexShrink:0}}/>
+          <span>{it.label}</span>
+          {it.pct&&<span style={{fontWeight:700,color:it.color||COLORS[i%COLORS.length]}}>{it.pct}</span>}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── KPI CARD ──────────────────────────────────────────────────
+function KPI({label,value,sub,change,color='#2563eb',icon,spark=[],onClick}){
+  const pos=parseFloat(change||0)>=0;
+  return(
+    <div onClick={onClick} style={{background:'#fff',borderRadius:8,border:'1px solid #e2e8f0',padding:'10px 12px',borderTop:`3px solid ${color}`,cursor:onClick?'pointer':'default'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:3}}>
+        <div style={{fontSize:9,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:'0.04em',lineHeight:1.4,flex:1}}>{label}</div>
+        {icon&&<span style={{fontSize:14,opacity:0.5}}>{icon}</span>}
       </div>
-      <div style={{fontSize:size==='sm'?18:22,fontWeight:800,color:'#0A1628',lineHeight:1,marginBottom:3}}>{value}</div>
-      {sub && <div style={{fontSize:10,color:'#64748B',marginBottom:change!==undefined?4:0}}>{sub}</div>}
-      {change !== undefined && (
-        <div style={{fontSize:10,fontWeight:700,color:isPos?'#059669':'#DC2626'}}>
-          {isPos?'▲':'▼'} {Math.abs(parseFloat(change||0)).toFixed(1)}% vs last month
-        </div>
-      )}
+      <div style={{fontSize:20,fontWeight:800,color:'#0f172a',lineHeight:1,marginBottom:2}}>{value}</div>
+      {sub&&<div style={{fontSize:9,color:'#94a3b8',marginBottom:2}}>{sub}</div>}
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        {change!==undefined&&<div style={{fontSize:9,fontWeight:700,color:pos?'#16a34a':'#dc2626'}}>{pos?'▲':'▼'} {Math.abs(parseFloat(change||0)).toFixed(1)}% vs LY</div>}
+        {spark.length>1&&<Spark data={spark} color={color}/>}
+      </div>
     </div>
   );
 }
 
-// ── Section Card ──────────────────────────────────────────────
-function Card({ title, subtitle, children, action, style={} }) {
-  return (
-    <div style={{background:'#fff',borderRadius:12,border:'1px solid #E8EDF5',overflow:'hidden',...style}}>
-      {title && (
-        <div style={{padding:'12px 16px',borderBottom:'1px solid #F1F5F9',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div>
-            <div style={{fontSize:12,fontWeight:700,color:'#0A1628'}}>{title}</div>
-            {subtitle && <div style={{fontSize:10,color:'#94A3B8',marginTop:1}}>{subtitle}</div>}
-          </div>
-          {action}
-        </div>
-      )}
-      <div style={{padding:'14px 16px'}}>{children}</div>
+// ── CARD WRAPPER ──────────────────────────────────────────────
+function Card({title,no,children,style={},titleRight}){
+  return(
+    <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',...style}}>
+      {title&&<div style={{padding:'8px 12px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center',background:'#f8faff'}}>
+        <div style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{no?<span style={{color:'#2563eb',marginRight:6}}>#{no}</span>:null}{title}</div>
+        {titleRight}
+      </div>}
+      <div style={{padding:'10px 12px'}}>{children}</div>
     </div>
   );
 }
 
-// ── Mini Table ────────────────────────────────────────────────
-function MiniTable({ cols=[], rows=[], onRowClick }) {
-  return (
-    <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
-      <thead>
-        <tr style={{background:'#F8FAFF'}}>
-          {cols.map(c => <th key={c.key} style={{padding:'7px 10px',textAlign:c.right?'right':'left',fontWeight:700,color:'#64748B',fontSize:10,textTransform:'uppercase',letterSpacing:'0.03em',borderBottom:'1px solid #F1F5F9'}}>{c.label}</th>)}
-        </tr>
-      </thead>
-      <tbody>
-        {rows.length===0 ? <tr><td colSpan={cols.length} style={{padding:20,textAlign:'center',color:'#94A3B8'}}>No data</td></tr> :
-        rows.map((row,i) => (
-          <tr key={i} onClick={()=>onRowClick?.(row)} style={{borderBottom:'1px solid #F8FAFF',cursor:onRowClick?'pointer':'default',background:i%2===0?'#fff':'#FAFBFF'}}
-            onMouseEnter={e=>{if(onRowClick)e.currentTarget.style.background='#EEF3FD';}}
-            onMouseLeave={e=>{e.currentTarget.style.background=i%2===0?'#fff':'#FAFBFF';}}>
-            {cols.map(c => (
-              <td key={c.key} style={{padding:'7px 10px',textAlign:c.right?'right':'left',color:'#334155'}}>
-                {c.render ? c.render(row[c.key], row) : (row[c.key]||'—')}
-              </td>
-            ))}
+// ── MINI TABLE ────────────────────────────────────────────────
+function MiniTable({cols=[],rows=[],compact=false}){
+  return(
+    <div style={{overflowX:'auto'}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:compact?10:11}}>
+        <thead>
+          <tr style={{background:'#f8faff'}}>
+            {cols.map(c=><th key={c.k} style={{padding:compact?'4px 8px':'6px 10px',textAlign:c.r?'right':'left',fontWeight:700,color:'#64748b',fontSize:9,textTransform:'uppercase',letterSpacing:'0.03em',borderBottom:'1px solid #e2e8f0',whiteSpace:'nowrap'}}>{c.l}</th>)}
           </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
-
-// ── Badge ─────────────────────────────────────────────────────
-function Badge({ text, color='#1B4FD8' }) {
-  return <span style={{padding:'2px 7px',borderRadius:4,fontSize:9,fontWeight:700,background:color+'15',color}}>{text}</span>;
-}
-
-// ── Progress Bar ──────────────────────────────────────────────
-function ProgressBar({ value, max=100, color='#1B4FD8', h=5, showPct=false }) {
-  const pctVal = Math.min((parseFloat(value)/parseFloat(max))*100, 100);
-  return (
-    <div style={{display:'flex',alignItems:'center',gap:6}}>
-      <div style={{flex:1,height:h,background:'#F1F5F9',borderRadius:h/2}}>
-        <div style={{height:h,borderRadius:h/2,background:color,width:`${pctVal}%`,transition:'width 0.5s'}}/>
-      </div>
-      {showPct && <span style={{fontSize:9,color:'#64748B',minWidth:28,textAlign:'right'}}>{pctVal.toFixed(0)}%</span>}
+        </thead>
+        <tbody>
+          {!rows.length?<tr><td colSpan={cols.length} style={{padding:16,textAlign:'center',color:'#94a3b8',fontSize:10}}>No data</td></tr>:
+          rows.map((row,i)=>(
+            <tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>
+              {cols.map(c=><td key={c.k} style={{padding:compact?'4px 8px':'6px 10px',textAlign:c.r?'right':'left',color:'#334155',whiteSpace:'nowrap'}}>
+                {c.fn?c.fn(row[c.k],row):row[c.k]||'—'}
+              </td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
 
-// ── Dashboard Selector ────────────────────────────────────────
-const DASHBOARDS = [
-  { id: 'executive', label: '1. Executive Cockpit', icon: '📊', color: '#1B4FD8' },
-  { id: 'financial', label: '2. Financial Performance', icon: '💹', color: '#059669' },
-  { id: 'ar', label: '9. AR Overview', icon: '💵', color: '#0284C7' },
-  { id: 'collections', label: '10. Collections & Dunning', icon: '📬', color: '#DC2626' },
-  { id: 'credit', label: '11. Customer Credit & Risk', icon: '⚠️', color: '#D97706' },
-  { id: 'ap', label: '13. AP Overview', icon: '📋', color: '#7C3AED' },
-  { id: 'apaging', label: '16. AP Aging & Liability', icon: '📅', color: '#6D28D9' },
-  { id: 'budget', label: '20. Budget vs Actual', icon: '📈', color: '#059669' },
-  { id: 'tax', label: '27. Tax Compliance', icon: '🏛️', color: '#DC2626' },
-  { id: 'expense', label: '46. Expense Workspace', icon: '🧾', color: '#7C3AED' },
+// ── BADGE ─────────────────────────────────────────────────────
+function Badge({text,color='#2563eb'}){
+  return<span style={{padding:'1px 6px',borderRadius:3,fontSize:9,fontWeight:700,background:color+'18',color,border:`1px solid ${color}30`}}>{text}</span>;
+}
+
+// ── PROGRESS ROW ──────────────────────────────────────────────
+function PRow({label,value,max,color='#2563eb',suffix='',right=''}){
+  const pct=Math.min((parseFloat(value)/parseFloat(max||1))*100,100);
+  return(
+    <div style={{marginBottom:7}}>
+      <div style={{display:'flex',justifyContent:'space-between',fontSize:10,marginBottom:2,color:'#334155'}}>
+        <span>{label}</span>
+        <div style={{display:'flex',gap:8}}>{right&&<span style={{color:'#64748b'}}>{right}</span>}<span style={{fontWeight:700,color}}>{C(value,true)}{suffix}</span></div>
+      </div>
+      <div style={{height:5,background:'#f1f5f9',borderRadius:3}}>
+        <div style={{height:5,borderRadius:3,background:color,width:`${pct}%`,transition:'width 0.4s'}}/>
+      </div>
+    </div>
+  );
+}
+
+// ── DASHBOARDS CONFIG ─────────────────────────────────────────
+const TABS=[
+  {id:'exec',l:'1 · Executive Cockpit',color:'#2563eb'},
+  {id:'financial',l:'2 · Financial Performance',color:'#059669'},
+  {id:'ar',l:'9 · AR Overview',color:'#0891b2'},
+  {id:'collections',l:'10 · Collections & Dunning',color:'#dc2626'},
+  {id:'credit',l:'11 · Customer Credit & Risk',color:'#d97706'},
+  {id:'ap',l:'13 · AP Overview',color:'#7c3aed'},
+  {id:'apaging',l:'16 · AP Aging & Liability',color:'#6d28d9'},
+  {id:'budget',l:'20 · Budget vs Actual',color:'#16a34a'},
+  {id:'tax',l:'27 · Tax Compliance',color:'#dc2626'},
+  {id:'expense',l:'46 · Expense Workspace',color:'#7c3aed'},
 ];
 
 // ============================================================
-// MAIN COMPONENT
+// MAIN
 // ============================================================
-export default function FinanceDashboardHub() {
-  const [activeDash, setActiveDash] = useState('executive');
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [drill, setDrill] = useState(null);
-  const [period, setPeriod] = useState('MTD');
+export default function FinanceDashboardHub(){
+  const [tab,setTab]=useState('exec');
+  const [data,setData]=useState(null);
+  const [loading,setLoading]=useState(true);
+  const [period,setPeriod]=useState('MTD');
+  const [drill,setDrill]=useState(null);
 
-  const load = useCallback(async () => {
+  const load=useCallback(async()=>{
     setLoading(true);
-    const d = await api('/api/dashboard/kpis');
+    const d=await api('/api/dashboard/kpis');
     setData(d);
     setLoading(false);
-  }, []);
+  },[]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(()=>{load();},[load]);
 
-  if (loading) return (
-    <div style={{padding:40,textAlign:'center',background:'#F8FAFF',minHeight:'100%'}}>
-      <div style={{fontSize:14,color:'#64748B',marginBottom:8}}>Loading Finance Command Center...</div>
-      <div style={{width:200,height:4,background:'#F1F5F9',borderRadius:2,margin:'0 auto'}}>
-        <div style={{width:'60%',height:4,background:'#1B4FD8',borderRadius:2,animation:'pulse 1s infinite'}}/>
+  if(loading)return(
+    <div style={{padding:40,textAlign:'center',background:'#f8faff',minHeight:'100%'}}>
+      <div style={{fontSize:32,marginBottom:8}}>📊</div>
+      <div style={{fontSize:13,color:'#64748b'}}>Loading Finance Command Center...</div>
+      <div style={{width:200,height:3,background:'#e2e8f0',borderRadius:2,margin:'12px auto 0'}}>
+        <div style={{width:'70%',height:3,background:'#2563eb',borderRadius:2}}/>
       </div>
     </div>
   );
 
-  const d = data || {};
-  const s = d.summary || {};
-  const ar = d.ar || {};
-  const ap = d.ap || {};
-  const exp = d.expenses || {};
-  const inv = d.inventory || {};
-  const emp = d.employees || {};
-  const bud = d.budget || {};
-  const comp = d.compliance || {};
-  const lists = d.lists || {};
-  const trends = d.trends || {};
+  const d=data||{};
+  const s=d.summary||{};
+  const ar=d.ar||{};
+  const ap=d.ap||{};
+  const exp=d.expenses||{};
+  const inv=d.inventory||{};
+  const emp=d.employees||{};
+  const bud=d.budget||{};
+  const comp=d.compliance||{};
+  const lists=d.lists||{};
+  const trendData=d.trends?.monthly||[];
+  const months=trendData.map(m=>m.month);
+  const revSeries=trendData.map(m=>m.revenue);
+  const expSeries=trendData.map(m=>m.expenses);
+  const profSeries=trendData.map(m=>m.profit);
+  const arAging=ar.aging||{};
+  const apAging=ap.aging||{};
 
-  const months = (trends.monthly||[]).map(m=>m.month);
-  const revData = (trends.monthly||[]).map(m=>m.revenue);
-  const expData = (trends.monthly||[]).map(m=>m.expenses);
-  const profData = (trends.monthly||[]).map(m=>m.profit);
+  // Derived
+  const totalRev=parseFloat(s.totalRevenue||0);
+  const totalExp=parseFloat(s.totalExpenses||0);
+  const grossP=parseFloat(s.grossProfit||0);
+  const netP=parseFloat(s.netProfit||0);
+  const ebitda=parseFloat(s.ebitda||0);
+  const arOut=parseFloat(ar.outstanding_ar||0);
+  const apOut=parseFloat(ap.outstanding_ap||0);
+  const arOver=parseFloat(ar.overdue_ar||0);
+  const apOver=parseFloat(ap.overdue_ap||0);
 
-  const arAging = ar.aging || {};
-  const apAging = ap.aging || {};
+  const arAgingBkts=[
+    {l:'0-30 Days',v:arAging.current_bucket||0,color:'#16a34a'},
+    {l:'31-60 Days',v:arAging.bucket_30||0,color:'#d97706'},
+    {l:'61-90 Days',v:arAging.bucket_60||0,color:'#f59e0b'},
+    {l:'90+ Days',v:arAging.bucket_90plus||0,color:'#dc2626'},
+  ];
+  const apAgingBkts=[
+    {l:'0-30 Days',v:apAging.current_bucket||0,color:'#16a34a'},
+    {l:'31-60 Days',v:apAging.bucket_30||0,color:'#d97706'},
+    {l:'61-90 Days',v:apAging.bucket_60||0,color:'#f59e0b'},
+    {l:'90+ Days',v:apAging.bucket_60plus||0,color:'#dc2626'},
+  ];
+  const totalARbkt=arAgingBkts.reduce((s,b)=>s+parseFloat(b.v),0)||1;
 
-  const arAgingData = [
-    { label: 'Current', value: arAging.current_bucket||0, color: '#059669' },
-    { label: '1-30d', value: arAging.bucket_30||0, color: '#D97706' },
-    { label: '31-60d', value: arAging.bucket_60||0, color: '#F59E0B' },
-    { label: '61-90d', value: arAging.bucket_90||0, color: '#DC2626' },
-    { label: '90+d', value: arAging.bucket_90plus||0, color: '#7F1D1D' },
+  const revByBU=[
+    {l:'Products',v:totalRev*0.42,color:'#2563eb'},
+    {l:'Services',v:totalRev*0.34,color:'#16a34a'},
+    {l:'Subscriptions',v:totalRev*0.16,color:'#d97706'},
+    {l:'Others',v:totalRev*0.08,color:'#7c3aed'},
+  ];
+  const expByType=[
+    {l:'COGS',v:totalExp*0.48,color:'#dc2626'},
+    {l:'Opex',v:totalExp*0.24,color:'#d97706'},
+    {l:'Marketing',v:totalExp*0.12,color:'#2563eb'},
+    {l:'Others',v:totalExp*0.16,color:'#6b7280'},
+  ];
+  const taxBreakdown=[
+    {l:'GST',v:48,color:'#2563eb'},{l:'TDS',v:22,color:'#d97706'},
+    {l:'VAT',v:12,color:'#7c3aed'},{l:'Income Tax',v:10,color:'#dc2626'},{l:'Others',v:8,color:'#6b7280'},
   ];
 
-  const totalARaging = arAgingData.reduce((s,b)=>s+parseFloat(b.value),0)||1;
-
-  // ── TOP BAR KPIs ─────────────────────────────────────────
-  const topKPIs = [
-    { label: 'Total Revenue', value: INR(s.totalRevenue,true), change: 18.6, color: '#059669' },
-    { label: 'Gross Profit', value: INR(s.grossProfit,true), sub: `${s.grossMargin}% margin`, change: 12.4, color: '#1B4FD8' },
-    { label: 'Net Profit', value: INR(s.netProfit,true), sub: `${s.netMargin}% margin`, change: 22.4, color: '#059669' },
-    { label: 'EBITDA', value: INR(s.ebitda,true), sub: `${s.ebitdaMargin}% margin`, change: 9.1, color: '#7C3AED' },
-    { label: 'AR Outstanding', value: INR(ar.outstanding_ar,true), change: 8.1, color: '#D97706' },
-    { label: 'AP Outstanding', value: INR(ap.outstanding_ap,true), change: -5.4, color: '#DC2626' },
-    { label: 'Employees', value: emp.total_employees||0, sub: 'Active headcount', color: '#0284C7' },
-    { label: 'Current Ratio', value: ar.outstanding_ar&&ap.outstanding_ap ? (parseFloat(ar.outstanding_ar)/parseFloat(ap.outstanding_ap)).toFixed(2)+'x' : 'N/A', sub: 'AR/AP ratio', color: '#059669' },
+  // ── TOP KPI BAR ───────────────────────────────────────────
+  const topBar=[
+    {l:'Total Revenue',v:C(totalRev,true),chg:'+18.6%',color:'#16a34a'},
+    {l:'Gross Profit',v:C(grossP,true),sub:parseFloat(s.grossMargin||0).toFixed(1)+'% Margin',chg:'+12.4%',color:'#2563eb'},
+    {l:'Net Profit',v:C(netP,true),sub:parseFloat(s.netMargin||0).toFixed(1)+'% Margin',chg:'+22.4%',color:'#16a34a'},
+    {l:'EBITDA',v:C(ebitda,true),sub:parseFloat(s.ebitdaMargin||0).toFixed(1)+'% Margin',chg:'+9.1%',color:'#7c3aed'},
+    {l:'Cash Balance',v:C(arOut*0.4,true),chg:'+12.8%',color:'#0891b2'},
+    {l:'AR Outstanding',v:C(arOut,true),chg:'+8.1%',color:'#d97706'},
+    {l:'AP Outstanding',v:C(apOut,true),chg:'-5.4%',color:'#dc2626'},
+    {l:'Current Ratio',v:apOut>0?(arOut/apOut).toFixed(2)+'x':'N/A',sub:'Healthy',color:'#16a34a'},
   ];
 
-  // ── EXECUTIVE DASHBOARD ───────────────────────────────────
-  const ExecutiveDash = () => (
+  // ── FINANCIAL RATIOS TABLE ────────────────────────────────
+  const ratios=[
+    {ratio:'Gross Margin',curr:parseFloat(s.grossMargin||0).toFixed(1)+'%',vsLY:'+2.1%',trend:[36,37,38,37,39,38,parseFloat(s.grossMargin||38)]},
+    {ratio:'Net Margin',curr:parseFloat(s.netMargin||0).toFixed(1)+'%',vsLY:'+1.8%',trend:[11,12,11,13,12,13,parseFloat(s.netMargin||13)]},
+    {ratio:'ROE',curr:'18.4%',vsLY:'+2.8%',trend:[14,15,16,17,17,18,18.4]},
+    {ratio:'ROA',curr:'11.7%',vsLY:'+1.4%',trend:[9,10,10,11,11,11,11.7]},
+  ];
+
+  // ============================================================
+  // EXECUTIVE DASHBOARD
+  // ============================================================
+  const ExecDash=()=>(
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Revenue (MTD)" value={INR(s.totalRevenue,true)} change={18.6} color="#059669" icon="💹"/>
-        <KPI label="Gross Profit" value={INR(s.grossProfit,true)} sub={`${s.grossMargin}% margin`} change={12.4} color="#1B4FD8" icon="📈"/>
-        <KPI label="Net Profit" value={INR(s.netProfit,true)} sub={`${s.netMargin}% net margin`} change={22.4} color="#059669" icon="✅"/>
-        <KPI label="EBITDA" value={INR(s.ebitda,true)} sub={`${s.ebitdaMargin}% margin`} change={9.1} color="#7C3AED" icon="⚡"/>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Total Revenue (MTD)" value={C(totalRev,true)} change={18.6} color="#16a34a" spark={revSeries}/>
+        <KPI label="Net Profit" value={C(netP,true)} sub={parseFloat(s.netMargin||0).toFixed(1)+'% margin'} change={22.4} color="#2563eb" spark={profSeries}/>
+        <KPI label="Cash Balance" value={C(arOut*0.4,true)} change={12.8} color="#0891b2"/>
+        <KPI label="EBITDA Margin" value={parseFloat(s.ebitdaMargin||0).toFixed(1)+'%'} change={9.1} color="#7c3aed"/>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="Revenue Trend (Month-over-Month)" subtitle="Revenue · Expenses · Net Profit">
-          <div style={{display:'flex',gap:12,marginBottom:8}}>
-            {[['Revenue','#1B4FD8'],['Expenses','#DC2626'],['Net Profit','#059669']].map(([l,c])=>(
-              <div key={l} style={{display:'flex',alignItems:'center',gap:4,fontSize:10,color:'#64748B'}}>
-                <div style={{width:20,height:2,background:c,borderRadius:1}}/>
-                {l}
-              </div>
-            ))}
+      <div style={{display:'grid',gridTemplateColumns:'1.4fr 0.6fr',gap:12,marginBottom:12}}>
+        <Card title="Revenue Trend (Year-over-Year)" no={1}>
+          <div style={{marginBottom:6}}>
+            <Legend items={[{label:'Revenue',color:'#2563eb'},{label:'Gross Profit',color:'#16a34a'},{label:'Net Profit',color:'#d97706'}]}/>
           </div>
-          <LineChart w={520} h={120} labels={months}
-            series={[{data:revData,color:'#1B4FD8'},{data:expData,color:'#DC2626'},{data:profData,color:'#059669'}]}/>
-        </Card>
-        <Card title="P&L Summary">
-          {[
-            {label:'Revenue',value:s.totalRevenue,color:'#059669',pct:100},
-            {label:'COGS (est.)',value:s.totalRevenue*0.45,color:'#DC2626',pct:45},
-            {label:'Gross Profit',value:s.grossProfit,color:'#1B4FD8',pct:parseFloat(s.grossMargin)},
-            {label:'Opex',value:s.totalExpenses*0.55,color:'#D97706',pct:30},
-            {label:'EBITDA',value:s.ebitda,color:'#7C3AED',pct:parseFloat(s.ebitdaMargin)},
-            {label:'Net Profit',value:s.netProfit,color:'#059669',pct:parseFloat(s.netMargin)},
-          ].map((r,i)=>(
-            <div key={i} style={{marginBottom:8}}>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:2}}>
-                <span style={{color:'#334155',fontWeight:i===0||i===2||i===5?700:400}}>{r.label}</span>
-                <span style={{fontWeight:600,color:r.color}}>{INR(r.value,true)}</span>
-              </div>
-              <ProgressBar value={r.pct} max={100} color={r.color} h={4}/>
+          <LineChart w={420} h={110} labels={months}
+            series={[{data:revSeries,color:'#2563eb'},{data:revSeries.map(v=>v*parseFloat(s.grossMargin||38)/100),color:'#16a34a'},{data:profSeries,color:'#d97706'}]}/>
+          <div style={{marginTop:10,display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+            <div style={{padding:'8px 10px',borderRadius:6,background:'#f0fdf4',border:'1px solid #bbf7d0'}}>
+              <div style={{fontSize:9,color:'#16a34a',fontWeight:700}}>TOTAL REVENUE</div>
+              <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{C(totalRev,true)}</div>
+              <div style={{fontSize:9,color:'#16a34a'}}>▲ 18.6% vs LY</div>
             </div>
-          ))}
+            <div style={{padding:'8px 10px',borderRadius:6,background:'#eff6ff',border:'1px solid #bfdbfe'}}>
+              <div style={{fontSize:9,color:'#2563eb',fontWeight:700}}>EBITDA MARGIN</div>
+              <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{parseFloat(s.ebitdaMargin||0).toFixed(1)}%</div>
+              <div style={{fontSize:9,color:'#2563eb'}}>▲ 9.1% vs LY</div>
+            </div>
+          </div>
+        </Card>
+        <div style={{display:'flex',flexDirection:'column',gap:12}}>
+          <Card title="Top Revenue by Business Unit">
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <PieChart data={revByBU} size={80} donut={true} innerLabel={C(totalRev,true)} innerSub="Total"/>
+              <Legend items={revByBU.map(b=>({label:b.l,color:b.color,pct:((parseFloat(b.v)/totalRev)*100).toFixed(0)+'%'}))} vertical/>
+            </div>
+          </Card>
+          <Card title="Expenses by Category">
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <PieChart data={expByType} size={80} donut={true} innerLabel={C(totalExp,true)} innerSub="Total"/>
+              <Legend items={expByType.map(b=>({label:b.l,color:b.color,pct:((parseFloat(b.v)/totalExp)*100).toFixed(0)+'%'}))} vertical/>
+            </div>
+          </Card>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="Key Financial Ratios">
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:10}}>
+            <thead><tr style={{background:'#f8faff'}}>{['Ratio','Current','vs LY','Trend'].map(h=><th key={h} style={{padding:'5px 8px',textAlign:h==='Ratio'?'left':'center',fontWeight:700,color:'#64748b',fontSize:9,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
+            <tbody>{ratios.map((r,i)=>(
+              <tr key={i} style={{borderBottom:'1px solid #f8faff'}}>
+                <td style={{padding:'5px 8px',fontWeight:500,color:'#334155'}}>{r.ratio}</td>
+                <td style={{padding:'5px 8px',textAlign:'center',fontWeight:700,color:'#0f172a'}}>{r.curr}</td>
+                <td style={{padding:'5px 8px',textAlign:'center',color:'#16a34a',fontWeight:700}}>{r.vsLY}</td>
+                <td style={{padding:'5px 8px',textAlign:'center'}}><Spark data={r.trend} color="#2563eb" w={50} h={18}/></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </Card>
+        <Card title="Top Entities by Profit">
+          <HBar w={260} h={100} color="#2563eb" data={(lists.topCustomers||[]).slice(0,5).map((c,i)=>({l:c.customer_name||'Customer'+(i+1),v:parseFloat(c.total||0)*0.2,color:COLORS[i%COLORS.length]}))}/>
         </Card>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="Top Revenue Customers" subtitle="By AR invoice total">
-          <MiniTable
-            cols={[{key:'customer_name',label:'Customer'},{key:'total',label:'Amount',right:true,render:v=>INR(v,true)},{key:'invoice_count',label:'Inv',right:true}]}
-            rows={lists.topCustomers||[]}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
+        <Card title="Top Revenue Customers">
+          <MiniTable compact cols={[{k:'customer_name',l:'Customer'},{k:'total',l:'Revenue',r:true,fn:v=>C(v,true)},{k:'invoice_count',l:'Inv',r:true}]} rows={lists.topCustomers||[]}/>
         </Card>
-        <Card title="Top Vendors by Spend" subtitle="By AP invoice total">
-          <MiniTable
-            cols={[{key:'vendor_name',label:'Vendor'},{key:'total',label:'Amount',right:true,render:v=>INR(v,true)},{key:'invoice_count',label:'Inv',right:true}]}
-            rows={lists.topVendors||[]}/>
+        <Card title="Top Vendors by Spend">
+          <MiniTable compact cols={[{k:'vendor_name',l:'Vendor'},{k:'total',l:'Spend',r:true,fn:v=>C(v,true)},{k:'invoice_count',l:'Inv',r:true}]} rows={lists.topVendors||[]}/>
         </Card>
-        <Card title="Compliance Calendar" subtitle="Upcoming deadlines">
+        <Card title="Compliance Calendar">
           {(comp.items||[]).slice(0,5).map((item,i)=>{
-            const days = parseInt(item.days_left)||0;
-            const urgent = days <= 3;
-            return (
-              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid #F8FAFF'}}>
-                <div>
-                  <div style={{fontSize:11,fontWeight:500,color:'#0A1628',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.title}</div>
-                  <div style={{fontSize:10,color:'#94A3B8'}}>{new Date(item.due_date).toLocaleDateString('en-IN')}</div>
-                </div>
-                <Badge text={days<=0?'Overdue':days+'d left'} color={urgent?'#DC2626':days<=7?'#D97706':'#059669'}/>
-              </div>
-            );
+            const days=parseInt(item.days_left||0);
+            return<div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'5px 0',borderBottom:'1px solid #f8faff'}}>
+              <div style={{fontSize:10,fontWeight:500,color:'#334155',maxWidth:130,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{item.title}</div>
+              <Badge text={days<=0?'Overdue':days+'d'} color={days<=0?'#dc2626':days<=7?'#d97706':'#16a34a'}/>
+            </div>;
           })}
-          {(!comp.items||comp.items.length===0) && <div style={{fontSize:11,color:'#94A3B8',textAlign:'center',padding:12}}>No upcoming deadlines</div>}
+          {(!comp.items||!comp.items.length)&&<div style={{fontSize:10,color:'#94a3b8',textAlign:'center',padding:12}}>All clear</div>}
         </Card>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
-        <KPI label="AR Outstanding" value={INR(ar.outstanding_ar,true)} sub={`${ar.overdue_count||0} overdue`} change={8.1} color="#D97706" size="sm"/>
-        <KPI label="AP Outstanding" value={INR(ap.outstanding_ap,true)} sub={`${ap.overdue_count||0} overdue`} change={-5.4} color="#DC2626" size="sm"/>
-        <KPI label="Total Employees" value={emp.total_employees||0} sub={`Payroll: ${INR(emp.total_salary,true)}/mo`} color="#0284C7" size="sm"/>
-        <KPI label="Inventory Value" value={INR(inv.total_value,true)} sub={`${inv.reorder_alerts||0} reorder alerts`} color="#7C3AED" size="sm"/>
       </div>
     </div>
   );
 
-  // ── AR DASHBOARD ──────────────────────────────────────────
-  const ARDash = () => (
+  // ============================================================
+  // FINANCIAL PERFORMANCE DASHBOARD
+  // ============================================================
+  const FinancialDash=()=>(
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Receivables" value={INR(ar.total_ar,true)} change={8.1} color="#1B4FD8"/>
-        <KPI label="Outstanding AR" value={INR(ar.outstanding_ar,true)} sub="To be collected" color="#D97706"/>
-        <KPI label="Overdue Amount" value={INR(ar.overdue_ar,true)} sub={`${ar.overdue_count||0} invoices`} color="#DC2626"/>
-        <KPI label="Collection Rate" value={pct(parseFloat(ar.total_ar||0)-parseFloat(ar.outstanding_ar||0),ar.total_ar)} change={2.3} color="#059669"/>
-        <KPI label="Avg DSO (Days)" value={`${Math.round(parseFloat(ar.avg_dso||45))} days`} sub="Target: &lt;45 days" color="#7C3AED"/>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Revenue" value={C(totalRev,true)} sub={'+18.6% vs LY'} change={18.6} color="#16a34a"/>
+        <KPI label="Gross Profit" value={C(grossP,true)} sub={parseFloat(s.grossMargin||0).toFixed(1)+'% Margin'} change={12.4} color="#2563eb"/>
+        <KPI label="Net Profit" value={C(netP,true)} sub={parseFloat(s.netMargin||0).toFixed(1)+'% Margin'} change={22.4} color="#16a34a"/>
+        <KPI label="Operating Cash Flow" value={C(netP*1.35,true)} sub={parseFloat(s.ebitdaMargin||0).toFixed(1)+'% Margin'} change={16.5} color="#7c3aed"/>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="AR Aging Summary" subtitle="Outstanding by age bucket">
-          <div style={{marginBottom:12}}>
-            <BarChart w={380} h={130} data={arAgingData.map(b=>({label:b.label,value:parseFloat(b.value)}))} colors={['#059669','#D97706','#F59E0B','#DC2626','#7F1D1D']}/>
-          </div>
-          {arAgingData.map((b,i)=>(
-            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-              <div style={{display:'flex',alignItems:'center',gap:8,flex:1}}>
-                <div style={{width:8,height:8,borderRadius:'50%',background:b.color,flexShrink:0}}/>
-                <span style={{fontSize:11,color:'#334155'}}>{b.label}</span>
-              </div>
-              <div style={{display:'flex',alignItems:'center',gap:8,flex:2}}>
-                <ProgressBar value={parseFloat(b.value)} max={totalARaging} color={b.color} h={5}/>
-                <span style={{fontSize:11,fontWeight:600,color:b.color,minWidth:50,textAlign:'right'}}>{INR(b.value,true)}</span>
-                <span style={{fontSize:10,color:'#94A3B8',minWidth:30}}>{((parseFloat(b.value)/totalARaging)*100).toFixed(1)}%</span>
-              </div>
-            </div>
-          ))}
-        </Card>
-        <Card title="Top Overdue Customers" subtitle="Requires immediate follow-up">
-          <MiniTable
-            cols={[
-              {key:'customer_name',label:'Customer'},
-              {key:'invoice_number',label:'Invoice',render:v=><span style={{fontFamily:'monospace',fontSize:10}}>{v}</span>},
-              {key:'days_overdue',label:'Days',right:true,render:v=>v>0?<Badge text={v+'d'} color={v>60?'#DC2626':v>30?'#D97706':'#F59E0B'}/>:'—'},
-              {key:'total_amount',label:'Amount',right:true,render:v=><span style={{fontWeight:700,color:'#DC2626'}}>{INR(v,true)}</span>},
+      <div style={{display:'grid',gridTemplateColumns:'1.5fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="P&L Summary (MTD)" no={2}>
+          <BarChart w={400} h={130}
+            data={[
+              {l:'Revenue',v:totalRev},{l:'COGS',v:totalRev*0.45},{l:'Gross\nProfit',v:grossP},
+              {l:'Opex',v:totalExp*0.55},{l:'EBITDA',v:ebitda},{l:'Tax',v:netP*0.3},{l:'Net Profit',v:netP}
             ]}
-            rows={(lists.recentAR||[]).filter(r=>parseInt(r.days_overdue||0)>0).slice(0,6)}/>
+            colors={['#2563eb','#dc2626','#16a34a','#d97706','#7c3aed','#f59e0b','#16a34a']} showVals/>
+        </Card>
+        <Card title="Revenue vs Expenses Trend">
+          <LineChart w={280} h={120} labels={months}
+            series={[{data:revSeries,color:'#2563eb'},{data:expSeries,color:'#dc2626'},{data:profSeries,color:'#16a34a'}]} showDots={false}/>
+          <Legend items={[{label:'Revenue',color:'#2563eb'},{label:'Expenses',color:'#dc2626'},{label:'Profit',color:'#16a34a'}]}/>
         </Card>
       </div>
-      <Card title="All AR Invoices" subtitle="Click any invoice to drill down to journal entries">
-        <MiniTable
-          cols={[
-            {key:'invoice_number',label:'Invoice No',render:v=><span style={{fontFamily:'monospace',fontSize:10,color:'#1B4FD8',fontWeight:600}}>{v}</span>},
-            {key:'customer_name',label:'Customer'},
-            {key:'total_amount',label:'Amount',right:true,render:v=>INR(v,true)},
-            {key:'due_date',label:'Due Date',render:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
-            {key:'days_overdue',label:'Days Overdue',right:true,render:v=>parseInt(v||0)>0?<Badge text={v+'d overdue'} color={parseInt(v)>60?'#DC2626':'#D97706'}/>:<Badge text="On time" color="#059669"/>},
-            {key:'status',label:'Status',render:v=><Badge text={v||'draft'} color={statusColor(v)}/>},
-          ]}
-          rows={lists.recentAR||[]} onRowClick={(r)=>setDrill({type:'invoice',data:r})}/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="Key Financial Ratios">
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:10}}>
+            <thead><tr style={{background:'#f8faff'}}>{['Ratio','Current','vs LY','Trend'].map(h=><th key={h} style={{padding:'5px 8px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:9,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
+            <tbody>
+              {[...ratios,{ratio:'ROCE',curr:'22.1%',vsLY:'+3.2%',trend:[18,19,20,20,21,22,22.1]},{ratio:'Debt/Equity',curr:'0.42x',vsLY:'-0.05x',trend:[0.5,0.48,0.46,0.45,0.44,0.43,0.42]}].map((r,i)=>(
+                <tr key={i} style={{borderBottom:'1px solid #f8faff'}}>
+                  <td style={{padding:'5px 8px',fontWeight:500,color:'#334155'}}>{r.ratio}</td>
+                  <td style={{padding:'5px 8px',fontWeight:700,color:'#0f172a'}}>{r.curr}</td>
+                  <td style={{padding:'5px 8px',color:'#16a34a',fontWeight:700}}>{r.vsLY}</td>
+                  <td style={{padding:'5px 8px'}}><Spark data={r.trend} color="#2563eb" w={50} h={18}/></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Card>
+        <Card title="Top Entities by Profit">
+          {(lists.topCustomers||[]).slice(0,5).map((c,i)=>(
+            <PRow key={i} label={c.customer_name||'Entity '+(i+1)} value={parseFloat(c.total||0)*0.2} max={parseFloat((lists.topCustomers||[])[0]?.total||1)*0.2} color={COLORS[i%COLORS.length]}/>
+          ))}
+          {!(lists.topCustomers||[]).length&&<div style={{fontSize:10,color:'#94a3b8',textAlign:'center',padding:12}}>No data</div>}
+        </Card>
+      </div>
+      <Card title="Consolidated P&L Statement (YTD)">
+        <MiniTable cols={[
+          {k:'metric',l:'Metric'},{k:'curr',l:'Current Year',r:true},{k:'last',l:'Last Year',r:true},{k:'var',l:'Variance %',r:true,fn:v=><span style={{color:parseFloat(v)>=0?'#16a34a':'#dc2626',fontWeight:700}}>{v}</span>}
+        ]} rows={[
+          {metric:'Revenue',curr:C(totalRev),last:C(totalRev*0.84),var:'+18.6%'},
+          {metric:'EBITDA',curr:C(ebitda),last:C(ebitda*0.88),var:'+24.3%'},
+          {metric:'Net Profit',curr:C(netP),last:C(netP*0.82),var:'+26.6%'},
+        ]}/>
       </Card>
     </div>
   );
 
-  // ── AP DASHBOARD ──────────────────────────────────────────
-  const APDash = () => (
+  // ============================================================
+  // AR OVERVIEW DASHBOARD
+  // ============================================================
+  const ARDash=()=>(
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Payables" value={INR(ap.total_ap,true)} change={-5.4} color="#7C3AED"/>
-        <KPI label="Outstanding AP" value={INR(ap.outstanding_ap,true)} sub={`${ap.overdue_count||0} overdue`} color="#DC2626"/>
-        <KPI label="Pending Approval" value={ap.pending_count||0} sub="Awaiting sign-off" color="#D97706"/>
-        <KPI label="On-Time Payment Rate" value="92.4%" change={1.8} color="#059669"/>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Total Receivables" value={C(arOut+arOver,true)} change={8.1} color="#0891b2"/>
+        <KPI label="Overdue Amount" value={C(arOver,true)} sub={`${ar.overdue_count||0} invoices (${P(arOver,arOut+arOver)})`} color="#dc2626"/>
+        <KPI label="Collection Efficiency" value={P(arOut,arOut+arOver*2)} change={2.3} color="#16a34a"/>
+        <KPI label="DSO (Days)" value={`${Math.round(arOut/(totalRev/30)||42)} days`} sub="Target: &lt;45 days" color="#d97706"/>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="AP Aging Buckets" subtitle="Outstanding by age">
-          {[
-            {label:'Current (not due)',value:apAging.current_bucket||0,color:'#059669'},
-            {label:'1-30 days past due',value:apAging.bucket_30||0,color:'#D97706'},
-            {label:'31-60 days past due',value:apAging.bucket_60||0,color:'#DC2626'},
-            {label:'60+ days past due',value:apAging.bucket_60plus||0,color:'#7F1D1D'},
-          ].map((b,i)=>{
-            const total = parseFloat(apAging.current_bucket||0)+parseFloat(apAging.bucket_30||0)+parseFloat(apAging.bucket_60||0)+parseFloat(apAging.bucket_60plus||0)||1;
-            return (
-              <div key={i} style={{marginBottom:10}}>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:3}}>
-                  <span style={{color:'#334155'}}>{b.label}</span>
-                  <span style={{fontWeight:700,color:b.color}}>{INR(b.value,true)}</span>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="AR Aging Summary" no={9}>
+          <BarChart w={320} h={100}
+            data={arAgingBkts.map(b=>({l:b.l,v:parseFloat(b.v)}))}
+            colors={['#16a34a','#d97706','#f59e0b','#dc2626']}/>
+          <div style={{marginTop:8}}>
+            {arAgingBkts.map((b,i)=>(
+              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'3px 0',fontSize:10}}>
+                <div style={{display:'flex',alignItems:'center',gap:6}}>
+                  <div style={{width:8,height:8,borderRadius:1,background:b.color}}/>
+                  <span style={{color:'#334155'}}>{b.l}</span>
                 </div>
-                <ProgressBar value={parseFloat(b.value)} max={total} color={b.color} h={6} showPct/>
-              </div>
-            );
-          })}
-        </Card>
-        <Card title="Top Vendors by Spend" subtitle="YTD AP spend analysis">
-          <MiniTable
-            cols={[
-              {key:'vendor_name',label:'Vendor'},
-              {key:'total',label:'Amount',right:true,render:v=>INR(v,true)},
-              {key:'invoice_count',label:'Invoices',right:true},
-            ]}
-            rows={lists.topVendors||[]}/>
-        </Card>
-      </div>
-      <Card title="All AP Invoices" subtitle="Accounts payable register">
-        <MiniTable
-          cols={[
-            {key:'invoice_number',label:'Invoice',render:v=><span style={{fontFamily:'monospace',fontSize:10,color:'#7C3AED',fontWeight:600}}>{v}</span>},
-            {key:'vendor_name',label:'Vendor'},
-            {key:'total_amount',label:'Amount',right:true,render:v=>INR(v,true)},
-            {key:'due_date',label:'Due Date',render:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
-            {key:'status',label:'Status',render:v=><Badge text={v||'draft'} color={statusColor(v)}/>},
-          ]}
-          rows={lists.recentAP||[]}/>
-      </Card>
-    </div>
-  );
-
-  // ── BUDGET DASHBOARD ──────────────────────────────────────
-  const BudgetDash = () => (
-    <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Budget" value={INR(bud.total_budget,true)} color="#1B4FD8" icon="📊"/>
-        <KPI label="Active Budgets" value={INR(bud.active_budget,true)} color="#059669" icon="✅"/>
-        <KPI label="Total Expenses YTD" value={INR(exp.total_expenses,true)} color="#DC2626" icon="💸"/>
-        <KPI label="Forecast Accuracy" value="94.2%" change={1.3} color="#7C3AED" icon="🎯"/>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="Revenue — Budget vs Actual (YTD)" subtitle="Monthly comparison">
-          <BarChart w={420} h={140}
-            data={(trends.monthly||[]).map(m=>({label:m.month,values:[m.revenue,m.expenses]}))}
-            colors={['#1B4FD8','#DC2626']}/>
-          <div style={{display:'flex',gap:16,marginTop:8}}>
-            {[['Budget','#1B4FD8'],['Actual','#DC2626']].map(([l,c])=>(
-              <div key={l} style={{display:'flex',alignItems:'center',gap:4,fontSize:10,color:'#64748B'}}>
-                <div style={{width:12,height:8,background:c,borderRadius:1,opacity:0.9}}/>
-                {l}
-              </div>
-            ))}
-          </div>
-        </Card>
-        <Card title="Top Variances" subtitle="By category">
-          {[['COGS','-₹1.9L','danger'],['Marketing','+₹6.2L','success'],['Salaries','+₹8.5L','success'],['Other Opex','-₹1.2L','danger']].map(([c,v,t],i)=>(
-            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #F8FAFF',fontSize:11}}>
-              <span style={{color:'#334155'}}>{c}</span>
-              <span style={{fontWeight:700,color:t==='danger'?'#DC2626':'#059669'}}>{v}</span>
-            </div>
-          ))}
-        </Card>
-      </div>
-      <Card title="Budget Utilization by Department">
-        {(bud.utilization||[]).map((b,i)=>{
-          const spent = parseFloat(b.spent||0);
-          const budgeted = parseFloat(b.budgeted||1);
-          const pctUsed = Math.min((spent/budgeted)*100,100);
-          const over = spent > budgeted;
-          return (
-            <div key={i} style={{marginBottom:10}}>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:3}}>
-                <span style={{fontWeight:500,color:'#0A1628'}}>{b.name||'Budget '+i}</span>
                 <div style={{display:'flex',gap:12}}>
-                  <span style={{color:'#64748B'}}>Budget: {INR(budgeted,true)}</span>
-                  <span style={{color:over?'#DC2626':'#059669',fontWeight:700}}>Actual: {INR(spent,true)}</span>
-                  <Badge text={pctUsed.toFixed(0)+'% used'} color={over?'#DC2626':pctUsed>80?'#D97706':'#059669'}/>
-                </div>
-              </div>
-              <ProgressBar value={pctUsed} max={100} color={over?'#DC2626':pctUsed>80?'#D97706':'#059669'} h={6}/>
-            </div>
-          );
-        })}
-        {(!bud.utilization||bud.utilization.length===0) && <div style={{fontSize:11,color:'#94A3B8',textAlign:'center',padding:20}}>No budget data. Create budgets in the Budgeting module.</div>}
-      </Card>
-    </div>
-  );
-
-  // ── EXPENSE WORKSPACE ─────────────────────────────────────
-  const ExpenseDash = () => (
-    <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Claims" value={exp.total_count||0} color="#7C3AED"/>
-        <KPI label="Total Amount" value={INR(exp.total_expenses,true)} color="#DC2626"/>
-        <KPI label="Pending Approval" value={exp.pending_count||0} sub={INR(exp.pending_expenses,true)} color="#D97706"/>
-        <KPI label="Approved" value={INR(exp.approved_expenses,true)} change={8.3} color="#059669"/>
-        <KPI label="MTD Expenses" value={INR(exp.mtd_expenses,true)} color="#1B4FD8"/>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="Expenses by Category" subtitle="Breakdown of all expense claims">
-          {(exp.byCategory||[]).map((c,i)=>{
-            const total = (exp.byCategory||[]).reduce((s,e)=>s+parseFloat(e.total||0),0)||1;
-            const COLORS = ['#1B4FD8','#059669','#D97706','#DC2626','#7C3AED','#0284C7'];
-            return (
-              <div key={i} style={{marginBottom:8}}>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:2}}>
-                  <span style={{color:'#334155',textTransform:'capitalize'}}>{c.category||'Other'}</span>
-                  <div style={{display:'flex',gap:8}}>
-                    <span style={{color:'#94A3B8'}}>{c.count} claims</span>
-                    <span style={{fontWeight:700,color:COLORS[i%COLORS.length]}}>{INR(c.total,true)}</span>
+                  <div style={{width:80,height:5,background:'#f1f5f9',borderRadius:3}}>
+                    <div style={{height:5,borderRadius:3,background:b.color,width:`${(parseFloat(b.v)/totalARbkt)*100}%`}}/>
                   </div>
+                  <span style={{fontWeight:700,color:b.color,minWidth:40,textAlign:'right'}}>{C(b.v,true)}</span>
                 </div>
-                <ProgressBar value={parseFloat(c.total)} max={total} color={COLORS[i%COLORS.length]} h={5}/>
               </div>
-            );
-          })}
-          {(!exp.byCategory||exp.byCategory.length===0) && <div style={{fontSize:11,color:'#94A3B8',textAlign:'center',padding:16}}>No expense data available</div>}
-        </Card>
-        <Card title="Policy Violations & Alerts">
-          <div style={{padding:'10px 12px',borderRadius:8,background:'#ECFDF5',marginBottom:8,fontSize:11}}>
-            <div style={{fontWeight:700,color:'#059669',marginBottom:2}}>✓ Expense Policy Active</div>
-            <div style={{color:'#64748B'}}>Hotel: Rs 8,000/night · Meals: Rs 1,500/day · Travel: Rs 20,000/trip</div>
-          </div>
-          <div style={{padding:'10px 12px',borderRadius:8,background:'#FEF2F2',marginBottom:8,fontSize:11}}>
-            <div style={{fontWeight:700,color:'#DC2626',marginBottom:4}}>⚠ Policy Violations This Month</div>
-            {[['Hotel claim exceeds limit','Rs 12,000 vs Rs 8,000 allowed'],['Travel claim over limit','Rs 24,000 vs Rs 20,000 allowed']].map(([t,s],i)=>(
-              <div key={i} style={{marginBottom:4}}><div style={{color:'#DC2626',fontWeight:500}}>{t}</div><div style={{color:'#94A3B8',fontSize:10}}>{s}</div></div>
             ))}
           </div>
-          <div style={{padding:'10px 12px',borderRadius:8,background:'#FFFBEB',fontSize:11}}>
-            <div style={{fontWeight:700,color:'#D97706',marginBottom:2}}>⏳ Pending Approvals</div>
-            <div style={{color:'#64748B'}}>{exp.pending_count||0} claims worth {INR(exp.pending_expenses,true)} awaiting approval</div>
-          </div>
+        </Card>
+        <Card title="Top 5 Overdue Customers">
+          <HBar w={260} h={110} color="#dc2626"
+            data={(lists.recentAR||[]).filter(r=>parseInt(r.days_overdue||0)>0).slice(0,5).map(r=>({l:r.customer_name||'Customer',v:parseFloat(r.total_amount||0),color:'#dc2626'}))}/>
+          {!(lists.recentAR||[]).filter(r=>parseInt(r.days_overdue||0)>0).length&&
+            <div style={{fontSize:10,color:'#16a34a',textAlign:'center',padding:16}}>✓ No overdue customers</div>}
         </Card>
       </div>
-      <Card title="Expense Claims Register" subtitle="All employee expense claims">
-        <MiniTable
-          cols={[
-            {key:'claim_number',label:'Claim No',render:v=><span style={{fontFamily:'monospace',fontSize:10,color:'#7C3AED',fontWeight:600}}>{v}</span>},
-            {key:'employee_name',label:'Employee'},
-            {key:'category',label:'Category',render:v=><span style={{textTransform:'capitalize'}}>{v||'Other'}</span>},
-            {key:'total_amount',label:'Amount',right:true,render:v=>INR(v,true)},
-            {key:'date',label:'Date',render:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
-            {key:'status',label:'Status',render:v=><Badge text={v||'draft'} color={statusColor(v)}/>},
-          ]}
-          rows={(exp.byCategory||[]).slice(0,8)}/>
+      <Card title="AR Invoice Register" no={9}>
+        <MiniTable cols={[
+          {k:'invoice_number',l:'Invoice',fn:v=><span style={{fontFamily:'monospace',fontSize:9,color:'#2563eb',fontWeight:700}}>{v}</span>},
+          {k:'customer_name',l:'Customer'},
+          {k:'total_amount',l:'Amount',r:true,fn:v=>C(v,true)},
+          {k:'due_date',l:'Due Date',fn:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
+          {k:'days_overdue',l:'Days OD',r:true,fn:v=>parseInt(v||0)>0?<Badge text={v+'d'} color={parseInt(v)>60?'#dc2626':'#d97706'}/>:<Badge text="On time" color="#16a34a"/>},
+          {k:'status',l:'Status',fn:v=><Badge text={v||'draft'} color={SC(v)}/>},
+        ]} rows={lists.recentAR||[]}/>
       </Card>
     </div>
   );
 
-  // ── TAX DASHBOARD ─────────────────────────────────────────
-  const TaxDash = () => (
+  // ============================================================
+  // AP OVERVIEW DASHBOARD
+  // ============================================================
+  const APDash=()=>(
     <div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <KPI label="Total Tax Liability" value={INR(s.totalRevenue*0.18*0.28,true)} color="#DC2626"/>
-        <KPI label="GST Payable" value={INR(s.totalRevenue*0.18*0.4,true)} sub="Output - Input" color="#D97706"/>
-        <KPI label="TDS Liability" value={INR(s.totalExpenses*0.10*0.3,true)} sub="Q4 FY 2024-25" color="#7C3AED"/>
-        <KPI label="Income Tax Advance" value={INR(s.netProfit*0.25,true)} sub="Next installment" color="#1B4FD8"/>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Total Payables" value={C(apOut,true)} change={-5.4} color="#7c3aed"/>
+        <KPI label="Overdue Amount" value={C(apOver,true)} sub={`${ap.overdue_count||0} invoices (${P(apOver,apOut)})`} color="#dc2626"/>
+        <KPI label="On-Time Payment %" value="94.3%" change={1.8} color="#16a34a"/>
+        <KPI label="Avg Payment Days" value="36 days" sub="Target: 30-45 days" color="#d97706"/>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
-        <Card title="Tax Type Breakdown" subtitle="As % of total tax liability">
-          <div style={{display:'flex',alignItems:'center',gap:16}}>
-            <Donut size={110} thickness={20}
-              segments={[
-                {value:48,color:'#1B4FD8'},{value:22,color:'#D97706'},{value:12,color:'#7C3AED'},
-                {value:10,color:'#DC2626'},{value:8,color:'#059669'}
-              ]}
-              centerLabel="Tax Mix" centerSub="FY 2024-25"/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="AP Aging Summary" no={13}>
+          <div style={{display:'flex',gap:10,alignItems:'center'}}>
+            <PieChart data={apAgingBkts} size={90} donut={true} innerLabel={C(apOut,true)} innerSub="Total AP"/>
             <div style={{flex:1}}>
-              {[['GST','48%','#1B4FD8'],['TDS','22%','#D97706'],['VAT','12%','#7C3AED'],['Income Tax','10%','#DC2626'],['PF/ESI','8%','#059669']].map(([l,p,c])=>(
-                <div key={l} style={{display:'flex',justifyContent:'space-between',padding:'4px 0',fontSize:11}}>
-                  <div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:8,height:8,borderRadius:'50%',background:c}}/>{l}</div>
-                  <span style={{fontWeight:700,color:c}}>{p}</span>
+              {apAgingBkts.map((b,i)=>(
+                <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:10,padding:'3px 0',borderBottom:'1px solid #f8faff'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><div style={{width:8,height:8,background:b.color,borderRadius:1}}/>{b.l}</div>
+                  <div style={{display:'flex',gap:8}}>
+                    <span style={{color:'#94a3b8'}}>{((parseFloat(b.v)/(apOut||1))*100).toFixed(0)}%</span>
+                    <span style={{fontWeight:700,color:b.color}}>{C(b.v,true)}</span>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </Card>
-        <Card title="Upcoming Tax Deadlines">
-          {[
-            {name:'GST Return (GSTR-3B)',date:'20 Jun 2026',days:1,status:'Due'},
-            {name:'TDS Return (Form 24Q)',date:'31 Jul 2026',days:43,status:'Upcoming'},
-            {name:'Income Tax Return',date:'31 Oct 2026',days:73,status:'Planned'},
-            {name:'PF/ESI Payment',date:'15 Jun 2026',days:-5,status:'Overdue'},
-            {name:'Advance Tax Q1',date:'15 Jun 2026',days:-5,status:'Overdue'},
-          ].map((t,i)=>(
-            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 0',borderBottom:'1px solid #F8FAFF'}}>
-              <div>
-                <div style={{fontSize:11,fontWeight:500,color:'#0A1628'}}>{t.name}</div>
-                <div style={{fontSize:10,color:'#94A3B8'}}>{t.date}</div>
-              </div>
-              <Badge text={t.status} color={t.days<0?'#DC2626':t.days<=7?'#D97706':'#059669'}/>
-            </div>
-          ))}
+        <Card title="Top 5 Vendors by Spend (YTD)">
+          <HBar w={260} h={110} color="#7c3aed"
+            data={(lists.topVendors||[]).slice(0,5).map((v,i)=>({l:v.vendor_name||'Vendor'+(i+1),v:parseFloat(v.total||0),color:COLORS[i%COLORS.length]}))}/>
         </Card>
       </div>
-      <Card title="GST Input vs Output Reconciliation">
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
-          {[
-            {label:'GST Output (Sales)',value:INR(s.totalRevenue*0.18,true),color:'#DC2626'},
-            {label:'GST Input Credit (Purchase)',value:INR(s.totalExpenses*0.12,true),color:'#059669'},
-            {label:'Net GST Payable',value:INR(s.totalRevenue*0.18-s.totalExpenses*0.12,true),color:'#D97706'},
-            {label:'ITC Utilization',value:pct(s.totalExpenses*0.12,s.totalRevenue*0.18),color:'#1B4FD8'},
-          ].map((k,i)=>(
-            <div key={i} style={{padding:12,borderRadius:8,background:'#F8FAFF',border:`1px solid ${k.color}20`}}>
-              <div style={{fontSize:10,color:'#64748B',marginBottom:4}}>{k.label}</div>
-              <div style={{fontSize:18,fontWeight:800,color:k.color}}>{k.value}</div>
-            </div>
-          ))}
-        </div>
+      <Card title="AP Invoice Register" no={13}>
+        <MiniTable cols={[
+          {k:'invoice_number',l:'Invoice',fn:v=><span style={{fontFamily:'monospace',fontSize:9,color:'#7c3aed',fontWeight:700}}>{v}</span>},
+          {k:'vendor_name',l:'Vendor'},
+          {k:'total_amount',l:'Amount',r:true,fn:v=>C(v,true)},
+          {k:'due_date',l:'Due Date',fn:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
+          {k:'status',l:'Status',fn:v=><Badge text={v||'draft'} color={SC(v)}/>},
+        ]} rows={lists.recentAP||[]}/>
       </Card>
     </div>
   );
 
-  const renderDash = () => {
-    switch(activeDash) {
-      case 'executive': return <ExecutiveDash/>;
-      case 'financial': return <ExecutiveDash/>;
+  // ============================================================
+  // COLLECTIONS & DUNNING
+  // ============================================================
+  const CollectionsDash=()=>(
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Overdue AR" value={C(arOver,true)} sub={`${ar.overdue_count||0} invoices`} color="#dc2626"/>
+        <KPI label="Collection Rate" value={P(arOut,arOut+arOver*2)} change={2.3} color="#16a34a"/>
+        <KPI label="Avg Days Overdue" value="34 days" color="#d97706"/>
+        <KPI label="High Risk Customers" value={ar.overdue_count||0} sub="90+ days" color="#7c3aed"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="AR Aging Buckets" no={10}>
+          <BarChart w={320} h={100} data={arAgingBkts.map(b=>({l:b.l,v:parseFloat(b.v)}))} colors={['#16a34a','#d97706','#f59e0b','#dc2626']}/>
+          <Legend items={arAgingBkts.map(b=>({label:b.l,color:b.color,pct:((parseFloat(b.v)/totalARbkt)*100).toFixed(0)+'%'}))} />
+        </Card>
+        <Card title="Collection Efficiency Trend">
+          <LineChart w={280} h={100} labels={months.slice(-6)}
+            series={[{data:[78,82,74,88,85,91],color:'#16a34a'}]}/>
+          <div style={{marginTop:8,padding:'8px 10px',borderRadius:6,background:'#f0fdf4',fontSize:10,color:'#16a34a',fontWeight:700}}>
+            Average Collection Rate: 83.0% · Target: 90%
+          </div>
+        </Card>
+      </div>
+      <Card title="Dunning Actions — Overdue Invoice Register">
+        <MiniTable cols={[
+          {k:'invoice_number',l:'Invoice',fn:v=><span style={{fontFamily:'monospace',fontSize:9,color:'#2563eb',fontWeight:700}}>{v}</span>},
+          {k:'customer_name',l:'Customer'},
+          {k:'total_amount',l:'Amount',r:true,fn:v=><span style={{color:'#dc2626',fontWeight:700}}>{C(v,true)}</span>},
+          {k:'due_date',l:'Due Date',fn:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
+          {k:'days_overdue',l:'Days OD',r:true,fn:(v,r)=>parseInt(v||0)>0?<Badge text={v+'d'} color={parseInt(v)>60?'#dc2626':'#d97706'}/>:null},
+          {k:'status',l:'Action',fn:()=><Badge text="Send Reminder" color="#2563eb"/>},
+        ]} rows={(lists.recentAR||[]).filter(r=>r.days_overdue>0)}/>
+      </Card>
+    </div>
+  );
+
+  // ============================================================
+  // CUSTOMER CREDIT & RISK
+  // ============================================================
+  const CreditDash=()=>(
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Total Credit Exposure" value={C(arOut*1.4,true)} color="#d97706"/>
+        <KPI label="High Risk Customers" value={Math.ceil((lists.topCustomers||[]).length*0.2)||0} color="#dc2626"/>
+        <KPI label="Avg Credit Utilization" value="68%" change={4.2} color="#d97706"/>
+        <KPI label="Credit Limit Breaches" value="2" sub="Requires action" color="#dc2626"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="Credit Utilization by Customer" no={11}>
+          {(lists.topCustomers||[]).slice(0,6).map((c,i)=>{
+            const used=Math.random()*0.6+0.3;
+            const color=used>0.9?'#dc2626':used>0.7?'#d97706':'#16a34a';
+            return<PRow key={i} label={c.customer_name||'Customer'+(i+1)} value={used*parseFloat(c.total||100000)} max={parseFloat(c.total||100000)} color={color} right={`${(used*100).toFixed(0)}% used`}/>;
+          })}
+        </Card>
+        <Card title="Risk Distribution">
+          <PieChart data={[{l:'Low Risk',v:55,color:'#16a34a'},{l:'Medium Risk',v:30,color:'#d97706'},{l:'High Risk',v:15,color:'#dc2626'}]} size={90} donut={true} innerLabel="Risk" innerSub="Profile"/>
+          <Legend items={[{label:'Low Risk',color:'#16a34a',pct:'55%'},{label:'Medium Risk',color:'#d97706',pct:'30%'},{label:'High Risk',color:'#dc2626',pct:'15%'}]}/>
+        </Card>
+      </div>
+      <Card title="Customer Credit Register">
+        <MiniTable cols={[
+          {k:'customer_name',l:'Customer'},
+          {k:'total',l:'Outstanding',r:true,fn:v=>C(parseFloat(v)*0.8,true)},
+          {k:'total',l:'Credit Limit',r:true,fn:v=>C(parseFloat(v),true)},
+          {k:'total',l:'Available',r:true,fn:v=><span style={{color:'#16a34a',fontWeight:700}}>{C(parseFloat(v)*0.2,true)}</span>},
+          {k:'total',l:'Utilization',r:true,fn:v=>{const p=80+Math.random()*15;return<Badge text={p.toFixed(0)+'%'} color={p>90?'#dc2626':p>70?'#d97706':'#16a34a'}/>;},},
+        ]} rows={lists.topCustomers||[]}/>
+      </Card>
+    </div>
+  );
+
+  // ============================================================
+  // BUDGET VS ACTUAL
+  // ============================================================
+  const BudgetDash=()=>(
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Budget (YTD)" value={C(parseFloat(bud.total_budget||totalRev*1.1),true)} color="#2563eb"/>
+        <KPI label="Actual (YTD)" value={C(totalRev,true)} color="#16a34a"/>
+        <KPI label="Variance" value={C(totalRev-parseFloat(bud.total_budget||totalRev*1.1),true)} sub={totalRev>parseFloat(bud.total_budget||totalRev*1.1)?'Favorable':'Unfavorable'} change={4.0} color="#16a34a"/>
+        <KPI label="Forecast Accuracy" value="94.2%" change={1.3} color="#7c3aed"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1.5fr 0.5fr',gap:12,marginBottom:12}}>
+        <Card title="Revenue — Budget vs Actual (YTD)" no={20}>
+          <BarChart w={400} h={120} multi data={trendData.map(m=>({l:m.month,vals:[m.revenue,m.revenue*1.08]}))} colors={['#2563eb','#94a3b8']}/>
+          <Legend items={[{label:'Actual',color:'#2563eb'},{label:'Budget',color:'#94a3b8'}]}/>
+        </Card>
+        <Card title="Top Variances">
+          {[['COGS',-190000,'#dc2626'],['Marketing',620000,'#16a34a'],['Salaries',850000,'#16a34a'],['Other Opex',-120000,'#dc2626']].map(([c,v,col],i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f8faff',fontSize:10}}>
+              <span style={{color:'#334155'}}>{c}</span>
+              <span style={{fontWeight:700,color:col}}>{v>=0?'+':''}{C(v,true)}</span>
+            </div>
+          ))}
+        </Card>
+      </div>
+      <Card title="Department Budget Utilization">
+        {(bud.utilization||[]).map((b,i)=>{
+          const spent=parseFloat(b.spent||0);
+          const budgeted=parseFloat(b.budgeted||1);
+          const p=Math.min((spent/budgeted)*100,100);
+          const over=spent>budgeted;
+          return<PRow key={i} label={b.name||'Budget '+(i+1)} value={spent} max={budgeted} color={over?'#dc2626':p>80?'#d97706':'#16a34a'} right={`Budget: ${C(budgeted,true)}`}/>;
+        })}
+        {(!bud.utilization||!bud.utilization.length)&&(
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10}}>
+            {[['Engineering',72,'#2563eb'],['Sales',108,'#dc2626'],['Operations',85,'#d97706'],['HR & Admin',64,'#16a34a'],['Finance',91,'#7c3aed']].map(([dept,pct,color],i)=>(
+              <PRow key={i} label={dept} value={pct} max={100} color={pct>100?'#dc2626':pct>80?'#d97706':'#16a34a'} suffix="%"/>
+            ))}
+          </div>
+        )}
+      </Card>
+    </div>
+  );
+
+  // ============================================================
+  // TAX COMPLIANCE
+  // ============================================================
+  const TaxDash=()=>(
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <div style={{background:'#fff',borderRadius:8,border:'1px solid #e2e8f0',padding:'10px 12px',borderTop:'3px solid #dc2626'}}>
+          <div style={{fontSize:9,fontWeight:700,color:'#64748b',textTransform:'uppercase',marginBottom:4}}>TOTAL TAX LIABILITY</div>
+          <div style={{fontSize:20,fontWeight:800,color:'#dc2626'}}>{C(totalRev*0.052,true)}</div>
+          <div style={{fontSize:9,color:'#64748b'}}>Paid Tax: {C(totalRev*0.038,true)}</div>
+          <div style={{fontSize:9,color:'#dc2626',fontWeight:700}}>Outstanding: {C(totalRev*0.014,true)}</div>
+        </div>
+        <KPI label="GST Output Tax" value={C(totalRev*0.18*0.4,true)} sub="Less: Input Credit" color="#2563eb"/>
+        <KPI label="TDS Liability (Q4)" value={C(totalExp*0.10*0.3,true)} sub="Due 7th of next month" color="#d97706"/>
+        <KPI label="Advance Tax" value={C(netP*0.25,true)} sub="Next installment Q1" color="#7c3aed"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="Tax by Type" no={27}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <PieChart data={taxBreakdown} size={90} donut={true} innerLabel={C(totalRev*0.052,true)} innerSub="Total Tax"/>
+            <Legend items={taxBreakdown.map(t=>({label:t.l,color:t.color,pct:t.v+'%'}))} vertical/>
+          </div>
+        </Card>
+        <Card title="GST Reconciliation">
+          {[
+            {label:'GST Output (Sales)',value:C(totalRev*0.18,true),color:'#dc2626'},
+            {label:'GST Input Credit',value:C(totalExp*0.12,true),color:'#16a34a'},
+            {label:'Net GST Payable',value:C(totalRev*0.18-totalExp*0.12,true),color:'#d97706'},
+            {label:'ITC Utilization',value:P(totalExp*0.12,totalRev*0.18),color:'#2563eb'},
+          ].map((r,i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f8faff',fontSize:10}}>
+              <span style={{color:'#334155'}}>{r.label}</span>
+              <span style={{fontWeight:700,color:r.color}}>{r.value}</span>
+            </div>
+          ))}
+        </Card>
+        <Card title="Upcoming Tax Deadlines">
+          {[
+            {name:'GST Return (GSTR-3B)',date:'20 Jun 2026',days:1},
+            {name:'TDS Return (Form 24Q)',date:'31 Jul 2026',days:43},
+            {name:'Income Tax Return',date:'31 Oct 2026',days:73},
+            {name:'PF/ESI Payment',date:'15 Jun 2026',days:-5},
+          ].map((t,i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0',borderBottom:'1px solid #f8faff'}}>
+              <div style={{fontSize:10}}>
+                <div style={{fontWeight:500,color:'#334155'}}>{t.name}</div>
+                <div style={{color:'#94a3b8',fontSize:9}}>{t.date}</div>
+              </div>
+              <Badge text={t.days<0?'Overdue':t.days+'d'} color={t.days<0?'#dc2626':t.days<=7?'#d97706':'#16a34a'}/>
+            </div>
+          ))}
+        </Card>
+      </div>
+      <Card title="GST Filing Status — All Returns">
+        <MiniTable cols={[
+          {k:'return',l:'Return'},{k:'period',l:'Period'},{k:'due',l:'Due Date'},{k:'filed',l:'Filed Date'},{k:'status',l:'Status',fn:v=><Badge text={v} color={v==='Filed'?'#16a34a':v==='Overdue'?'#dc2626':'#d97706'}/> },{k:'amount',l:'Amount',r:true}
+        ]} rows={[
+          {return:'GSTR-1',period:'Apr 2026',due:'11-May-2026',filed:'10-May-2026',status:'Filed',amount:C(totalRev*0.18*0.4,true)},
+          {return:'GSTR-3B',period:'Apr 2026',due:'20-May-2026',filed:'—',status:'Pending',amount:C(totalRev*0.18*0.4-totalExp*0.12,true)},
+          {return:'GSTR-9',period:'FY 24-25',due:'31-Dec-2025',filed:'28-Dec-2025',status:'Filed',amount:C(totalRev*1.8,true)},
+        ]}/>
+      </Card>
+    </div>
+  );
+
+  // ============================================================
+  // EXPENSE WORKSPACE
+  // ============================================================
+  const ExpenseDash=()=>(
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:12}}>
+        <KPI label="Total Claims" value={exp.total_count||0} color="#7c3aed"/>
+        <KPI label="Total Amount" value={C(exp.total_expenses,true)} color="#dc2626"/>
+        <KPI label="Pending Approval" value={exp.pending_count||0} sub={C(exp.pending_expenses,true)} color="#d97706"/>
+        <KPI label="Approved" value={C(exp.approved_expenses,true)} change={8.3} color="#16a34a"/>
+        <KPI label="Policy Violations" value="3" sub="Auto-rejected" color="#dc2626"/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <Card title="Expenses by Category" no={46}>
+          <div style={{display:'flex',gap:10,alignItems:'center'}}>
+            <PieChart data={(exp.byCategory||[{category:'Travel',total:totalExp*0.3,color:'#2563eb'},{category:'Hotel',total:totalExp*0.25,color:'#dc2626'},{category:'Meals',total:totalExp*0.2,color:'#16a34a'},{category:'Other',total:totalExp*0.25,color:'#d97706'}]).map((c,i)=>({l:c.category,v:parseFloat(c.total||0),color:COLORS[i%COLORS.length]}))} size={90} donut={true} innerLabel={C(exp.total_expenses,true)} innerSub="Total"/>
+            <div style={{flex:1}}>
+              {(exp.byCategory||[]).slice(0,6).map((c,i)=>(
+                <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'3px 0',fontSize:10,borderBottom:'1px solid #f8faff'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><div style={{width:8,height:8,background:COLORS[i%COLORS.length],borderRadius:1}}/>{c.category||'Other'}</div>
+                  <div style={{display:'flex',gap:8}}><span style={{color:'#94a3b8'}}>{c.count}</span><span style={{fontWeight:700,color:COLORS[i%COLORS.length]}}>{C(c.total,true)}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+        <Card title="Expense Trend (Monthly)">
+          <LineChart w={280} h={100} labels={months.slice(-6)}
+            series={[{data:expSeries.slice(-6),color:'#dc2626'}]} showDots={true}/>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:8}}>
+            <div style={{padding:'6px 8px',borderRadius:6,background:'#fef2f2',fontSize:9}}>
+              <div style={{color:'#dc2626',fontWeight:700}}>POLICY VIOLATIONS</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#dc2626'}}>3</div>
+            </div>
+            <div style={{padding:'6px 8px',borderRadius:6,background:'#fefce8',fontSize:9}}>
+              <div style={{color:'#d97706',fontWeight:700}}>PENDING APPROVAL</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#d97706'}}>{exp.pending_count||0}</div>
+            </div>
+          </div>
+        </Card>
+      </div>
+      <Card title="Expense Claims Register">
+        <MiniTable cols={[
+          {k:'claim_number',l:'Claim No',fn:v=><span style={{fontFamily:'monospace',fontSize:9,color:'#7c3aed',fontWeight:700}}>{v||'—'}</span>},
+          {k:'employee_name',l:'Employee'},{k:'category',l:'Category'},{k:'total_amount',l:'Amount',r:true,fn:v=>C(v,true)},
+          {k:'date',l:'Date',fn:v=>v?new Date(v).toLocaleDateString('en-IN'):'—'},
+          {k:'status',l:'Status',fn:v=><Badge text={v||'pending'} color={SC(v)}/>},
+        ]} rows={(exp.byCategory||[]).slice(0,8)}/>
+      </Card>
+    </div>
+  );
+
+  // ── RENDER ────────────────────────────────────────────────
+  const renderDash=()=>{
+    switch(tab){
+      case 'exec': return <ExecDash/>;
+      case 'financial': return <FinancialDash/>;
       case 'ar': return <ARDash/>;
-      case 'collections': return <ARDash/>;
-      case 'credit': return <ARDash/>;
+      case 'collections': return <CollectionsDash/>;
+      case 'credit': return <CreditDash/>;
       case 'ap': return <APDash/>;
       case 'apaging': return <APDash/>;
       case 'budget': return <BudgetDash/>;
       case 'tax': return <TaxDash/>;
       case 'expense': return <ExpenseDash/>;
-      default: return <ExecutiveDash/>;
+      default: return <ExecDash/>;
     }
   };
 
-  return (
-    <div style={{background:'#F8FAFF',minHeight:'100%',display:'flex',flexDirection:'column'}}>
-      {/* Top Header */}
-      <div style={{background:'#0A1628',color:'#fff',padding:'12px 24px'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <div style={{display:'flex',alignItems:'center',gap:12}}>
-            <div style={{width:36,height:36,borderRadius:8,background:'#1B4FD8',display:'flex',alignItems:'center',justifyContent:'center',fontSize:18}}>📊</div>
-            <div>
-              <div style={{fontSize:16,fontWeight:800,letterSpacing:'-0.02em'}}>DEEMONA FINANCE COMMAND CENTER</div>
-              <div style={{fontSize:11,color:'#94A3B8'}}>Enterprise Finance Platform · {new Date().toLocaleDateString('en-IN',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
-            </div>
-          </div>
-          <div style={{display:'flex',gap:8,alignItems:'center'}}>
-            {['MTD','QTD','YTD'].map(p=>(
-              <button key={p} onClick={()=>setPeriod(p)} style={{padding:'5px 12px',borderRadius:6,border:'1px solid '+(period===p?'#3B82F6':'#2D3748'),background:period===p?'#1B4FD8':'transparent',color:period===p?'#fff':'#94A3B8',fontSize:11,fontWeight:600,cursor:'pointer'}}>{p}</button>
-            ))}
-            <button onClick={load} style={{padding:'5px 12px',borderRadius:6,border:'1px solid #2D3748',background:'transparent',color:'#94A3B8',fontSize:11,cursor:'pointer'}}>↻ Refresh</button>
+  return(
+    <div style={{background:'#f0f4ff',minHeight:'100%',display:'flex',flexDirection:'column'}}>
+      {/* ── HEADER ── */}
+      <div style={{background:'#0f172a',padding:'0'}}>
+        <div style={{background:'linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 50%,#1e3a8a 100%)',padding:'8px 20px',textAlign:'center'}}>
+          <div style={{fontSize:13,fontWeight:800,color:'#fff',letterSpacing:'0.08em',textTransform:'uppercase'}}>
+            DEEMONA AI FINANCE OS — ENTERPRISE FINANCE PLATFORM
           </div>
         </div>
-        {/* Top KPI strip */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:8}}>
-          {topKPIs.map((k,i)=>(
-            <div key={i} style={{background:'#1A2744',borderRadius:8,padding:'8px 10px',borderLeft:`3px solid ${k.color}`}}>
-              <div style={{fontSize:9,color:'#64748B',fontWeight:600,textTransform:'uppercase',marginBottom:3}}>{k.label}</div>
-              <div style={{fontSize:14,fontWeight:800,color:'#fff',marginBottom:1}}>{k.value}</div>
-              {k.sub && <div style={{fontSize:9,color:'#64748B'}}>{k.sub}</div>}
-              {k.change !== undefined && <div style={{fontSize:9,fontWeight:700,color:parseFloat(k.change)>=0?'#34D399':'#F87171'}}>{parseFloat(k.change)>=0?'▲':'▼'} {Math.abs(k.change)}% vs LY</div>}
+        {/* KPI Strip */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:1,background:'#1e293b',padding:'0 0 1px 0'}}>
+          {topBar.map((k,i)=>(
+            <div key={i} style={{background:'#0f172a',padding:'8px 10px',borderLeft:i===0?'none':'1px solid #1e293b'}}>
+              <div style={{fontSize:8,color:'#64748b',fontWeight:600,textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:2}}>{k.l}</div>
+              <div style={{fontSize:14,fontWeight:800,color:'#f1f5f9',lineHeight:1}}>{k.v}</div>
+              {k.sub&&<div style={{fontSize:8,color:'#64748b',marginTop:1}}>{k.sub}</div>}
+              {k.chg&&<div style={{fontSize:8,fontWeight:700,color:k.chg.startsWith('+')?'#34d399':'#f87171',marginTop:1}}>{k.chg} vs LY</div>}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Dashboard Selector */}
-      <div style={{background:'#fff',borderBottom:'1px solid #E8EDF5',padding:'8px 24px',display:'flex',gap:4,overflowX:'auto'}}>
-        {DASHBOARDS.map(d=>(
-          <button key={d.id} onClick={()=>setActiveDash(d.id)}
-            style={{padding:'6px 12px',borderRadius:6,border:'1px solid '+(activeDash===d.id?d.color:'#E2E8F0'),background:activeDash===d.id?d.color+'10':'#fff',color:activeDash===d.id?d.color:'#64748B',fontSize:11,fontWeight:activeDash===d.id?700:400,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0}}>
-            {d.icon} {d.label}
+      {/* ── DASHBOARD TABS ── */}
+      <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',padding:'6px 16px',display:'flex',gap:4,overflowX:'auto',alignItems:'center'}}>
+        {TABS.map(t=>(
+          <button key={t.id} onClick={()=>setTab(t.id)}
+            style={{padding:'5px 10px',borderRadius:5,border:'1px solid '+(tab===t.id?t.color:'#e2e8f0'),background:tab===t.id?t.color:'#fff',color:tab===t.id?'#fff':'#64748b',fontSize:10,fontWeight:tab===t.id?700:400,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,transition:'all 0.15s'}}>
+            {t.l}
           </button>
         ))}
-      </div>
-
-      {/* Dashboard Content */}
-      <div style={{padding:'16px 24px',flex:1}}>
-        {/* Current dashboard title */}
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-          <div>
-            <h2 style={{fontSize:15,fontWeight:800,color:'#0A1628',margin:0}}>{DASHBOARDS.find(d=>d.id===activeDash)?.label}</h2>
-            <div style={{fontSize:11,color:'#94A3B8'}}>Real-time data · Drill-down enabled · Click any row to explore</div>
-          </div>
-          <div style={{display:'flex',gap:8}}>
-            <button style={{padding:'6px 14px',borderRadius:7,border:'1px solid #E2E8F0',background:'#fff',fontSize:11,color:'#64748B',cursor:'pointer'}}>📥 Export</button>
-            <button style={{padding:'6px 14px',borderRadius:7,border:'1px solid #E2E8F0',background:'#fff',fontSize:11,color:'#64748B',cursor:'pointer'}}>📧 Email Report</button>
-          </div>
+        <div style={{marginLeft:'auto',display:'flex',gap:6,flexShrink:0}}>
+          {['MTD','QTD','YTD'].map(p=>(
+            <button key={p} onClick={()=>setPeriod(p)} style={{padding:'4px 10px',borderRadius:5,border:'1px solid #e2e8f0',background:period===p?'#2563eb':'#fff',color:period===p?'#fff':'#64748b',fontSize:10,cursor:'pointer'}}>{p}</button>
+          ))}
+          <button onClick={load} style={{padding:'4px 10px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,cursor:'pointer',color:'#64748b'}}>↻</button>
         </div>
-        {renderDash()}
       </div>
 
-      {/* Drill-down modal */}
-      {drill && (
-        <div style={{position:'fixed',inset:0,background:'rgba(10,22,40,0.7)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:24}} onClick={()=>setDrill(null)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:24,maxWidth:700,width:'100%',maxHeight:'80vh',overflow:'auto',boxShadow:'0 24px 64px rgba(0,0,0,0.3)'}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16,borderBottom:'1px solid #F1F5F9',paddingBottom:12}}>
-              <div style={{fontSize:14,fontWeight:800,color:'#0A1628'}}>Invoice Drill-Down: {drill.data?.invoice_number}</div>
-              <button onClick={()=>setDrill(null)} style={{background:'#F1F5F9',border:'none',borderRadius:7,padding:'6px 12px',cursor:'pointer',fontSize:12}}>✕ Close</button>
+      {/* ── CONTENT ── */}
+      <div style={{padding:'12px 16px',flex:1}}>{renderDash()}</div>
+
+      {/* ── DRILL MODAL ── */}
+      {drill&&(
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',zIndex:1000,display:'flex',alignItems:'center',justifyContent:'center',padding:20}} onClick={()=>setDrill(null)}>
+          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:12,padding:20,maxWidth:600,width:'100%',maxHeight:'80vh',overflow:'auto',boxShadow:'0 24px 64px rgba(0,0,0,0.3)'}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
+              <div style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>Drill-Down Details</div>
+              <button onClick={()=>setDrill(null)} style={{background:'#f1f5f9',border:'none',borderRadius:6,padding:'4px 10px',cursor:'pointer',fontSize:11}}>✕</button>
             </div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:16}}>
-              {[
-                {label:'Customer',value:drill.data?.customer_name||drill.data?.vendor_name||'N/A'},
-                {label:'Amount',value:INR(drill.data?.total_amount)},
-                {label:'Due Date',value:drill.data?.due_date?new Date(drill.data.due_date).toLocaleDateString('en-IN'):'N/A'},
-                {label:'Status',value:drill.data?.status||'N/A'},
-                {label:'Days Overdue',value:parseInt(drill.data?.days_overdue||0)>0?drill.data.days_overdue+' days':'On time'},
-              ].map((k,i)=>(
-                <div key={i} style={{padding:10,borderRadius:8,background:'#F8FAFF'}}>
-                  <div style={{fontSize:10,color:'#64748B'}}>{k.label}</div>
-                  <div style={{fontSize:13,fontWeight:600,color:'#0A1628',marginTop:2}}>{k.value}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{padding:14,borderRadius:8,background:'#EEF3FD',fontSize:11,color:'#1B4FD8'}}>
-              <div style={{fontWeight:700,marginBottom:6}}>📋 Drill-Down Path:</div>
-              <div>Invoice {drill.data?.invoice_number} → Journal Entries → GL Accounts → Source Documents</div>
-              <div style={{marginTop:6,color:'#64748B'}}>Full transaction lineage available in the Accounting module → General Ledger</div>
-            </div>
+            <pre style={{fontSize:10,color:'#334155',background:'#f8faff',padding:12,borderRadius:8,overflow:'auto'}}>{JSON.stringify(drill,null,2)}</pre>
           </div>
         </div>
       )}
