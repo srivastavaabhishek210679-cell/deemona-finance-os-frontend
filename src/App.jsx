@@ -50,6 +50,7 @@ import KnowledgeGraph from './components/knowledge/KnowledgeGraph';
 import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
 import './styles/global.css';
+import FinanceDashboardHub from './components/dashboards/FinanceDashboardHub';
 import EnterpriseFinanceDashboard from './components/dashboards/EnterpriseFinanceDashboard';
 import CollectionsDunningDashboard from './components/dashboards/CollectionsDunningDashboard';
 
@@ -61,7 +62,8 @@ const NAV_GROUPS = [
     { path: '/memory',      label: 'Finance Memory',   icon: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z' },
       { path: '/decision',    label: 'Decision Center',  icon: 'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z' },
       { path: '/cfo',         label: 'Digital CFO',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
-      { path: '/enterprise-finance', label: 'Enterprise Finance', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
+      { path: '/finance-hub', label: 'Finance Hub', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+          { path: '/enterprise-finance', label: 'Enterprise Finance', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
       { path: '/collections-dunning', label: 'Collections', icon: 'M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z' },
       { path: '/forecasting', label: 'Forecasting',      icon: 'M22 12h-4l-3 9L9 3l-3 9H2' },
     ],
