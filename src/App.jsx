@@ -34,6 +34,7 @@ import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabe
 import LandingPage from './pages/LandingPage';
 import AutomationLogsPage from './components/automation/AutomationLogsPage';
 import Batch2DocsPage from './components/docs/Batch2DocsPage';
+import Batch2DocsPage from './components/docs/Batch2DocsPage';
 import MissingDocsPage from './components/docs/MissingDocsPage';
 import DriveMonitorPage from './components/monitor/DriveMonitorPage';
 import DashboardPage from './components/dashboard/DashboardPage';
@@ -448,6 +449,7 @@ export default function App() {
 
   const routes = [
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
+    { path: '/compliance-docs', title: 'Compliance Docs', sub: 'SOX, transfer pricing, dividends, CapEx, whistleblower.', comp: <Batch2DocsPage /> },
     { path: '/corporate-docs', title: 'Corporate Documents', sub: 'Source documents, loans, risk register, governance.', comp: <MissingDocsPage /> },
     { path: '/automation-logs', title: 'Automation Center', sub: 'Monitor and test all automated workflows.', comp: <AutomationLogsPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive monitoring.', comp: <DriveMonitorPage /> },
