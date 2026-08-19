@@ -51,7 +51,6 @@ import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
 import './styles/global.css';
 import FinanceDashboardHub from './components/dashboards/FinanceDashboardHub';
-import FinanceDashboardHub from './components/dashboards/FinanceDashboardHub';
 import EnterpriseFinanceDashboard from './components/dashboards/EnterpriseFinanceDashboard';
 import CollectionsDunningDashboard from './components/dashboards/CollectionsDunningDashboard';
 
