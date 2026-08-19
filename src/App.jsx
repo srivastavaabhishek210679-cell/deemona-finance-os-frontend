@@ -34,7 +34,6 @@ import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabe
 import LandingPage from './pages/LandingPage';
 import AutomationLogsPage from './components/automation/AutomationLogsPage';
 import Batch2DocsPage from './components/docs/Batch2DocsPage';
-import Batch2DocsPage from './components/docs/Batch2DocsPage';
 import MissingDocsPage from './components/docs/MissingDocsPage';
 import DriveMonitorPage from './components/monitor/DriveMonitorPage';
 import DashboardPage from './components/dashboard/DashboardPage';
