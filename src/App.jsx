@@ -50,6 +50,8 @@ import KnowledgeGraph from './components/knowledge/KnowledgeGraph';
 import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
 import './styles/global.css';
+import EnterpriseFinanceDashboard from './components/dashboards/EnterpriseFinanceDashboard';
+import CollectionsDunningDashboard from './components/dashboards/CollectionsDunningDashboard';
 
 // ── Nav Groups - v2 ──────────────────────────────────────────────
 const NAV_GROUPS = [
@@ -452,6 +454,8 @@ export default function App() {
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
     { path: '/compliance-docs', title: 'Compliance Docs', sub: 'SOX, transfer pricing, dividends, CapEx, whistleblower.', comp: <Batch2DocsPage /> },
     { path: '/governance-docs', title: 'Governance Docs', sub: 'Corporate charter, policies, KYC, regulatory filings.', comp: <Batch3DocsPage /> },
+    { path: '/enterprise-finance', title: 'Enterprise Financial Performance', sub: 'Consolidated P&L, KPIs, AR/AP, budget and operational overview.', comp: <EnterpriseFinanceDashboard /> },
+    { path: '/collections-dunning', title: 'Collections & Dunning', sub: 'Overdue invoices, collection performance and dunning actions.', comp: <CollectionsDunningDashboard /> },
     { path: '/corporate-docs', title: 'Corporate Documents', sub: 'Source documents, loans, risk register, governance.', comp: <MissingDocsPage /> },
     { path: '/automation-logs', title: 'Automation Center', sub: 'Monitor and test all automated workflows.', comp: <AutomationLogsPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive monitoring.', comp: <DriveMonitorPage /> },
