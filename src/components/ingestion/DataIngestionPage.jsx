@@ -52,10 +52,20 @@ export default function DataIngestionPage() {
   };
 
   const handleFile = (f) => {
+    if (!f) return;
     setFile(f);
+    setInputMode('file');
+    const ext = f.name.split('.').pop()?.toLowerCase();
+    const fmt = ext === 'xlsx' || ext === 'xls' ? 'excel' : ext === 'pdf' ? 'pdf' : ext === 'xml' ? 'xml' : ext === 'json' ? 'json' : 'csv';
+    setFormat(fmt);
     const reader = new FileReader();
-    reader.onload = e => setCSVText(e.target.result);
-    reader.readAsText(f);
+    if (fmt === 'excel' || fmt === 'pdf') {
+      reader.onload = e => { const base64 = e.target.result.split(',')[1]; setCSVText(base64); };
+      reader.readAsDataURL(f);
+    } else {
+      reader.onload = e => setCSVText(e.target.result);
+      reader.readAsText(f);
+    }
   };
 
   const handleDrop = useCallback(e => {
