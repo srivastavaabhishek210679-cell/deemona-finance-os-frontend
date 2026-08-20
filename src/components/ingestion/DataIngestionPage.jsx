@@ -8,18 +8,18 @@ const api = async (url, method='GET', body=null) => {
     return await r.json();
   } catch (e) { return { error: e.message }; }
 };
-const fmt = n => 'â‚¹' + parseFloat(n||0).toLocaleString('en-IN', {minimumFractionDigits:0,maximumFractionDigits:0});
+const fmt = n => '₹' + parseFloat(n||0).toLocaleString('en-IN', {minimumFractionDigits:0,maximumFractionDigits:0});
 
 const DATA_TYPES = [
-  { id:'SALES_INVOICES',    label:'Sales Invoices',       icon:'ðŸ“„', color:'#1d4ed8', desc:'AR invoices, customer bills, sales orders' },
-  { id:'PURCHASE_INVOICES', label:'Purchase Invoices',    icon:'ðŸ“‹', color:'#7c3aed', desc:'Vendor bills, supplier invoices, purchase orders' },
-  { id:'EXPENSES',          label:'Expense Claims',       icon:'ðŸ§¾', color:'#dc2626', desc:'Employee expenses, reimbursements, petty cash' },
-  { id:'INVENTORY',         label:'Inventory / Stock',    icon:'ðŸ“¦', color:'#d97706', desc:'Stock items, products, raw materials, SKUs' },
-  { id:'PAYROLL',           label:'Payroll Data',         icon:'ðŸ‘¥', color:'#059669', desc:'Salary, allowances, deductions, payslips' },
-  { id:'CUSTOMERS',         label:'Customer Master',      icon:'ðŸ¢', color:'#0891b2', desc:'Customer profiles, credit limits, contact info' },
-  { id:'VENDORS',           label:'Vendor Master',        icon:'ðŸ­', color:'#7c3aed', desc:'Supplier profiles, payment terms, GSTIN' },
-  { id:'BANK_TRANSACTIONS', label:'Bank Transactions',    icon:'ðŸ¦', color:'#1d4ed8', desc:'Bank statement, debit/credit entries' },
-  { id:'ASSETS',            label:'Fixed Assets',         icon:'âš™ï¸', color:'#d97706', desc:'Equipment, furniture, machinery, depreciation' },
+  { id:'SALES_INVOICES',    label:'Sales Invoices',       icon:'📄', color:'#1d4ed8', desc:'AR invoices, customer bills, sales orders' },
+  { id:'PURCHASE_INVOICES', label:'Purchase Invoices',    icon:'📋', color:'#7c3aed', desc:'Vendor bills, supplier invoices, purchase orders' },
+  { id:'EXPENSES',          label:'Expense Claims',       icon:'🧾', color:'#dc2626', desc:'Employee expenses, reimbursements, petty cash' },
+  { id:'INVENTORY',         label:'Inventory / Stock',    icon:'📦', color:'#d97706', desc:'Stock items, products, raw materials, SKUs' },
+  { id:'PAYROLL',           label:'Payroll Data',         icon:'👥', color:'#059669', desc:'Salary, allowances, deductions, payslips' },
+  { id:'CUSTOMERS',         label:'Customer Master',      icon:'🏢', color:'#0891b2', desc:'Customer profiles, credit limits, contact info' },
+  { id:'VENDORS',           label:'Vendor Master',        icon:'🏭', color:'#7c3aed', desc:'Supplier profiles, payment terms, GSTIN' },
+  { id:'BANK_TRANSACTIONS', label:'Bank Transactions',    icon:'🏦', color:'#1d4ed8', desc:'Bank statement, debit/credit entries' },
+  { id:'ASSETS',            label:'Fixed Assets',         icon:'⚙️', color:'#d97706', desc:'Equipment, furniture, machinery, depreciation' },
 ];
 
 const STEPS = ['Upload File', 'Preview & Map', 'Import', 'Results'];
@@ -52,29 +52,10 @@ export default function DataIngestionPage() {
   };
 
   const handleFile = (f) => {
-    if (!f) return;
     setFile(f);
-    setInputMode('file');
-    const ext = f.name.split('.').pop()?.toLowerCase();
-    // Detect format from extension
-    const fmt = ext === 'xlsx' || ext === 'xls' ? 'excel'
-              : ext === 'pdf' ? 'pdf'
-              : ext === 'xml' ? 'xml'
-              : ext === 'json' ? 'json'
-              : 'csv';
-    setFormat(fmt);
     const reader = new FileReader();
-    if (fmt === 'excel' || fmt === 'pdf') {
-      // Binary files: read as base64
-      reader.onload = e => {
-        const base64 = e.target.result.split(',')[1]; // strip data:...;base64,
-        setCSVText(base64);
-      };
-      reader.readAsDataURL(f);
-    } else {
-      reader.onload = e => setCSVText(e.target.result);
-      reader.readAsText(f);
-    }
+    reader.onload = e => setCSVText(e.target.result);
+    reader.readAsText(f);
   };
 
   const handleDrop = useCallback(e => {
@@ -85,14 +66,12 @@ export default function DataIngestionPage() {
   }, []);
 
   const getActiveFormat = () => inputMode === 'gsheet' ? 'gsheet' : format;
-  const getActiveData = () => inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : inputMode === 'gsheet' ? csvText : csvText;
+  const getActiveData = () => inputMode === 'gsheet' ? csvText : inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : csvText;
 
   const doPreview = async () => {
     const data = inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : csvText;
-    if (!data || !data.trim()) return alert('Please enter or upload data first.');
     if (!data.trim()) return alert('No data to preview');
-    const activeFormat = inputMode === 'gsheet' ? 'gsheet' : format;
-    const resp = await api('/api/ingest/preview', 'POST', { data, format: activeFormat, dataType: forcedType || undefined });
+    const resp = await api('/api/ingest/preview', 'POST', { data: getActiveData(), format: getActiveFormat(), dataType: forcedType || undefined });
     if (resp.error) return alert('Preview error: ' + resp.error);
     setPreview(resp);
     setStep(1);
@@ -101,9 +80,8 @@ export default function DataIngestionPage() {
   const doImport = async () => {
     setImporting(true);
     const data = inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : csvText;
-    const activeFormat = inputMode === 'gsheet' ? 'gsheet' : format;
     const resp = await api('/api/ingest', 'POST', {
-      data, format: activeFormat,
+      data: getActiveData(), format: getActiveFormat(),
       dataType: forcedType || preview?.dataType,
       fieldMapping: preview?.fieldMapping,
     });
@@ -136,17 +114,17 @@ export default function DataIngestionPage() {
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-              <span style={{fontSize:24}}>â¬†ï¸</span>
+              <span style={{fontSize:24}}>⬆️</span>
               <div>
                 <div style={{fontSize:17,fontWeight:800,letterSpacing:'-0.02em'}}>Unified Data Ingestion Engine</div>
-                <div style={{fontSize:11,opacity:0.8}}>Import any data type â€” CSV, Excel, JSON â€” everything updates automatically</div>
+                <div style={{fontSize:11,opacity:0.8}}>Import any data type — CSV, Excel, JSON — everything updates automatically</div>
               </div>
             </div>
           </div>
           <div style={{textAlign:'right',fontSize:11,opacity:0.8}}>
-            <div>âœ“ AI-powered field mapping</div>
-            <div>âœ“ Auto-detect data type</div>
-            <div>âœ“ All modules update instantly</div>
+            <div>✓ AI-powered field mapping</div>
+            <div>✓ Auto-detect data type</div>
+            <div>✓ All modules update instantly</div>
           </div>
         </div>
       </div>
@@ -156,21 +134,35 @@ export default function DataIngestionPage() {
         {STEPS.map((s, i) => (
           <div key={i} style={{flex:1,padding:'10px 14px',background:i===step?'#1d4ed8':i<step?'#eff6ff':'#fff',color:i===step?'#fff':i<step?'#1d4ed8':'#94a3b8',fontSize:11,fontWeight:i===step?700:400,textAlign:'center',borderRight:i<3?'1px solid #e2e8f0':'none',cursor:i<step?'pointer':'default',transition:'all 0.2s'}}
             onClick={()=>i<step&&setStep(i)}>
-            <span style={{marginRight:5}}>{i<step?'âœ“':`${i+1}.`}</span>{s}
+            <span style={{marginRight:5}}>{i<step?'✓':`${i+1}.`}</span>{s}
           </div>
         ))}
       </div>
 
-      {/* â”€â”€ STEP 0: UPLOAD â”€â”€ */}
+      {/* ── STEP 0: UPLOAD ── */}
       {step === 0 && (
         <div style={{display:'grid',gridTemplateColumns:'1.2fr 1fr',gap:14}}>
           <div>
             {/* Input mode tabs */}
             <div style={{display:'flex',gap:0,marginBottom:12,background:'#fff',borderRadius:8,border:'1px solid #e2e8f0',overflow:'hidden'}}>
-              {[['file','ðŸ“ Upload File'],['paste','ðŸ“‹ Paste CSV'],['gsheet','ðŸ“Š Google Sheet'],['manual','âœï¸ Manual Entry']].map(([mode,label])=>(
+              {[['file','📁 Upload File'],['paste','📋 Paste CSV'],['gsheet','📊 Google Sheet'],['manual','✏️ Manual Entry']].map(([mode,label])=>(
                 <button key={mode} onClick={()=>setInputMode(mode)} style={{flex:1,padding:'8px 0',border:'none',background:inputMode===mode?'#1d4ed8':'transparent',color:inputMode===mode?'#fff':'#64748b',fontSize:11,fontWeight:inputMode===mode?700:400,cursor:'pointer'}}>{label}</button>
               ))}
             </div>
+
+            {/* Google Sheet */}
+            {inputMode === 'gsheet' && (
+              <div style={{marginBottom:12}}>
+                <div style={{padding:'10px 12px',borderRadius:8,background:'#f0fdf4',border:'1px solid #bbf7d0',marginBottom:8,fontSize:11}}>
+                  <div style={{fontWeight:700,color:'#16a34a',marginBottom:2}}>Google Sheets Direct Import</div>
+                  <div style={{color:'#64748b'}}>Paste your Google Sheet URL. Sheet must be set to <strong>Anyone with link can view</strong>.</div>
+                </div>
+                <input value={csvText} onChange={e=>setCSVText(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/YOUR_SHEET_ID/edit"
+                  style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1px solid #c7d2fe',fontSize:11,outline:'none',boxSizing:'border-box'}}/>
+                <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Make sure sharing is set to Anyone with link - Viewer</div>
+              </div>
+            )}
 
             {/* File upload */}
             {inputMode === 'file' && (
@@ -178,42 +170,21 @@ export default function DataIngestionPage() {
                 onDragOver={e=>{e.preventDefault();setDragging(true);}}
                 onDragLeave={()=>setDragging(false)}
                 onDrop={handleDrop}
-                onClick={()=>{ setTimeout(()=>fileRef.current && fileRef.current.click(), 0); }}
+                onClick={()=>fileRef.current?.click()}
                 style={{border:`2px dashed ${dragging?'#1d4ed8':'#c7d2fe'}`,borderRadius:10,padding:40,textAlign:'center',background:dragging?'#eff6ff':'#fff',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}}>
-                <input ref={fileRef} type="file" accept=".csv,.txt,.json,.xlsx,.xls,.xml,.pdf" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
-                <div style={{fontSize:36,marginBottom:8}}>{file ? 'ðŸ“„' : 'â˜ï¸'}</div>
+                <input ref={fileRef} type="file" accept=".csv,.txt,.json" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
+                <div style={{fontSize:36,marginBottom:8}}>{file ? '📄' : '☁️'}</div>
                 {file ? (
                   <div>
                     <div style={{fontSize:13,fontWeight:700,color:'#1d4ed8'}}>{file.name}</div>
-                    <div style={{fontSize:11,color:'#64748b'}}>{(file.size/1024).toFixed(1)} KB Â· {format.toUpperCase()}</div>
-                  <div style={{fontSize:10,color:'#16a34a',marginTop:2}}>âœ“ Format auto-detected</div>
+                    <div style={{fontSize:11,color:'#64748b'}}>{(file.size/1024).toFixed(1)} KB · {file.type||'text/csv'}</div>
                   </div>
                 ) : (
                   <div>
                     <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:4}}>Drag & drop your file here</div>
-                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, Excel, PDF, XML, JSON Â· Click to browse</div>
+                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, TXT, JSON · Click to browse</div>
                   </div>
                 )}
-              </div>
-            )}
-
-            {/* Google Sheet */}
-            {inputMode === 'gsheet' && (
-              <div style={{marginBottom:12}}>
-                <div style={{padding:'12px 14px',borderRadius:8,background:'#f0fdf4',border:'1px solid #bbf7d0',marginBottom:10,fontSize:11}}>
-                  <div style={{fontWeight:700,color:'#16a34a',marginBottom:4}}>ðŸ“Š Google Sheets Direct Import</div>
-                  <div style={{color:'#64748b'}}>Paste your Google Sheet URL or Sheet ID. Sheet must be <strong>publicly viewable</strong> (Share â†’ Anyone with link â†’ Viewer).</div>
-                </div>
-                <label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>GOOGLE SHEET URL OR ID</label>
-                <input
-                  value={csvText}
-                  onChange={e=>setCSVText(e.target.value)}
-                  placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit"
-                  style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1px solid #c7d2fe',fontSize:11,outline:'none',boxSizing:'border-box',marginBottom:8}}/>
-                <div style={{fontSize:10,color:'#94a3b8'}}>
-                  Example: https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit<br/>
-                  First row must be column headers. All data from Sheet1 will be imported.
-                </div>
               </div>
             )}
 
@@ -240,32 +211,28 @@ export default function DataIngestionPage() {
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>FORMAT</label>
                 <select value={format} onChange={e=>setFormat(e.target.value)} style={{width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:11,outline:'none'}}>
-                  <option value="csv">ðŸ“„ CSV / Text</option>
-                  <option value="json">ðŸ“‹ JSON</option>
-                  <option value="excel">ðŸ“Š Excel (.xlsx)</option>
-                  <option value="xml">ðŸ“° XML</option>
-                  <option value="pdf">ðŸ“• PDF (AI Extract)</option>
-                  <option value="gsheet">ðŸ“Š Google Sheet URL</option>
+                  <option value="csv">CSV / Text</option>
+                  <option value="json">JSON</option>
                 </select>
               </div>
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>DATA TYPE (Auto-detected if blank)</label>
                 <select value={forcedType} onChange={e=>setForcedType(e.target.value)} style={{width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:11,outline:'none'}}>
-                  <option value="">ðŸ¤– Auto-detect (AI)</option>
+                  <option value="">🤖 Auto-detect (AI)</option>
                   {DATA_TYPES.map(t=><option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
                 </select>
               </div>
             </div>
 
             <button onClick={doPreview} style={{width:'100%',padding:'10px 0',borderRadius:8,border:'none',background:'#1d4ed8',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>
-              ðŸ” Preview & Validate Data
+              🔍 Preview & Validate Data
             </button>
           </div>
 
           {/* Right: templates + data types */}
           <div>
             <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:'14px',marginBottom:12}}>
-              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>ðŸ“¥ Download CSV Templates</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>📥 Download CSV Templates</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
                 {DATA_TYPES.map(t => (
                   <button key={t.id} onClick={()=>downloadTemplate(t.id)}
@@ -277,7 +244,7 @@ export default function DataIngestionPage() {
             </div>
 
             <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:'14px'}}>
-              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:8}}>ðŸ”„ What Happens After Import</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:8}}>🔄 What Happens After Import</div>
               {[
                 ['Sales Invoices','AR module, customer balances, aging, dashboards, collection alerts'],
                 ['Purchase Invoices','AP module, vendor balances, payment calendar, DPO tracking'],
@@ -296,7 +263,7 @@ export default function DataIngestionPage() {
         </div>
       )}
 
-      {/* â”€â”€ STEP 1: PREVIEW â”€â”€ */}
+      {/* ── STEP 1: PREVIEW ── */}
       {step === 1 && preview && (
         <div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:14}}>
@@ -316,7 +283,7 @@ export default function DataIngestionPage() {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
             {/* Field Mapping */}
             <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:14}}>
-              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>ðŸ—ºï¸ Field Mapping (AI-Generated)</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>🗺️ Field Mapping (AI-Generated)</div>
               <table style={{width:'100%',borderCollapse:'collapse',fontSize:10}}>
                 <thead><tr style={{background:'#f8faff'}}>{['Target Field','Source Column','Status'].map(h=><th key={h} style={{padding:'5px 8px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:9,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
                 <tbody>
@@ -324,12 +291,12 @@ export default function DataIngestionPage() {
                     <tr key={i} style={{borderBottom:'1px solid #f8faff'}}>
                       <td style={{padding:'5px 8px',fontWeight:600,color:'#334155'}}>{target.replace(/_/g,' ')}</td>
                       <td style={{padding:'5px 8px',fontFamily:'monospace',color:'#1d4ed8',fontSize:10}}>{source}</td>
-                      <td style={{padding:'5px 8px'}}><Badge text="âœ“ Mapped" color="#16a34a"/></td>
+                      <td style={{padding:'5px 8px'}}><Badge text="✓ Mapped" color="#16a34a"/></td>
                     </tr>
                   ))}
                   {(preview.unmappedColumns||[]).map((col, i) => (
                     <tr key={'u'+i} style={{borderBottom:'1px solid #f8faff',background:'#fef2f2'}}>
-                      <td style={{padding:'5px 8px',color:'#94a3b8'}}>â€”</td>
+                      <td style={{padding:'5px 8px',color:'#94a3b8'}}>—</td>
                       <td style={{padding:'5px 8px',fontFamily:'monospace',color:'#dc2626',fontSize:10}}>{col}</td>
                       <td style={{padding:'5px 8px'}}><Badge text="Unmapped" color="#dc2626"/></td>
                     </tr>
@@ -340,7 +307,7 @@ export default function DataIngestionPage() {
 
             {/* Sample Data */}
             <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:14}}>
-              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>ðŸ‘ï¸ Sample Data (First 5 Rows)</div>
+              <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>👁️ Sample Data (First 5 Rows)</div>
               <div style={{overflowX:'auto'}}>
                 <table style={{width:'100%',borderCollapse:'collapse',fontSize:9}}>
                   <thead>
@@ -351,10 +318,7 @@ export default function DataIngestionPage() {
                   <tbody>
                     {(preview.sampleRows||[]).map((row,i)=>(
                       <tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>
-                        {(preview.headers||[]).slice(0,6).map(h=>{
-                          const val = row[h] ?? row[h.replace(/_/g,' ')] ?? Object.values(row)[preview.headers.indexOf(h)] ?? 'â€”';
-                          return <td key={h} style={{padding:'4px 6px',color:'#334155',maxWidth:100,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{val||'â€”'}</td>;
-                        })}
+                        {(preview.headers||[]).slice(0,6).map(h=><td key={h} style={{padding:'4px 6px',color:'#334155',maxWidth:100,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row[h]||'—'}</td>)}
                       </tr>
                     ))}
                   </tbody>
@@ -366,26 +330,26 @@ export default function DataIngestionPage() {
           {/* Validation Messages */}
           {preview.unmappedColumns?.length > 0 && (
             <div style={{background:'#fffbeb',border:'1px solid #fde68a',borderRadius:8,padding:'10px 14px',marginBottom:12,fontSize:11}}>
-              <span style={{fontWeight:700,color:'#d97706'}}>âš  Unmapped columns will be ignored: </span>
+              <span style={{fontWeight:700,color:'#d97706'}}>⚠ Unmapped columns will be ignored: </span>
               <span style={{color:'#92400e'}}>{preview.unmappedColumns.join(', ')}</span>
             </div>
           )}
 
           <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:8,padding:'10px 14px',marginBottom:14,fontSize:11,color:'#166534'}}>
-            <strong>âœ“ Ready to import {preview.totalRows} {preview.dataType?.replace(/_/g,' ')} records.</strong> All mapped fields will be written to the database and dashboards will update automatically.
+            <strong>✓ Ready to import {preview.totalRows} {preview.dataType?.replace(/_/g,' ')} records.</strong> All mapped fields will be written to the database and dashboards will update automatically.
           </div>
 
           <div style={{display:'flex',gap:10}}>
-            <button onClick={()=>setStep(0)} style={{padding:'9px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>â† Back</button>
-            <button onClick={()=>setStep(2)} style={{padding:'9px 24px',borderRadius:8,border:'none',background:'#1d4ed8',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>Confirm & Proceed â†’</button>
+            <button onClick={()=>setStep(0)} style={{padding:'9px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>← Back</button>
+            <button onClick={()=>setStep(2)} style={{padding:'9px 24px',borderRadius:8,border:'none',background:'#1d4ed8',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>Confirm & Proceed →</button>
           </div>
         </div>
       )}
 
-      {/* â”€â”€ STEP 2: IMPORT â”€â”€ */}
+      {/* ── STEP 2: IMPORT ── */}
       {step === 2 && (
         <div style={{maxWidth:500,margin:'0 auto',textAlign:'center',background:'#fff',borderRadius:12,border:'1px solid #e2e8f0',padding:40}}>
-          <div style={{fontSize:40,marginBottom:12}}>ðŸ“Š</div>
+          <div style={{fontSize:40,marginBottom:12}}>📊</div>
           <div style={{fontSize:15,fontWeight:700,color:'#0f172a',marginBottom:6}}>Ready to Import</div>
           <div style={{fontSize:12,color:'#64748b',marginBottom:20}}>
             Importing <strong>{preview?.totalRows}</strong> rows of <strong>{preview?.dataType?.replace(/_/g,' ')}</strong> data.<br/>
@@ -404,27 +368,27 @@ export default function DataIngestionPage() {
               : ['Master Data','All Related Dashboards','Reports']
             ).map((item,i)=>(
               <div key={i} style={{display:'flex',alignItems:'center',gap:6,fontSize:11,color:'#334155',padding:'2px 0'}}>
-                <span style={{color:'#16a34a'}}>âœ“</span>{item}
+                <span style={{color:'#16a34a'}}>✓</span>{item}
               </div>
             ))}
           </div>
           <div style={{display:'flex',gap:10,justifyContent:'center'}}>
-            <button onClick={()=>setStep(1)} style={{padding:'10px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>â† Back</button>
+            <button onClick={()=>setStep(1)} style={{padding:'10px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>← Back</button>
             <button onClick={doImport} disabled={importing}
               style={{padding:'10px 28px',borderRadius:8,border:'none',background:importing?'#94a3b8':'#16a34a',color:'#fff',fontSize:13,fontWeight:700,cursor:importing?'not-allowed':'pointer'}}>
-              {importing ? 'â³ Importing...' : 'âœ… Start Import'}
+              {importing ? '⏳ Importing...' : '✅ Start Import'}
             </button>
           </div>
         </div>
       )}
 
-      {/* â”€â”€ STEP 3: RESULTS â”€â”€ */}
+      {/* ── STEP 3: RESULTS ── */}
       {step === 3 && result && (
         <div>
           {/* Status */}
           <div style={{borderRadius:12,border:`1px solid ${result.error?'#fecaca':'#bbf7d0'}`,background:result.error?'#fef2f2':'#f0fdf4',padding:'16px 20px',marginBottom:14}}>
             <div style={{display:'flex',alignItems:'center',gap:10}}>
-              <span style={{fontSize:32}}>{result.error?'âŒ':'âœ…'}</span>
+              <span style={{fontSize:32}}>{result.error?'❌':'✅'}</span>
               <div>
                 <div style={{fontSize:14,fontWeight:800,color:result.error?'#dc2626':'#16a34a'}}>
                   {result.error ? 'Import Failed' : 'Import Successful!'}
@@ -455,14 +419,14 @@ export default function DataIngestionPage() {
 
               {/* What was updated */}
               <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:14,marginBottom:14}}>
-                <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>ðŸ”„ Modules Updated</div>
+                <div style={{fontSize:11,fontWeight:700,color:'#0f172a',marginBottom:10}}>🔄 Modules Updated</div>
                 <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8}}>
                   {[
                     'Finance Dashboard Hub','Executive Cockpit','AR/AP Overview',
                     'Collections & Dunning','Budget vs Actual','Tax Compliance',
                   ].map((m,i)=>(
                     <div key={i} style={{display:'flex',alignItems:'center',gap:6,padding:'6px 10px',borderRadius:6,background:'#f0fdf4',border:'1px solid #bbf7d0',fontSize:10,color:'#166534'}}>
-                      <span>âœ“</span><span style={{fontWeight:600}}>{m}</span>
+                      <span>✓</span><span style={{fontWeight:600}}>{m}</span>
                     </div>
                   ))}
                 </div>
@@ -471,7 +435,7 @@ export default function DataIngestionPage() {
               {/* Errors if any */}
               {result.errors?.length > 0 && (
                 <div style={{background:'#fff',borderRadius:10,border:'1px solid #fecaca',padding:14,marginBottom:14}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#dc2626',marginBottom:8}}>âš  Row Errors ({result.errors.length})</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'#dc2626',marginBottom:8}}>⚠ Row Errors ({result.errors.length})</div>
                   {result.errors.map((e,i)=><div key={i} style={{fontSize:10,color:'#dc2626',padding:'3px 0',borderBottom:'1px solid #fef2f2'}}>{e}</div>)}
                 </div>
               )}
@@ -479,14 +443,14 @@ export default function DataIngestionPage() {
           )}
 
           <div style={{display:'flex',gap:10}}>
-            <button onClick={reset} style={{padding:'9px 20px',borderRadius:8,border:'none',background:'#1d4ed8',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'}}>â¬†ï¸ Import More Data</button>
-            <button onClick={()=>{loadHistory();setStep('history')}} style={{padding:'9px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>ðŸ“‹ View History</button>
-            <a href="/finance-hub" style={{padding:'9px 20px',borderRadius:8,border:'1px solid #1d4ed8',background:'#eff6ff',color:'#1d4ed8',fontSize:12,fontWeight:700,cursor:'pointer',textDecoration:'none'}}>ðŸ“Š View Dashboards</a>
+            <button onClick={reset} style={{padding:'9px 20px',borderRadius:8,border:'none',background:'#1d4ed8',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer'}}>⬆️ Import More Data</button>
+            <button onClick={()=>{loadHistory();setStep('history')}} style={{padding:'9px 20px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',fontSize:12,cursor:'pointer',color:'#64748b'}}>📋 View History</button>
+            <a href="/finance-hub" style={{padding:'9px 20px',borderRadius:8,border:'1px solid #1d4ed8',background:'#eff6ff',color:'#1d4ed8',fontSize:12,fontWeight:700,cursor:'pointer',textDecoration:'none'}}>📊 View Dashboards</a>
           </div>
         </div>
       )}
 
-      {/* â”€â”€ HISTORY â”€â”€ */}
+      {/* ── HISTORY ── */}
       {step === 'history' && (
         <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
           <div style={{display:'flex',justifyContent:'space-between',marginBottom:12}}>
@@ -500,8 +464,8 @@ export default function DataIngestionPage() {
               history.map((h, i) => (
                 <tr key={i} style={{borderBottom:'1px solid #f1f5f9'}}>
                   <td style={{padding:'6px 10px',color:'#64748b'}}>{new Date(h.created_at).toLocaleString('en-IN')}</td>
-                  <td style={{padding:'6px 10px',fontWeight:600}}>{h.detail?.split(':')[0]||'â€”'}</td>
-                  <td style={{padding:'6px 10px',color:'#334155'}}>{h.detail?.split(':')[1]||'â€”'}</td>
+                  <td style={{padding:'6px 10px',fontWeight:600}}>{h.detail?.split(':')[0]||'—'}</td>
+                  <td style={{padding:'6px 10px',color:'#334155'}}>{h.detail?.split(':')[1]||'—'}</td>
                   <td style={{padding:'6px 10px'}}><Badge text={h.status} color={h.status==='success'?'#16a34a':h.status==='partial'?'#d97706':'#dc2626'}/></td>
                 </tr>
               ))}
