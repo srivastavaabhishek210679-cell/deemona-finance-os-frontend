@@ -52,9 +52,14 @@ export default function DataIngestionPage() {
   };
 
   const handleFile = (f) => {
+    if (!f) return;
     setFile(f);
+    setInputMode('file');
     const reader = new FileReader();
-    reader.onload = e => setCSVText(e.target.result);
+    reader.onload = e => {
+      setCSVText(e.target.result);
+      console.log('File loaded:', f.name, e.target.result?.substring(0,100));
+    };
     reader.readAsText(f);
   };
 
@@ -67,6 +72,7 @@ export default function DataIngestionPage() {
 
   const doPreview = async () => {
     const data = inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : csvText;
+    if (!data || !data.trim()) return alert('Please enter or upload data first.');
     if (!data.trim()) return alert('No data to preview');
     const resp = await api('/api/ingest/preview', 'POST', { data, format, dataType: forcedType || undefined });
     if (resp.error) return alert('Preview error: ' + resp.error);
@@ -153,7 +159,7 @@ export default function DataIngestionPage() {
                 onDragOver={e=>{e.preventDefault();setDragging(true);}}
                 onDragLeave={()=>setDragging(false)}
                 onDrop={handleDrop}
-                onClick={()=>fileRef.current?.click()}
+                onClick={()=>{ setTimeout(()=>fileRef.current && fileRef.current.click(), 0); }}
                 style={{border:`2px dashed ${dragging?'#1d4ed8':'#c7d2fe'}`,borderRadius:10,padding:40,textAlign:'center',background:dragging?'#eff6ff':'#fff',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}}>
                 <input ref={fileRef} type="file" accept=".csv,.txt,.json" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
                 <div style={{fontSize:36,marginBottom:8}}>{file ? '📄' : '☁️'}</div>
@@ -301,7 +307,10 @@ export default function DataIngestionPage() {
                   <tbody>
                     {(preview.sampleRows||[]).map((row,i)=>(
                       <tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>
-                        {(preview.headers||[]).slice(0,6).map(h=><td key={h} style={{padding:'4px 6px',color:'#334155',maxWidth:100,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{row[h]||'—'}</td>)}
+                        {(preview.headers||[]).slice(0,6).map(h=>{
+                          const val = row[h] ?? row[h.replace(/_/g,' ')] ?? Object.values(row)[preview.headers.indexOf(h)] ?? '—';
+                          return <td key={h} style={{padding:'4px 6px',color:'#334155',maxWidth:100,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{val||'—'}</td>;
+                        })}
                       </tr>
                     ))}
                   </tbody>
