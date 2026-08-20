@@ -55,12 +55,26 @@ export default function DataIngestionPage() {
     if (!f) return;
     setFile(f);
     setInputMode('file');
+    const ext = f.name.split('.').pop()?.toLowerCase();
+    // Detect format from extension
+    const fmt = ext === 'xlsx' || ext === 'xls' ? 'excel'
+              : ext === 'pdf' ? 'pdf'
+              : ext === 'xml' ? 'xml'
+              : ext === 'json' ? 'json'
+              : 'csv';
+    setFormat(fmt);
     const reader = new FileReader();
-    reader.onload = e => {
-      setCSVText(e.target.result);
-      console.log('File loaded:', f.name, e.target.result?.substring(0,100));
-    };
-    reader.readAsText(f);
+    if (fmt === 'excel' || fmt === 'pdf') {
+      // Binary files: read as base64
+      reader.onload = e => {
+        const base64 = e.target.result.split(',')[1]; // strip data:...;base64,
+        setCSVText(base64);
+      };
+      reader.readAsDataURL(f);
+    } else {
+      reader.onload = e => setCSVText(e.target.result);
+      reader.readAsText(f);
+    }
   };
 
   const handleDrop = useCallback(e => {
@@ -161,17 +175,18 @@ export default function DataIngestionPage() {
                 onDrop={handleDrop}
                 onClick={()=>{ setTimeout(()=>fileRef.current && fileRef.current.click(), 0); }}
                 style={{border:`2px dashed ${dragging?'#1d4ed8':'#c7d2fe'}`,borderRadius:10,padding:40,textAlign:'center',background:dragging?'#eff6ff':'#fff',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}}>
-                <input ref={fileRef} type="file" accept=".csv,.txt,.json" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
+                <input ref={fileRef} type="file" accept=".csv,.txt,.json,.xlsx,.xls,.xml,.pdf" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
                 <div style={{fontSize:36,marginBottom:8}}>{file ? '📄' : '☁️'}</div>
                 {file ? (
                   <div>
                     <div style={{fontSize:13,fontWeight:700,color:'#1d4ed8'}}>{file.name}</div>
-                    <div style={{fontSize:11,color:'#64748b'}}>{(file.size/1024).toFixed(1)} KB · {file.type||'text/csv'}</div>
+                    <div style={{fontSize:11,color:'#64748b'}}>{(file.size/1024).toFixed(1)} KB · {format.toUpperCase()}</div>
+                  <div style={{fontSize:10,color:'#16a34a',marginTop:2}}>✓ Format auto-detected</div>
                   </div>
                 ) : (
                   <div>
                     <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:4}}>Drag & drop your file here</div>
-                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, TXT, JSON · Click to browse</div>
+                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, Excel, PDF, XML, JSON · Click to browse</div>
                   </div>
                 )}
               </div>
@@ -200,8 +215,11 @@ export default function DataIngestionPage() {
               <div>
                 <label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>FORMAT</label>
                 <select value={format} onChange={e=>setFormat(e.target.value)} style={{width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:11,outline:'none'}}>
-                  <option value="csv">CSV / Text</option>
-                  <option value="json">JSON</option>
+                  <option value="csv">📄 CSV / Text</option>
+                  <option value="json">📋 JSON</option>
+                  <option value="excel">📊 Excel (.xlsx)</option>
+                  <option value="xml">📰 XML</option>
+                  <option value="pdf">📕 PDF (AI Extract)</option>
                 </select>
               </div>
               <div>
