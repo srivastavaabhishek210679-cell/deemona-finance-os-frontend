@@ -97,8 +97,9 @@ export default function DataIngestionPage() {
   const doImport = async () => {
     setImporting(true);
     const data = inputMode === 'paste' ? csvText : inputMode === 'manual' ? manualData : csvText;
+    const activeFormat = inputMode === 'gsheet' ? 'gsheet' : format;
     const resp = await api('/api/ingest', 'POST', {
-      data, format,
+      data, format: activeFormat,
       dataType: forcedType || preview?.dataType,
       fieldMapping: preview?.fieldMapping,
     });
@@ -162,7 +163,7 @@ export default function DataIngestionPage() {
           <div>
             {/* Input mode tabs */}
             <div style={{display:'flex',gap:0,marginBottom:12,background:'#fff',borderRadius:8,border:'1px solid #e2e8f0',overflow:'hidden'}}>
-              {[['file','📁 Upload File'],['paste','📋 Paste CSV'],['manual','✏️ Manual Entry']].map(([mode,label])=>(
+              {[['file','📁 Upload File'],['paste','📋 Paste CSV'],['gsheet','📊 Google Sheet'],['manual','✏️ Manual Entry']].map(([mode,label])=>(
                 <button key={mode} onClick={()=>setInputMode(mode)} style={{flex:1,padding:'8px 0',border:'none',background:inputMode===mode?'#1d4ed8':'transparent',color:inputMode===mode?'#fff':'#64748b',fontSize:11,fontWeight:inputMode===mode?700:400,cursor:'pointer'}}>{label}</button>
               ))}
             </div>
@@ -189,6 +190,26 @@ export default function DataIngestionPage() {
                     <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, Excel, PDF, XML, JSON · Click to browse</div>
                   </div>
                 )}
+              </div>
+            )}
+
+            {/* Google Sheet */}
+            {inputMode === 'gsheet' && (
+              <div style={{marginBottom:12}}>
+                <div style={{padding:'12px 14px',borderRadius:8,background:'#f0fdf4',border:'1px solid #bbf7d0',marginBottom:10,fontSize:11}}>
+                  <div style={{fontWeight:700,color:'#16a34a',marginBottom:4}}>📊 Google Sheets Direct Import</div>
+                  <div style={{color:'#64748b'}}>Paste your Google Sheet URL or Sheet ID. Sheet must be <strong>publicly viewable</strong> (Share → Anyone with link → Viewer).</div>
+                </div>
+                <label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>GOOGLE SHEET URL OR ID</label>
+                <input
+                  value={csvText}
+                  onChange={e=>setCSVText(e.target.value)}
+                  placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/edit"
+                  style={{width:'100%',padding:'9px 12px',borderRadius:8,border:'1px solid #c7d2fe',fontSize:11,outline:'none',boxSizing:'border-box',marginBottom:8}}/>
+                <div style={{fontSize:10,color:'#94a3b8'}}>
+                  Example: https://docs.google.com/spreadsheets/d/<strong>SHEET_ID</strong>/edit<br/>
+                  First row must be column headers. All data from Sheet1 will be imported.
+                </div>
               </div>
             )}
 
@@ -220,6 +241,7 @@ export default function DataIngestionPage() {
                   <option value="excel">📊 Excel (.xlsx)</option>
                   <option value="xml">📰 XML</option>
                   <option value="pdf">📕 PDF (AI Extract)</option>
+                  <option value="gsheet">📊 Google Sheet URL</option>
                 </select>
               </div>
               <div>
