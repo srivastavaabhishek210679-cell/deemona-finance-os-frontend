@@ -180,9 +180,9 @@ export default function DataIngestionPage() {
                 onDragOver={e=>{e.preventDefault();setDragging(true);}}
                 onDragLeave={()=>setDragging(false)}
                 onDrop={handleDrop}
-                onClick={()=>fileRef.current?.click()}
+                onClick={()=>{ if(fileRef.current) fileRef.current.click(); }}
                 style={{border:`2px dashed ${dragging?'#1d4ed8':'#c7d2fe'}`,borderRadius:10,padding:40,textAlign:'center',background:dragging?'#eff6ff':'#fff',cursor:'pointer',marginBottom:12,transition:'all 0.2s'}}>
-                <input ref={fileRef} type="file" accept=".csv,.txt,.json" onChange={e=>handleFile(e.target.files[0])} style={{display:'none'}}/>
+                <input ref={fileRef} type="file" accept=".csv,.txt,.json,.xlsx,.xls,.xml,.pdf" onChange={e=>{if(e.target.files[0]) handleFile(e.target.files[0]);}} style={{display:'none'}}/>
                 <div style={{fontSize:36,marginBottom:8}}>{file ? '📄' : '☁️'}</div>
                 {file ? (
                   <div>
@@ -192,7 +192,7 @@ export default function DataIngestionPage() {
                 ) : (
                   <div>
                     <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:4}}>Drag & drop your file here</div>
-                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, TXT, JSON · Click to browse</div>
+                    <div style={{fontSize:11,color:'#94a3b8'}}>Supports CSV, Excel, PDF, XML, JSON · Click to browse</div>
                   </div>
                 )}
               </div>
