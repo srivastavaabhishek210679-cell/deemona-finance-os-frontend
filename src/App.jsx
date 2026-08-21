@@ -51,6 +51,7 @@ import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
 import './styles/global.css';
 import DataIngestionPage from './components/ingestion/DataIngestionPage';
+import AIIntelligenceHub from './components/intelligence/AIIntelligenceHub';
 import AutoIngestHub from './components/ingestion/AutoIngestHub';
 import ReportSettingsPage from './components/reports/ReportSettingsPage';
 import FinanceDashboardHub from './components/dashboards/FinanceDashboardHub';
@@ -67,7 +68,8 @@ const NAV_GROUPS = [
       { path: '/cfo',         label: 'Digital CFO',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
           { path: '/drive-monitor', label: 'Drive Monitor', icon: 'M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z' },
                 { path: '/report-settings', label: 'Intelligence Center', icon: 'M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9' },
-          { path: '/auto-ingest', label: 'Auto-Ingest Hub', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+          { { path: '/ai-hub', title: 'AI Intelligence Hub', sub: 'Balance Sheet, Anomaly Detection, Chatbot, Scenarios, Operations, Filing Automation.', comp: <AIIntelligenceHub /> },
+    { path: '/auto-ingest', label: 'Auto-Ingest Hub', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
           { path: '/data-ingest', label: 'Data Ingest', icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
           { path: '/finance-hub', label: 'Finance Hub', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
           { path: '/enterprise-finance', label: 'Enterprise Finance', icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
@@ -466,6 +468,7 @@ export default function App() {
     { path: '/compliance-docs', title: 'Compliance Docs', sub: 'SOX, transfer pricing, dividends, CapEx, whistleblower.', comp: <Batch2DocsPage /> },
     { path: '/governance-docs', title: 'Governance Docs', sub: 'Corporate charter, policies, KYC, regulatory filings.', comp: <Batch3DocsPage /> },
     { path: '/report-settings', title: 'Finance Intelligence Center', sub: 'Real-time events, Gmail reports, scheduled delivery.', comp: <ReportSettingsPage /> },
+    { { path: '/ai-hub', title: 'AI Intelligence Hub', sub: 'Balance Sheet, Anomaly Detection, Chatbot, Scenarios, Operations, Filing Automation.', comp: <AIIntelligenceHub /> },
     { path: '/auto-ingest', title: 'Auto-Ingest Hub', sub: 'Zero-touch data ingestion via Webhook, Schedule, Email and Drive.', comp: <AutoIngestHub /> },
     { path: '/data-ingest', title: 'Data Ingestion', sub: 'Import CSV, JSON data — all modules update automatically.', comp: <DataIngestionPage /> },
     { path: '/finance-hub', title: 'Finance Command Center', sub: '10 dashboards in one place.', comp: <FinanceDashboardHub /> },
