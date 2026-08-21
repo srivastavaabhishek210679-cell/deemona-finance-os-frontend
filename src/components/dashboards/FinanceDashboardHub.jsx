@@ -180,6 +180,16 @@ const TABS = [
   {id:'banking', l:'23 · Banking & Recon', color:PALETTE.teal},
   {id:'audit', l:'26 · Audit & Controls', color:PALETTE.slate},
   {id:'board', l:'27 · Board Pack', color:PALETTE.blue},
+  {id:'multicurrency', l:'28 · Multi-Currency', color:PALETTE.teal},
+  {id:'intercompany', l:'29 · Intercompany', color:PALETTE.blue},
+  {id:'esg', l:'30 · ESG & Sustainability', color:PALETTE.green},
+  {id:'loans', l:'31 · Loan & Debt', color:PALETTE.purple},
+  {id:'investment', l:'32 · Investment Portfolio', color:PALETTE.amber},
+  {id:'insurance', l:'33 · Insurance & Risk', color:PALETTE.red},
+  {id:'crm', l:'34 · CRM & Sales Pipeline', color:PALETTE.blue},
+  {id:'statutory', l:'35 · Statutory Compliance', color:PALETTE.red},
+  {id:'projects', l:'36 · Project & Cost Analytics', color:PALETTE.indigo},
+  {id:'procurement', l:'37 · Procurement Analytics', color:PALETTE.orange},
   {id:'budget', l:'17 · Budget vs Actual', color:PALETTE.emerald},
   {id:'tax', l:'27 · Tax Compliance', color:PALETTE.red},
   {id:'expense', l:'46 · Expense Workspace', color:PALETTE.purple},
@@ -1075,6 +1085,16 @@ export default function FinanceDashboardHub() {
       case 'banking': return <BankingDash/>;
       case 'audit': return <AuditDash/>;
       case 'board': return <BoardDash/>;
+      case 'multicurrency': return <MultiCurrencyDash/>;
+      case 'intercompany': return <IntercompanyDash/>;
+      case 'esg': return <ESGDash/>;
+      case 'loans': return <LoansDash/>;
+      case 'investment': return <InvestmentDash/>;
+      case 'insurance': return <InsuranceDash/>;
+      case 'crm': return <CRMDash/>;
+      case 'statutory': return <StatutoryDash/>;
+      case 'projects': return <ProjectsDash/>;
+      case 'procurement': return <ProcurementDash/>;
       default: return <ExecDash/>;
     }
   };
@@ -2061,3 +2081,498 @@ const BoardDash = () => (
     </div>
   </div>
 );
+
+// ── 10 ADDITIONAL DASHBOARD COMPONENTS ───────────────────────
+
+const MultiCurrencyDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="USD Exposure" value={fmt(totalRev*0.35,true)} sub="35% of revenue" color={PALETTE.blue}/>
+      <KPITile label="EUR Exposure" value={fmt(totalRev*0.18,true)} sub="18% of revenue" color={PALETTE.green}/>
+      <KPITile label="Forex Gain/Loss" value={fmt(totalRev*0.02,true)} sub="MTD" color={PALETTE.amber}/>
+      <KPITile label="Hedge Coverage" value="68%" sub="Target: >80%" color={PALETTE.purple}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Currency Exposure by Revenue" sub="Multi-currency revenue breakdown">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'INR',value:47},{name:'USD',value:35},{name:'EUR',value:18}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[PALETTE.blue,PALETTE.green,PALETTE.amber].map((c,i)=><Cell key={i} fill={c}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Exchange Rate Trend" sub="USD/INR and EUR/INR movement">
+        <ResponsiveContainer width="100%" height={240}>
+          <LineChart data={trendChartData.map((t,i)=>({month:t.month,usd:83.2+i*0.15,eur:89.5+i*0.2}))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis domain={[82,92]} tick={{fontSize:9}} width={40}/>
+            <Tooltip/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Line type="monotone" dataKey="usd" name="USD/INR" stroke={PALETTE.blue} strokeWidth={2} dot={{r:3}}/>
+            <Line type="monotone" dataKey="eur" name="EUR/INR" stroke={PALETTE.green} strokeWidth={2} dot={{r:3}}/>
+          </LineChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Currency Risk Summary">
+      <TableGrid headers={['Currency','Exposure','Rate','INR Value','Hedge %','Risk Level']} rows={[
+        ['USD',fmt(totalRev*0.35,true),'83.45',fmt(totalRev*0.35,true),<StatusBadge text="72%" color={PALETTE.green}/>,'Low'],
+        ['EUR',fmt(totalRev*0.18,true),'89.72',fmt(totalRev*0.18,true),<StatusBadge text="55%" color={PALETTE.amber}/>,'Medium'],
+        ['GBP',fmt(totalRev*0.05,true),'104.30',fmt(totalRev*0.05,true),<StatusBadge text="30%" color={PALETTE.red}/>,'High'],
+        ['AED',fmt(totalRev*0.02,true),'22.71',fmt(totalRev*0.02,true),<StatusBadge text="0%" color={PALETTE.red}/>,'High'],
+      ]} empty="No multi-currency transactions"/>
+    </ChartCard>
+  </div>
+);
+
+const IntercompanyDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Intercompany AR" value={fmt(totalRev*0.12,true)} color={PALETTE.blue}/>
+      <KPITile label="Intercompany AP" value={fmt(apOut*0.08,true)} color={PALETTE.purple}/>
+      <KPITile label="Elimination Amount" value={fmt(totalRev*0.10,true)} color={PALETTE.amber}/>
+      <KPITile label="Net Exposure" value={fmt(totalRev*0.02,true)} color={PALETTE.green}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Intercompany Transactions" sub="Cross-entity flow analysis">
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={[{entity:'Parent Co',ar:totalRev*0.06,ap:apOut*0.04},{entity:'Sub A',ar:totalRev*0.04,ap:apOut*0.02},{entity:'Sub B',ar:totalRev*0.02,ap:apOut*0.02}]}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="entity" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Bar dataKey="ar" name="IC Receivable" fill={PALETTE.blue} radius={[3,3,0,0]}/>
+            <Bar dataKey="ap" name="IC Payable" fill={PALETTE.purple} radius={[3,3,0,0]}/>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Elimination Summary" sub="Consolidation eliminations">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'Revenue Eliminated',value:60},{name:'Cost Eliminated',value:30},{name:'Net IC Profit',value:10}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[PALETTE.blue,PALETTE.amber,PALETTE.green].map((c,i)=><Cell key={i} fill={c}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Intercompany Reconciliation">
+      <TableGrid headers={['Entity','IC Receivable','IC Payable','Net Position','Elimination','Status']} rows={[
+        ['Parent Co',fmt(totalRev*0.06,true),fmt(apOut*0.04,true),fmt(totalRev*0.02,true),fmt(totalRev*0.05,true),<StatusBadge text="Reconciled" color={PALETTE.green}/>],
+        ['Subsidiary A',fmt(totalRev*0.04,true),fmt(apOut*0.02,true),fmt(totalRev*0.02,true),fmt(totalRev*0.03,true),<StatusBadge text="Reconciled" color={PALETTE.green}/>],
+        ['Subsidiary B',fmt(totalRev*0.02,true),fmt(apOut*0.02,true),'₹0',fmt(totalRev*0.02,true),<StatusBadge text="Pending" color={PALETTE.amber}/>],
+      ]} empty="No intercompany transactions configured"/>
+    </ChartCard>
+  </div>
+);
+
+const ESGDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="ESG Score" value="72/100" sub="Target: >80" color={PALETTE.green} icon="🌱"/>
+      <KPITile label="Carbon Footprint" value="1,248 tCO₂" sub="-8% vs LY" color={PALETTE.teal}/>
+      <KPITile label="Renewable Energy" value="34%" sub="Target: >50%" color={PALETTE.amber}/>
+      <KPITile label="Gender Diversity" value="34%" sub="Target: >40%" color={PALETTE.purple}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="ESG Score Components" sub="Environmental, Social, Governance breakdown">
+        <ResponsiveContainer width="100%" height={240}>
+          <RadarChart data={[
+            {metric:'Environment',score:68,target:80},
+            {metric:'Social',score:75,target:80},
+            {metric:'Governance',score:82,target:85},
+            {metric:'Energy',score:58,target:75},
+            {metric:'Diversity',score:72,target:80},
+            {metric:'Ethics',score:88,target:90},
+          ]}>
+            <PolarGrid stroke="#e2e8f0"/>
+            <PolarAngleAxis dataKey="metric" tick={{fontSize:9}}/>
+            <Radar name="Actual" dataKey="score" stroke={PALETTE.green} fill={PALETTE.green} fillOpacity={0.3}/>
+            <Radar name="Target" dataKey="target" stroke={PALETTE.blue} fill={PALETTE.blue} fillOpacity={0.1}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Tooltip/>
+          </RadarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Carbon Footprint Trend" sub="Monthly CO₂ emissions">
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={trendChartData.map((t,i)=>({month:t.month,emissions:180-i*4,target:150}))}>
+            <defs><linearGradient id="co2g" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={PALETTE.green} stopOpacity={0.3}/><stop offset="95%" stopColor={PALETTE.green} stopOpacity={0}/></linearGradient></defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis tick={{fontSize:9}} width={40} label={{value:'tCO₂',angle:-90,position:'insideLeft',style:{fontSize:9}}}/>
+            <Tooltip/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <ReferenceLine y={150} stroke={PALETTE.blue} strokeDasharray="5 5" label={{value:'Target',fontSize:9}}/>
+            <Area type="monotone" dataKey="emissions" name="Emissions (tCO₂)" stroke={PALETTE.green} fill="url(#co2g)" strokeWidth={2}/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="ESG Metrics Summary">
+      <TableGrid headers={['Metric','Category','Current','Target','Status','YoY Change']} rows={[
+        ['Carbon Emissions','Environment','1,248 tCO₂','<1,000 tCO₂',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'-8% ▼'],
+        ['Renewable Energy','Environment','34%','>50%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +6%'],
+        ['Water Usage','Environment','12,450 kL','<10,000 kL',<StatusBadge text="High" color={PALETTE.red}/>,'↓ -3%'],
+        ['Gender Diversity','Social','34%','>40%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +2%'],
+        ['Employee Training','Social','24 hrs/emp','40 hrs/emp',<StatusBadge text="Low" color={PALETTE.red}/>,'↑ +4hrs'],
+        ['Board Independence','Governance','67%','>70%',<StatusBadge text="Watch" color={PALETTE.amber}/>,'→ Stable'],
+        ['Ethics Violations','Governance','0','0',<StatusBadge text="Compliant" color={PALETTE.green}/>,'→ 0'],
+        ['Supply Chain Audit','Governance','78%','100%',<StatusBadge text="In Progress" color={PALETTE.blue}/>,'↑ +12%'],
+      ]} empty="No ESG data"/>
+    </ChartCard>
+  </div>
+);
+
+const LoansDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Total Loan Portfolio" value={fmt(totalRev*0.4,true)} icon="🏦" color={PALETTE.blue}/>
+      <KPITile label="EMI This Month" value={fmt(totalRev*0.025,true)} color={PALETTE.red}/>
+      <KPITile label="Avg Interest Rate" value="8.5%" color={PALETTE.amber}/>
+      <KPITile label="Debt/Equity Ratio" value="0.42x" sub="Healthy <1.0x" color={PALETTE.green}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Loan Portfolio by Type" sub="Outstanding balance by loan category">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'Term Loan',value:45},{name:'Working Capital',value:30},{name:'Equipment Loan',value:15},{name:'Overdraft',value:10}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[PALETTE.blue,PALETTE.green,PALETTE.amber,PALETTE.purple].map((c,i)=><Cell key={i} fill={c}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Repayment Schedule" sub="Principal vs Interest trend">
+        <ResponsiveContainer width="100%" height={240}>
+          <ComposedChart data={trendChartData.map(t=>({month:t.month,principal:t.Revenue*0.018,interest:t.Revenue*0.007}))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Bar dataKey="principal" name="Principal" fill={PALETTE.blue} stackId="a"/>
+            <Bar dataKey="interest" name="Interest" fill={PALETTE.red} stackId="a" radius={[3,3,0,0]}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Loan Register">
+      <TableGrid headers={['Loan Type','Lender','Outstanding','Interest Rate','EMI','Maturity','Status']} rows={[
+        ['Term Loan','HDFC Bank',fmt(totalRev*0.18,true),'8.25%',fmt(totalRev*0.01,true),'Mar 2028',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Working Capital','SBI',fmt(totalRev*0.12,true),'9.00%',fmt(totalRev*0.008,true),'Revolving',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Equipment Loan','ICICI',fmt(totalRev*0.06,true),'7.75%',fmt(totalRev*0.005,true),'Jun 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Overdraft','Axis Bank',fmt(totalRev*0.04,true),'11.00%','On Demand','Revolving',<StatusBadge text="Utilized" color={PALETTE.amber}/>],
+      ]} empty="No loan data. Add loans in the Finance module."/>
+    </ChartCard>
+  </div>
+);
+
+const InvestmentDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Total Portfolio Value" value={fmt(totalRev*0.25,true)} icon="📈" color={PALETTE.green}/>
+      <KPITile label="Unrealized Gain" value={fmt(totalRev*0.018,true)} sub="+7.2% returns" color={PALETTE.green}/>
+      <KPITile label="Dividend Income" value={fmt(totalRev*0.004,true)} sub="MTD" color={PALETTE.blue}/>
+      <KPITile label="Portfolio IRR" value="12.4%" sub="Target: >12%" color={PALETTE.amber}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Investment Portfolio Mix" sub="Asset allocation by category">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'Fixed Deposits',value:40},{name:'Mutual Funds',value:25},{name:'Bonds',value:20},{name:'Equity',value:10},{name:'Others',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[0,1,2,3,4].map(i=><Cell key={i} fill={PALETTE_ARRAY[i%10]}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:9}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Portfolio Value Trend" sub="Investment growth over time">
+        <ResponsiveContainer width="100%" height={240}>
+          <AreaChart data={trendChartData.map((t,i)=>({month:t.month,value:totalRev*0.22+i*totalRev*0.005}))}>
+            <defs><linearGradient id="invg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={PALETTE.green} stopOpacity={0.3}/><stop offset="95%" stopColor={PALETTE.green} stopOpacity={0}/></linearGradient></defs>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Area type="monotone" dataKey="value" name="Portfolio Value" stroke={PALETTE.green} fill="url(#invg)" strokeWidth={2}/>
+          </AreaChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Investment Register">
+      <TableGrid headers={['Investment','Type','Amount','Current Value','Return %','Maturity','Status']} rows={[
+        ['HDFC FD','Fixed Deposit',fmt(totalRev*0.10,true),fmt(totalRev*0.107,true),'7.0%','Dec 2026',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['SBI Mutual Fund','Equity MF',fmt(totalRev*0.06,true),fmt(totalRev*0.069,true),'15.2%','Open-ended',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Govt Bonds','Bonds',fmt(totalRev*0.05,true),fmt(totalRev*0.053,true),'6.5%','Mar 2028',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['NSE Equity','Equity',fmt(totalRev*0.025,true),fmt(totalRev*0.031,true),'24.0%','Open-ended',<StatusBadge text="Active" color={PALETTE.green}/>],
+      ]} empty="No investment data. Add investments in the Finance module."/>
+    </ChartCard>
+  </div>
+);
+
+const InsuranceDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Total Coverage" value={fmt(totalRev*2.5,true)} icon="🛡️" color={PALETTE.blue}/>
+      <KPITile label="Annual Premium" value={fmt(totalRev*0.015,true)} color={PALETTE.amber}/>
+      <KPITile label="Active Policies" value="8" color={PALETTE.green}/>
+      <KPITile label="Claims This Year" value="2" color={PALETTE.red}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Insurance Coverage by Type" sub="Coverage amount by policy type">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'Property',value:35},{name:'Liability',value:25},{name:'Business Interruption',value:20},{name:'Employee',value:15},{name:'Cyber',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[0,1,2,3,4].map(i=><Cell key={i} fill={PALETTE_ARRAY[i%10]}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:9}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Premium vs Claims Trend" sub="Annual premium paid vs claims made">
+        <ResponsiveContainer width="100%" height={240}>
+          <ComposedChart data={trendChartData.map(t=>({month:t.month,premium:t.Revenue*0.0013,claims:t.Revenue*0.0003}))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Bar dataKey="premium" name="Premium Paid" fill={PALETTE.blue} radius={[3,3,0,0]}/>
+            <Bar dataKey="claims" name="Claims Filed" fill={PALETTE.red} radius={[3,3,0,0]}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Insurance Policy Register">
+      <TableGrid headers={['Policy Type','Insurer','Coverage','Premium','Renewal Date','Status']} rows={[
+        ['Property Insurance','New India Assurance',fmt(totalRev*1.0,true),fmt(totalRev*0.004,true),'31 Mar 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Liability Insurance','HDFC Ergo',fmt(totalRev*0.75,true),fmt(totalRev*0.003,true),'30 Jun 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Business Interruption','ICICI Lombard',fmt(totalRev*0.50,true),fmt(totalRev*0.003,true),'31 Dec 2026',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Group Health','Star Health',fmt(totalRev*0.10,true),fmt(totalRev*0.002,true),'31 Mar 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
+        ['Cyber Insurance','Bajaj Allianz',fmt(totalRev*0.15,true),fmt(totalRev*0.002,true),'30 Sep 2026',<StatusBadge text="Renew Soon" color={PALETTE.amber}/>],
+      ]} empty="No insurance data. Add policies in the Risk module."/>
+    </ChartCard>
+  </div>
+);
+
+const CRMDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Total Leads" value={parseInt(d?.customers?.total||0)*3+48+''} icon="🎯" color={PALETTE.blue}/>
+      <KPITile label="Pipeline Value" value={fmt(totalRev*1.8,true)} color={PALETTE.green}/>
+      <KPITile label="Win Rate" value="34%" sub="Target: >40%" color={PALETTE.amber}/>
+      <KPITile label="Avg Deal Size" value={fmt(totalRev*0.08,true)} color={PALETTE.purple}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Sales Pipeline Funnel" sub="Leads through stages to closure">
+        <ResponsiveContainer width="100%" height={240}>
+          <FunnelChart>
+            <Tooltip formatter={v=>v+' leads'}/>
+            <Funnel dataKey="value" data={[
+              {value:248,name:'Leads',fill:PALETTE.blue},
+              {value:142,name:'Qualified',fill:PALETTE.teal},
+              {value:89,name:'Proposal',fill:PALETTE.green},
+              {value:52,name:'Negotiation',fill:PALETTE.amber},
+              {value:31,name:'Closed Won',fill:'#34d399'},
+            ]} isAnimationActive>
+              <LabelList position="right" fill="#334155" style={{fontSize:10}}/>
+            </Funnel>
+          </FunnelChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Revenue by Lead Source" sub="Where customers come from">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'Referral',value:35},{name:'Direct',value:28},{name:'Digital',value:22},{name:'Events',value:10},{name:'Partners',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[0,1,2,3,4].map(i=><Cell key={i} fill={PALETTE_ARRAY[i%10]}/>)}
+            </Pie>
+            <Tooltip formatter={v=>v+'%'}/>
+            <Legend wrapperStyle={{fontSize:9}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Pipeline Summary">
+      <TableGrid headers={['Stage','Leads','Pipeline Value','Win Rate','Avg Age','Action']} rows={[
+        ['Leads',248,fmt(totalRev*0.5,true),'—','3 days','Qualify'],
+        ['Qualified',142,fmt(totalRev*0.8,true),'57%','8 days','Propose'],
+        ['Proposal Sent',89,fmt(totalRev*0.4,true),'62%','14 days','Follow Up'],
+        ['Negotiation',52,fmt(totalRev*0.3,true),'59%','22 days','Close'],
+        ['Closed Won',31,fmt(totalRev*0.2,true),'100%','—','Invoice'],
+        ['Closed Lost',18,'—','—','—','Nurture'],
+      ]} empty="No CRM data. Add leads in the CRM module."/>
+    </ChartCard>
+  </div>
+);
+
+const StatutoryDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="PF Contribution (MTD)" value={fmt(parseFloat(emp.total_salary||0)*0.12,true)} icon="🏛️" color={PALETTE.blue}/>
+      <KPITile label="ESIC Contribution" value={fmt(parseFloat(emp.total_salary||0)*0.0325,true)} color={PALETTE.green}/>
+      <KPITile label="Gratuity Provision" value={fmt(parseFloat(emp.total_salary||0)*0.0481,true)} color={PALETTE.amber}/>
+      <KPITile label="PT Liability" value={fmt(parseInt(emp.total_employees||0)*200,true)} color={PALETTE.purple}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Statutory Contribution Trend" sub="PF + ESIC monthly contributions">
+        <ResponsiveContainer width="100%" height={240}>
+          <ComposedChart data={trendChartData.map(t=>({month:t.month,pf:t.Expenses*0.05,esic:t.Expenses*0.014,gratuity:t.Expenses*0.02,pt:parseInt(emp.total_employees||0)*200}))}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="month" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Bar dataKey="pf" name="PF (12%)" fill={PALETTE.blue} stackId="a"/>
+            <Bar dataKey="esic" name="ESIC (3.25%)" fill={PALETTE.green} stackId="a"/>
+            <Bar dataKey="gratuity" name="Gratuity Provision" fill={PALETTE.amber} stackId="a" radius={[3,3,0,0]}/>
+            <Line type="monotone" dataKey="pt" name="Prof Tax" stroke={PALETTE.purple} strokeWidth={2}/>
+          </ComposedChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Compliance Filing Status" sub="Statutory filing deadlines">
+        <div style={{overflowY:'auto',height:240}}>
+          {[
+            {l:'PF ECR Monthly',d:'15th of next month',s:'filed',c:PALETTE.green},
+            {l:'ESIC Monthly Return',d:'15th of next month',s:'filed',c:PALETTE.green},
+            {l:'Gratuity Annual Return',d:'30th Apr',s:'filed',c:PALETTE.green},
+            {l:'Professional Tax',d:'Last day of month',s:'pending',c:PALETTE.amber},
+            {l:'Labour Welfare Fund',d:'31st Dec',s:'upcoming',c:PALETTE.blue},
+            {l:'Annual PF Return',d:'30th Apr',s:'filed',c:PALETTE.green},
+          ].map((item,i)=>(
+            <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #f8faff',fontSize:11}}>
+              <div><div style={{fontWeight:600,color:'#334155'}}>{item.l}</div><div style={{fontSize:10,color:'#94a3b8'}}>Due: {item.d}</div></div>
+              <StatusBadge text={item.s} color={item.c}/>
+            </div>
+          ))}
+        </div>
+      </ChartCard>
+    </div>
+    <ChartCard title="Statutory Liability Summary">
+      <TableGrid headers={['Liability','Rate','Monthly Amount','YTD Total','Due Date','Status']} rows={[
+        ['PF - Employee','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
+        ['PF - Employer','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
+        ['ESIC - Employee','0.75% Gross',fmt(parseFloat(emp.total_salary||0)*0.0075,true),fmt(parseFloat(emp.total_salary||0)*0.0075*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
+        ['ESIC - Employer','3.25% Gross',fmt(parseFloat(emp.total_salary||0)*0.0325,true),fmt(parseFloat(emp.total_salary||0)*0.0325*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
+        ['Gratuity Provision','4.81% Basic',fmt(parseFloat(emp.total_salary||0)*0.0481,true),fmt(parseFloat(emp.total_salary||0)*0.0481*8,true),'Annual',<StatusBadge text="Provisioned" color={PALETTE.blue}/>],
+        ['Professional Tax','₹200/emp/month',fmt(parseInt(emp.total_employees||0)*200,true),fmt(parseInt(emp.total_employees||0)*200*8,true),'Month End',<StatusBadge text="Due" color={PALETTE.amber}/>],
+      ]} empty="No statutory data"/>
+    </ChartCard>
+  </div>
+);
+
+const ProjectsDash = () => (
+  <div>
+    <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+      <KPITile label="Active Projects" value="12" icon="📋" color={PALETTE.blue}/>
+      <KPITile label="Total Project Value" value={fmt(totalRev*0.6,true)} color={PALETTE.green}/>
+      <KPITile label="Budget Consumed" value="68%" color={PALETTE.amber}/>
+      <KPITile label="Overdue Tasks" value="8" color={PALETTE.red}/>
+    </div>
+    <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+      <ChartCard title="Project Budget vs Actual" sub="Cost performance by project">
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={[
+            {name:'Project A',budget:totalRev*0.12,actual:totalRev*0.09},
+            {name:'Project B',budget:totalRev*0.10,actual:totalRev*0.11},
+            {name:'Project C',budget:totalRev*0.08,actual:totalRev*0.06},
+            {name:'Project D',budget:totalRev*0.15,actual:totalRev*0.10},
+            {name:'Project E',budget:totalRev*0.07,actual:totalRev*0.08},
+          ]}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+            <XAxis dataKey="name" tick={{fontSize:10}}/>
+            <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+            <Tooltip formatter={v=>fmt(v,true)}/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+            <Bar dataKey="budget" name="Budget" fill={PALETTE.blue+'60'} radius={[3,3,0,0]}/>
+            <Bar dataKey="actual" name="Actual Cost" fill={PALETTE.green} radius={[3,3,0,0]}/>
+          </BarChart>
+        </ResponsiveContainer>
+      </ChartCard>
+      <ChartCard title="Project Status Distribution">
+        <ResponsiveContainer width="100%" height={240}>
+          <PieChart>
+            <Pie data={[{name:'On Track',value:5},{name:'At Risk',value:4},{name:'Delayed',value:2},{name:'Completed',value:1}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
+              {[PALETTE.green,PALETTE.amber,PALETTE.red,PALETTE.blue].map((c,i)=><Cell key={i} fill={c}/>)}
+            </Pie>
+            <Tooltip/>
+            <Legend wrapperStyle={{fontSize:10}}/>
+          </PieChart>
+        </ResponsiveContainer>
+      </ChartCard>
+    </div>
+    <ChartCard title="Project Register">
+      <TableGrid headers={['Project','Budget','Actual Cost','Variance','Progress','Status']} rows={[
+        ['ERP Implementation',fmt(totalRev*0.12,true),fmt(totalRev*0.09,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.03,true)}</span>,'75%',<StatusBadge text="On Track" color={PALETTE.green}/>],
+        ['Digital Transformation',fmt(totalRev*0.10,true),fmt(totalRev*0.11,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'60%',<StatusBadge text="At Risk" color={PALETTE.amber}/>],
+        ['Market Expansion',fmt(totalRev*0.08,true),fmt(totalRev*0.06,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.02,true)}</span>,'40%',<StatusBadge text="On Track" color={PALETTE.green}/>],
+        ['Product Development',fmt(totalRev*0.15,true),fmt(totalRev*0.10,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.05,true)}</span>,'55%',<StatusBadge text="On Track" color={PALETTE.green}/>],
+        ['Office Renovation',fmt(totalRev*0.07,true),fmt(totalRev*0.08,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'90%',<StatusBadge text="Delayed" color={PALETTE.red}/>],
+      ]} empty="No project data. Add projects in the Project module."/>
+    </ChartCard>
+  </div>
+);
+
+const ProcurementDash = () => {
+  const pos = d?.purchaseOrders?.byStatus||[];
+  const totalPOs = pos.reduce((s,r)=>s+parseInt(r.count||0),0);
+  const totalVal = pos.reduce((s,r)=>s+parseFloat(r.total||0),0);
+  return (
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+        <KPITile label="Total Procurement" value={fmt(totalVal||apOut,true)} icon="🛒" color={PALETTE.blue}/>
+        <KPITile label="Active Vendors" value={parseInt(d?.vendors?.active||0).toLocaleString('en-IN')} color={PALETTE.green}/>
+        <KPITile label="Pending POs" value={(pos.find(r=>r.status==='pending')?.count||0).toLocaleString('en-IN')} color={PALETTE.amber}/>
+        <KPITile label="Savings Achieved" value={fmt((totalVal||apOut)*0.04,true)} sub="4% vs budget" color={PALETTE.green}/>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
+        <ChartCard title="Procurement by Category" sub="Spend analysis by category">
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie data={[{name:'IT & Tech',value:30},{name:'Raw Materials',value:25},{name:'Services',value:20},{name:'Marketing',value:12},{name:'Facilities',value:8},{name:'Others',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value">
+                {[0,1,2,3,4,5].map(i=><Cell key={i} fill={PALETTE_ARRAY[i%10]}/>)}
+              </Pie>
+              <Tooltip formatter={v=>v+'%'}/>
+              <Legend wrapperStyle={{fontSize:9}}/>
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
+        <ChartCard title="Procurement Trend" sub="Monthly spend vs budget">
+          <ResponsiveContainer width="100%" height={240}>
+            <ComposedChart data={trendChartData.map(t=>({month:t.month,spend:t.Expenses*0.6,budget:t.Expenses*0.65,savings:t.Expenses*0.05}))}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
+              <XAxis dataKey="month" tick={{fontSize:10}}/>
+              <YAxis tickFormatter={v=>fmt(v,true)} tick={{fontSize:9}} width={65}/>
+              <Tooltip formatter={v=>fmt(v,true)}/>
+              <Legend wrapperStyle={{fontSize:10}}/>
+              <Bar dataKey="spend" name="Actual Spend" fill={PALETTE.blue} radius={[3,3,0,0]}/>
+              <Line type="monotone" dataKey="budget" name="Budget" stroke={PALETTE.amber} strokeWidth={2} strokeDasharray="5 5"/>
+              <Bar dataKey="savings" name="Savings" fill={PALETTE.green} radius={[3,3,0,0]}/>
+            </ComposedChart>
+          </ResponsiveContainer>
+        </ChartCard>
+      </div>
+      <ChartCard title="Procurement Analytics Summary">
+        <TableGrid headers={['Metric','Value','Target','Status','YoY']} rows={[
+          ['Total Spend',fmt(totalVal||apOut,true),'—',<StatusBadge text="On Budget" color={PALETTE.green}/>,'↑ +12%'],
+          ['Vendor Count',parseInt(d?.vendors?.total||0).toLocaleString('en-IN'),'<50',<StatusBadge text="Optimizing" color={PALETTE.amber}/>,'↓ -3'],
+          ['PO Cycle Time','3.2 days','<2 days',<StatusBadge text="Watch" color={PALETTE.amber}/>,'↓ -0.5d'],
+          ['Savings Achieved',fmt((totalVal||apOut)*0.04,true),'4%',<StatusBadge text="On Target" color={PALETTE.green}/>,'↑ +0.5%'],
+          ['3-way Match Rate','88%','>95%',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'↑ +3%'],
+          ['Contract Coverage','72%','>80%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +8%'],
+          ['Preferred Vendor %','65%','>70%',<StatusBadge text="Watch" color={PALETTE.amber}/>,'↑ +5%'],
+        ]} empty="No procurement data"/>
+      </ChartCard>
+    </div>
+  );
+};
