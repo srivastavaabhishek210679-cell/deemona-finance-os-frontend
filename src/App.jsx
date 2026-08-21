@@ -468,7 +468,7 @@ export default function App() {
     { path: '/compliance-docs', title: 'Compliance Docs', sub: 'SOX, transfer pricing, dividends, CapEx, whistleblower.', comp: <Batch2DocsPage /> },
     { path: '/governance-docs', title: 'Governance Docs', sub: 'Corporate charter, policies, KYC, regulatory filings.', comp: <Batch3DocsPage /> },
     { path: '/report-settings', title: 'Finance Intelligence Center', sub: 'Real-time events, Gmail reports, scheduled delivery.', comp: <ReportSettingsPage /> },
-    { { path: '/ai-hub', title: 'AI Intelligence Hub', sub: 'Balance Sheet, Anomaly Detection, Chatbot, Scenarios, Operations, Filing Automation.', comp: <AIIntelligenceHub /> },
+    { path: '/ai-hub', title: 'AI Intelligence Hub', sub: 'Balance Sheet, Anomaly Detection, Chatbot, Scenarios, Operations, Filing Automation.', comp: <AIIntelligenceHub /> },
     { path: '/auto-ingest', title: 'Auto-Ingest Hub', sub: 'Zero-touch data ingestion via Webhook, Schedule, Email and Drive.', comp: <AutoIngestHub /> },
     { path: '/data-ingest', title: 'Data Ingestion', sub: 'Import CSV, JSON data — all modules update automatically.', comp: <DataIngestionPage /> },
     { path: '/finance-hub', title: 'Finance Command Center', sub: '10 dashboards in one place.', comp: <FinanceDashboardHub /> },
