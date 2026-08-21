@@ -1099,63 +1099,6 @@ export default function FinanceDashboardHub() {
     }
   };
 
-  return (
-    <div style={{background:'#f0f4ff',minHeight:'100%',display:'flex',flexDirection:'column'}}>
-
-      {/* ── HEADER BAR ── */}
-      <div style={{background:'#0f172a'}}>
-        <div style={{background:'linear-gradient(90deg,#1e3a8a,#1d4ed8,#1e40af,#1e3a8a)',padding:'6px 20px',textAlign:'center'}}>
-          <span style={{fontSize:12,fontWeight:900,color:'#fff',letterSpacing:'0.1em',textTransform:'uppercase'}}>
-            DEEMONA AI FINANCE OS — ENTERPRISE FINANCE PLATFORM — {TABS.length * 2}+ ANALYTICAL VIEWS
-          </span>
-        </div>
-
-        {/* KPI Strip */}
-        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',borderTop:'1px solid #1e293b'}}>
-          {topKPIs.map((k,i) => (
-            <div key={i} style={{padding:'7px 10px',borderLeft:i>0?'1px solid #1e293b':'none',background:i%2===0?'#0f172a':'#0d1526'}}>
-              <div style={{fontSize:8,color:'#475569',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:2}}>{k.l}</div>
-              <div style={{fontSize:15,fontWeight:800,color:'#f1f5f9',lineHeight:1,marginBottom:1}}>{k.v}</div>
-              {k.sub && <div style={{fontSize:8,color:'#475569'}}>{k.sub}</div>}
-              {k.chg && <div style={{fontSize:8,fontWeight:700,color:k.pos?'#34d399':'#f87171'}}>{k.chg} vs LY</div>}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── TAB BAR ── */}
-      <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',padding:'5px 14px 0',display:'flex',gap:3,overflowX:'auto',alignItems:'flex-end'}}>
-        {TABS.map(t => (
-          <button key={t.id} onClick={()=>setTab(t.id)}
-            style={{padding:'6px 11px',borderRadius:'5px 5px 0 0',border:'1px solid '+(tab===t.id?t.color:'#e2e8f0'),borderBottom:tab===t.id?`2px solid ${t.color}`:'none',background:tab===t.id?t.color+'12':'#f8faff',color:tab===t.id?t.color:'#64748b',fontSize:10,fontWeight:tab===t.id?800:400,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,marginBottom:-1,transition:'all 0.1s'}}>
-            {t.l}
-          </button>
-        ))}
-        <div style={{marginLeft:'auto',display:'flex',gap:5,flexShrink:0,alignItems:'center',paddingBottom:4}}>
-          {['MTD','QTD','YTD','LY'].map(p => (
-            <button key={p} onClick={()=>setPeriod(p)} style={{padding:'4px 9px',borderRadius:5,border:'1px solid '+(period===p?PALETTE.blue:'#e2e8f0'),background:period===p?PALETTE.blue:'#fff',color:period===p?'#fff':'#64748b',fontSize:9,fontWeight:600,cursor:'pointer'}}>{p}</button>
-          ))}
-          <button onClick={load} style={{padding:'4px 9px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,cursor:'pointer',color:'#64748b'}} title="Refresh">↻ Refresh</button>
-        </div>
-      </div>
-
-      {/* ── CONTENT ── */}
-      <div style={{padding:'12px 14px',flex:1,overflowY:'auto'}}>
-        <div style={{marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div>
-            <span style={{fontSize:12,fontWeight:800,color:'#0f172a'}}>{TABS.find(t=>t.id===tab)?.l}</span>
-            <span style={{fontSize:10,color:'#94a3b8',marginLeft:8}}>Real-time · Hover charts for details · {new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</span>
-          </div>
-          <div style={{display:'flex',gap:6}}>
-            <button style={{padding:'5px 12px',borderRadius:6,border:`1px solid ${PALETTE.blue}`,background:'#eff6ff',fontSize:10,color:PALETTE.blue,cursor:'pointer',fontWeight:600}}>📥 Export PDF</button>
-            <button style={{padding:'5px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,color:'#64748b',cursor:'pointer'}}>📧 Email Report</button>
-          </div>
-        </div>
-        {renderDash()}
-      </div>
-    </div>
-  );
-}
 
 // ── NEW DASHBOARD COMPONENTS ─────────────────────────────────
 
@@ -2576,3 +2519,63 @@ const ProcurementDash = () => {
     </div>
   );
 };
+
+
+  return (
+    <div style={{background:'#f0f4ff',minHeight:'100%',display:'flex',flexDirection:'column'}}>
+
+      {/* ── HEADER BAR ── */}
+      <div style={{background:'#0f172a'}}>
+        <div style={{background:'linear-gradient(90deg,#1e3a8a,#1d4ed8,#1e40af,#1e3a8a)',padding:'6px 20px',textAlign:'center'}}>
+          <span style={{fontSize:12,fontWeight:900,color:'#fff',letterSpacing:'0.1em',textTransform:'uppercase'}}>
+            DEEMONA AI FINANCE OS — ENTERPRISE FINANCE PLATFORM — {TABS.length * 2}+ ANALYTICAL VIEWS
+          </span>
+        </div>
+
+        {/* KPI Strip */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',borderTop:'1px solid #1e293b'}}>
+          {topKPIs.map((k,i) => (
+            <div key={i} style={{padding:'7px 10px',borderLeft:i>0?'1px solid #1e293b':'none',background:i%2===0?'#0f172a':'#0d1526'}}>
+              <div style={{fontSize:8,color:'#475569',fontWeight:700,textTransform:'uppercase',letterSpacing:'0.04em',marginBottom:2}}>{k.l}</div>
+              <div style={{fontSize:15,fontWeight:800,color:'#f1f5f9',lineHeight:1,marginBottom:1}}>{k.v}</div>
+              {k.sub && <div style={{fontSize:8,color:'#475569'}}>{k.sub}</div>}
+              {k.chg && <div style={{fontSize:8,fontWeight:700,color:k.pos?'#34d399':'#f87171'}}>{k.chg} vs LY</div>}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── TAB BAR ── */}
+      <div style={{background:'#fff',borderBottom:'2px solid #e2e8f0',padding:'5px 14px 0',display:'flex',gap:3,overflowX:'auto',alignItems:'flex-end'}}>
+        {TABS.map(t => (
+          <button key={t.id} onClick={()=>setTab(t.id)}
+            style={{padding:'6px 11px',borderRadius:'5px 5px 0 0',border:'1px solid '+(tab===t.id?t.color:'#e2e8f0'),borderBottom:tab===t.id?`2px solid ${t.color}`:'none',background:tab===t.id?t.color+'12':'#f8faff',color:tab===t.id?t.color:'#64748b',fontSize:10,fontWeight:tab===t.id?800:400,cursor:'pointer',whiteSpace:'nowrap',flexShrink:0,marginBottom:-1,transition:'all 0.1s'}}>
+            {t.l}
+          </button>
+        ))}
+        <div style={{marginLeft:'auto',display:'flex',gap:5,flexShrink:0,alignItems:'center',paddingBottom:4}}>
+          {['MTD','QTD','YTD','LY'].map(p => (
+            <button key={p} onClick={()=>setPeriod(p)} style={{padding:'4px 9px',borderRadius:5,border:'1px solid '+(period===p?PALETTE.blue:'#e2e8f0'),background:period===p?PALETTE.blue:'#fff',color:period===p?'#fff':'#64748b',fontSize:9,fontWeight:600,cursor:'pointer'}}>{p}</button>
+          ))}
+          <button onClick={load} style={{padding:'4px 9px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,cursor:'pointer',color:'#64748b'}} title="Refresh">↻ Refresh</button>
+        </div>
+      </div>
+
+      {/* ── CONTENT ── */}
+      <div style={{padding:'12px 14px',flex:1,overflowY:'auto'}}>
+        <div style={{marginBottom:8,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div>
+            <span style={{fontSize:12,fontWeight:800,color:'#0f172a'}}>{TABS.find(t=>t.id===tab)?.l}</span>
+            <span style={{fontSize:10,color:'#94a3b8',marginLeft:8}}>Real-time · Hover charts for details · {new Date().toLocaleDateString('en-IN',{month:'long',year:'numeric'})}</span>
+          </div>
+          <div style={{display:'flex',gap:6}}>
+            <button style={{padding:'5px 12px',borderRadius:6,border:`1px solid ${PALETTE.blue}`,background:'#eff6ff',fontSize:10,color:PALETTE.blue,cursor:'pointer',fontWeight:600}}>📥 Export PDF</button>
+            <button style={{padding:'5px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,color:'#64748b',cursor:'pointer'}}>📧 Email Report</button>
+          </div>
+        </div>
+        {renderDash()}
+      </div>
+    </div>
+  );
+}
+
