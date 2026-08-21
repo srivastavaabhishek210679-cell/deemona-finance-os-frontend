@@ -1100,6 +1100,16 @@ export default function FinanceDashboardHub() {
   };
 
 
+
+  const MiniTableSimple = ({ headers=[], rows=[], empty='No data available' }) => (
+    <div style={{overflowX:'auto',overflowY:'auto',maxHeight:220}}>
+      <table style={{width:'100%',borderCollapse:'collapse',fontSize:10}}>
+        <thead><tr style={{background:'#f8faff',position:'sticky',top:0}}>{headers.map((h,i)=><th key={i} style={{padding:'6px 10px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:9,borderBottom:'2px solid #e2e8f0',whiteSpace:'nowrap'}}>{h}</th>)}</tr></thead>
+        <tbody>{!rows.length?<tr><td colSpan={headers.length} style={{padding:16,textAlign:'center',color:'#94a3b8'}}>{empty}</td></tr>:rows.map((r,i)=><tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>{r.map((c,j)=><td key={j} style={{padding:'6px 10px',color:'#334155'}}>{c}</td>)}</tr>)}</tbody>
+      </table>
+    </div>
+  );
+
 // ── NEW DASHBOARD COMPONENTS ─────────────────────────────────
 
 const CashFlowDash = () => (
@@ -1111,7 +1121,7 @@ const CashFlowDash = () => (
       <KPITile label="Net Cash Position" value={fmt(arOut-apOut,true)} color={arOut>apOut?PALETTE.green:PALETTE.red}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Cash Flow Trend" sub="Operating vs Investing vs Financing activities">
+      <Card title="Cash Flow Trend">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData.map(t=>({...t,operating:t.Revenue*0.3,investing:-t.Revenue*0.1,financing:t.Revenue*0.05,net:t.Revenue*0.25}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1125,8 +1135,8 @@ const CashFlowDash = () => (
             <Line type="monotone" dataKey="net" name="Net CF" stroke={PALETTE.purple} strokeWidth={2}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Bank Account Balances" sub="Current balance across all accounts">
+      </Card>
+      <Card title="Bank Account Balances">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(d?.banking?.accounts||[]).map(a=>({name:(a.account_name||a.bank_name||'Account').substring(0,14),balance:parseFloat(a.current_balance||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1138,13 +1148,13 @@ const CashFlowDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Bank Account Register">
-      <TableGrid headers={['Account Name','Bank','Type','Account No.','Balance','Status']}
-        rows={(d?.banking?.accounts||[]).map(a=>[a.account_name||'—',a.bank_name||'—',a.account_type||'current',a.account_number?'****'+String(a.account_number).slice(-4):'—',<span style={{color:parseFloat(a.current_balance||0)>=0?PALETTE.green:PALETTE.red,fontWeight:700}}>{fmt(a.current_balance,true)}</span>,<StatusBadge text="Active" color={PALETTE.green}/>])}
+    <Card title="Bank Account Register">
+      <MiniTableSimple headers={['Account Name','Bank','Type','Account No.','Balance','Status']}
+        rows={(d?.banking?.accounts||[]).map(a=>[a.account_name||'—',a.bank_name||'—',a.account_type||'current',a.account_number?'****'+String(a.account_number).slice(-4):'—',<span style={{color:parseFloat(a.current_balance||0)>=0?PALETTE.green:PALETTE.red,fontWeight:700}}>{fmt(a.current_balance,true)}</span>,<Badge text="Active" color={PALETTE.green}/>])}
         empty="No bank accounts configured"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1160,7 +1170,7 @@ const LiquidityDash = () => {
         <KPITile label="AR Days (DSO)" value={parseFloat(ar.avg_dso||42).toFixed(0)+'d'} sub="Target: <45 days" color={parseFloat(ar.avg_dso||42)<45?PALETTE.green:PALETTE.amber}/>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        <ChartCard title="Working Capital Trend" sub="Assets vs Liabilities movement">
+        <Card title="Working Capital Trend">
           <ResponsiveContainer width="100%" height={240}>
             <AreaChart data={trendChartData.map(t=>({...t,assets:t.Revenue*0.35,liabilities:t.Revenue*0.15,wc:t.Revenue*0.2}))}>
               <defs>
@@ -1177,8 +1187,8 @@ const LiquidityDash = () => {
               <Line type="monotone" dataKey="wc" name="Net Working Capital" stroke={PALETTE.blue} strokeWidth={2} strokeDasharray="5 5"/>
             </AreaChart>
           </ResponsiveContainer>
-        </ChartCard>
-        <ChartCard title="Liquidity Ratios Radar" sub="Actual vs benchmark comparison">
+        </Card>
+        <Card title="Liquidity Ratios Radar">
           <ResponsiveContainer width="100%" height={240}>
             <RadarChart data={[
               {metric:'Current Ratio',actual:Math.min(3,parseFloat(currentRatio)),benchmark:1.5},
@@ -1195,17 +1205,17 @@ const LiquidityDash = () => {
               <Tooltip/>
             </RadarChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </Card>
       </div>
-      <ChartCard title="Liquidity Analysis Summary">
-        <TableGrid headers={['Metric','Value','Benchmark','Status','Insight']} rows={[
-          ['Current Ratio',currentRatio+'x','>1.5x',<StatusBadge text={parseFloat(currentRatio)>=1.5?'Healthy':'Below Target'} color={parseFloat(currentRatio)>=1.5?PALETTE.green:PALETTE.red}/>,'Short-term coverage'],
-          ['Quick Ratio',quickRatio+'x','>1.0x',<StatusBadge text={parseFloat(quickRatio)>=1?'Healthy':'Watch'} color={parseFloat(quickRatio)>=1?PALETTE.green:PALETTE.amber}/>,'Liquid assets vs liabilities'],
-          ['Working Capital',fmt(arOut-apOut,true),'Positive',<StatusBadge text={arOut>apOut?'Positive':'Deficit'} color={arOut>apOut?PALETTE.green:PALETTE.red}/>,'Net current position'],
-          ['DSO',parseFloat(ar.avg_dso||42).toFixed(0)+' days','<45 days',<StatusBadge text={parseFloat(ar.avg_dso||42)<45?'On Track':'Watch'} color={parseFloat(ar.avg_dso||42)<45?PALETTE.green:PALETTE.amber}/>,'Collection performance'],
-          ['Cash Coverage',fmt(d?.banking?.totalBalance,true),'Positive',<StatusBadge text="Active" color={PALETTE.blue}/>,'Available liquidity buffer'],
+      <Card title="Liquidity Analysis Summary">
+        <MiniTableSimple headers={['Metric','Value','Benchmark','Status','Insight']} rows={[
+          ['Current Ratio',currentRatio+'x','>1.5x',<Badge text={parseFloat(currentRatio)>=1.5?'Healthy':'Below Target'} color={parseFloat(currentRatio)>=1.5?PALETTE.green:PALETTE.red}/>,'Short-term coverage'],
+          ['Quick Ratio',quickRatio+'x','>1.0x',<Badge text={parseFloat(quickRatio)>=1?'Healthy':'Watch'} color={parseFloat(quickRatio)>=1?PALETTE.green:PALETTE.amber}/>,'Liquid assets vs liabilities'],
+          ['Working Capital',fmt(arOut-apOut,true),'Positive',<Badge text={arOut>apOut?'Positive':'Deficit'} color={arOut>apOut?PALETTE.green:PALETTE.red}/>,'Net current position'],
+          ['DSO',parseFloat(ar.avg_dso||42).toFixed(0)+' days','<45 days',<Badge text={parseFloat(ar.avg_dso||42)<45?'On Track':'Watch'} color={parseFloat(ar.avg_dso||42)<45?PALETTE.green:PALETTE.amber}/>,'Collection performance'],
+          ['Cash Coverage',fmt(d?.banking?.totalBalance,true),'Positive',<Badge text="Active" color={PALETTE.blue}/>,'Available liquidity buffer'],
         ]} empty="No data"/>
-      </ChartCard>
+      </Card>
     </div>
   );
 };
@@ -1219,7 +1229,7 @@ const RevenueDash = () => (
       <KPITile label="Avg Revenue/Customer" value={fmt(totalRev/Math.max(1,parseInt(d?.customers?.total||1)),true)} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Revenue by Customer" sub="Top 8 customers by outstanding AR">
+      <Card title="Revenue by Customer">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(lists.topCustomers||[]).map(c=>({name:(c.customer_name||'Unknown').substring(0,12),revenue:parseFloat(c.total||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1231,8 +1241,8 @@ const RevenueDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Revenue Growth Trend" sub="Monthly revenue with target reference line">
+      </Card>
+      <Card title="Revenue Growth Trend">
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={trendChartData}>
             <defs><linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={PALETTE.green} stopOpacity={0.3}/><stop offset="95%" stopColor={PALETTE.green} stopOpacity={0}/></linearGradient></defs>
@@ -1244,17 +1254,17 @@ const RevenueDash = () => (
             <Area type="monotone" dataKey="Revenue" name="Revenue" stroke={PALETTE.green} fill="url(#revGrad)" strokeWidth={2}/>
           </AreaChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Customer Revenue Register">
-      <TableGrid headers={['Customer','Outstanding AR','Invoices','Avg Invoice','Contribution %']} rows={(lists.topCustomers||[]).map(c=>[
+    <Card title="Customer Revenue Register">
+      <MiniTableSimple headers={['Customer','Outstanding AR','Invoices','Avg Invoice','Contribution %']} rows={(lists.topCustomers||[]).map(c=>[
         c.customer_name||'Unknown',
         <span style={{color:PALETTE.amber,fontWeight:700}}>{fmt(c.total,true)}</span>,
         c.invoice_count||0,
         fmt(parseFloat(c.total||0)/Math.max(1,parseInt(c.invoice_count||1)),true),
         totalRev>0?(parseFloat(c.total||0)/totalRev*100).toFixed(1)+'%':'—'
       ])} empty="No customer data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1267,7 +1277,7 @@ const PLDeepDash = () => (
       <KPITile label="OpEx Ratio" value={(totalExp*0.55/Math.max(1,totalRev)*100).toFixed(1)+'%'} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Margin Trend Analysis" sub="Gross vs Net vs EBITDA margins over time">
+      <Card title="Margin Trend Analysis">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={trendChartData.map(t=>({...t,grossMargin:t.Revenue>0?((t.Revenue-t.Expenses*0.45)/t.Revenue*100).toFixed(1):0,netMargin:t.Revenue>0?(t.Profit/t.Revenue*100).toFixed(1):0,ebitdaMargin:t.Revenue>0?((t.Profit+t.Expenses*0.08)/t.Revenue*100).toFixed(1):0}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1282,8 +1292,8 @@ const PLDeepDash = () => (
             <Line type="monotone" dataKey="ebitdaMargin" name="EBITDA Margin %" stroke={PALETTE.purple} strokeWidth={2} dot={{r:3}} strokeDasharray="5 5"/>
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Expense Category Breakdown" sub="Cost structure analysis">
+      </Card>
+      <Card title="Expense Category Breakdown">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(exp.byCategory||[{category:'No Data',total:1}]).map(e=>({name:e.category||'Other',value:parseFloat(e.total||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value" label={({name,percent})=>percent>0.05?name:''}>
@@ -1293,10 +1303,10 @@ const PLDeepDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Detailed P&L Statement">
-      <TableGrid headers={['Line Item','Amount','% of Revenue','MoM Change','YoY Change']} rows={[
+    <Card title="Detailed P&L Statement">
+      <MiniTableSimple headers={['Line Item','Amount','% of Revenue','MoM Change','YoY Change']} rows={[
         ['Revenue',fmt(totalRev,true),'100%','+5.2% ▲','+18.6% ▲'],
         ['COGS',fmt(totalExp*0.45,true),(totalExp*0.45/Math.max(1,totalRev)*100).toFixed(1)+'%','+3.1% ▲','+12.1% ▲'],
         ['Gross Profit',fmt(grossP,true),(grossP/Math.max(1,totalRev)*100).toFixed(1)+'%','+6.8% ▲','+22.4% ▲'],
@@ -1306,7 +1316,7 @@ const PLDeepDash = () => (
         ['EBITDA',fmt(ebitda,true),(ebitda/Math.max(1,totalRev)*100).toFixed(1)+'%','+8.1% ▲','+9.1% ▲'],
         ['Net Profit',fmt(netP,true),(netP/Math.max(1,totalRev)*100).toFixed(1)+'%','+9.4% ▲','+22.4% ▲'],
       ]} empty="No data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1319,7 +1329,7 @@ const ForecastDash = () => (
       <KPITile label="Utilization" value={parseFloat(bud.total_budget||0)>0?(parseFloat(bud.total_spent||0)/parseFloat(bud.total_budget||0)*100).toFixed(1)+'%':'N/A'} color={PALETTE.amber}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Budget vs Actual vs Forecast" sub="Department-wise three-way comparison">
+      <Card title="Budget vs Actual vs Forecast">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={(bud.utilization||[]).map(b=>({name:(b.name||'Dept').substring(0,12),budget:parseFloat(b.budgeted||0),actual:parseFloat(b.spent||0),forecast:parseFloat(b.budgeted||0)*0.95}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1332,8 +1342,8 @@ const ForecastDash = () => (
             <Line type="monotone" dataKey="forecast" name="Forecast" stroke={PALETTE.amber} strokeWidth={2} strokeDasharray="5 5" dot={{r:3}}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Variance Analysis" sub="Actual vs Budget deviation percentage">
+      </Card>
+      <Card title="Variance Analysis">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(bud.utilization||[]).map(b=>{const v=parseFloat(b.budgeted||0)>0?((parseFloat(b.spent||0)-parseFloat(b.budgeted||0))/parseFloat(b.budgeted||0)*100):0;return{name:(b.name||'Dept').substring(0,12),variance:parseFloat(v.toFixed(1))};})}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1346,15 +1356,15 @@ const ForecastDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Department Budget Utilization">
-      <TableGrid headers={['Department','Budget','Actual','Variance','% Used','Status','Forecast']} rows={(bud.utilization||[]).map(b=>{
+    <Card title="Department Budget Utilization">
+      <MiniTableSimple headers={['Department','Budget','Actual','Variance','% Used','Status','Forecast']} rows={(bud.utilization||[]).map(b=>{
         const pct=parseFloat(b.budgeted||0)>0?((parseFloat(b.spent||0)/parseFloat(b.budgeted||0))*100):0;
         const over=parseFloat(b.spent||0)>parseFloat(b.budgeted||0);
-        return[b.name,fmt(b.budgeted,true),fmt(b.spent,true),<span style={{color:over?PALETTE.red:PALETTE.green,fontWeight:700}}>{over?'-':'+'}+{fmt(Math.abs(parseFloat(b.budgeted||0)-parseFloat(b.spent||0)),true)}</span>,pct.toFixed(1)+'%',<StatusBadge text={over?'Over Budget':'On Track'} color={over?PALETTE.red:PALETTE.green}/>,fmt(parseFloat(b.budgeted||0)*0.95,true)];
+        return[b.name,fmt(b.budgeted,true),fmt(b.spent,true),<span style={{color:over?PALETTE.red:PALETTE.green,fontWeight:700}}>{over?'-':'+'}+{fmt(Math.abs(parseFloat(b.budgeted||0)-parseFloat(b.spent||0)),true)}</span>,pct.toFixed(1)+'%',<Badge text={over?'Over Budget':'On Track'} color={over?PALETTE.red:PALETTE.green}/>,fmt(parseFloat(b.budgeted||0)*0.95,true)];
       })} empty="No budget data. Create budgets in the Budgeting module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1367,7 +1377,7 @@ const CapexDash = () => (
       <KPITile label="Net Book Value" value={fmt(parseFloat(d?.assets?.total_value||0)-parseFloat(d?.assets?.total_depreciation||0),true)} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Asset Value by Category" sub="Cost vs current value vs depreciation">
+      <Card title="Asset Value by Category">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(d?.assets?.byCategory||[]).map(a=>({name:(a.category||'Other').substring(0,12),cost:parseFloat(a.total_cost||0),value:parseFloat(a.current_value||0),depreciation:parseFloat(a.depreciation||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1380,8 +1390,8 @@ const CapexDash = () => (
             <Bar dataKey="depreciation" name="Depreciation" fill={PALETTE.amber} radius={[3,3,0,0]}/>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Asset Distribution by Category">
+      </Card>
+      <Card title="Asset Distribution by Category">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(d?.assets?.byCategory||[{category:'No Assets',current_value:1}]).map(a=>({name:a.category||'Other',value:parseFloat(a.current_value||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1391,17 +1401,17 @@ const CapexDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Fixed Asset Register">
-      <TableGrid headers={['Category','Count','Purchase Cost','Current Value','Depreciation','Net Book Value','Method']} rows={(d?.assets?.byCategory||[]).map(a=>[
+    <Card title="Fixed Asset Register">
+      <MiniTableSimple headers={['Category','Count','Purchase Cost','Current Value','Depreciation','Net Book Value','Method']} rows={(d?.assets?.byCategory||[]).map(a=>[
         a.category||'Other',a.count||0,fmt(a.total_cost,true),
         <span style={{color:PALETTE.green,fontWeight:700}}>{fmt(a.current_value,true)}</span>,
         <span style={{color:PALETTE.amber}}>{fmt(a.depreciation,true)}</span>,
         fmt(parseFloat(a.current_value||0)-parseFloat(a.depreciation||0),true),
-        <StatusBadge text="SLM" color={PALETTE.blue}/>
+        <Badge text="SLM" color={PALETTE.blue}/>
       ])} empty="No fixed assets configured. Add assets in the Asset Management module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1414,7 +1424,7 @@ const CustomersDash = () => (
       <KPITile label="Avg Credit Limit" value={fmt(d?.customers?.avg_credit,true)} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Customer Revenue Share" sub="Contribution of top customers">
+      <Card title="Customer Revenue Share">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(lists.topCustomers||[]).map(c=>({name:(c.customer_name||'Unknown').substring(0,12),value:parseFloat(c.total||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value" label={({name,percent})=>percent>0.05?name:''}>
@@ -1424,8 +1434,8 @@ const CustomersDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Invoice Count by Customer" sub="Volume of business per customer">
+      </Card>
+      <Card title="Invoice Count by Customer">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(lists.topCustomers||[]).map(c=>({name:(c.customer_name||'Unknown').substring(0,12),invoices:parseInt(c.invoice_count||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1437,18 +1447,18 @@ const CustomersDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Customer Master Register">
-      <TableGrid headers={['Customer','Outstanding AR','Invoices','Avg Invoice','Credit Limit','Risk Score']} rows={(lists.topCustomers||[]).map(c=>[
+    <Card title="Customer Master Register">
+      <MiniTableSimple headers={['Customer','Outstanding AR','Invoices','Avg Invoice','Credit Limit','Risk Score']} rows={(lists.topCustomers||[]).map(c=>[
         c.customer_name||'Unknown',
         <span style={{color:PALETTE.amber,fontWeight:700}}>{fmt(c.total,true)}</span>,
         c.invoice_count,
         fmt(parseFloat(c.total||0)/Math.max(1,parseInt(c.invoice_count||1)),true),
         fmt(d?.customers?.avg_credit,true),
-        <StatusBadge text="Low" color={PALETTE.green}/>
+        <Badge text="Low" color={PALETTE.green}/>
       ])} empty="No customer data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1461,7 +1471,7 @@ const VendorsDash = () => (
       <KPITile label="Avg Per Vendor" value={fmt(parseFloat(ap.total_ap||0)/Math.max(1,parseInt(d?.vendors?.active||1)),true)} color={PALETTE.blue}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Vendor Spend Distribution" sub="Top vendors by AP value">
+      <Card title="Vendor Spend Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(lists.topVendors||[]).map(v=>({name:(v.vendor_name||'Unknown').substring(0,12),value:parseFloat(v.total||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value">
@@ -1471,8 +1481,8 @@ const VendorsDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Top Vendors by Spend" sub="Horizontal bar comparison">
+      </Card>
+      <Card title="Top Vendors by Spend">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(lists.topVendors||[]).map(v=>({name:(v.vendor_name||'Unknown').substring(0,14),spend:parseFloat(v.total||0)}))} layout="vertical">
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1484,18 +1494,18 @@ const VendorsDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Vendor Master Register">
-      <TableGrid headers={['Vendor','Total AP','Invoices','Avg Invoice','Payment Terms','Status']} rows={(lists.topVendors||[]).map(v=>[
+    <Card title="Vendor Master Register">
+      <MiniTableSimple headers={['Vendor','Total AP','Invoices','Avg Invoice','Payment Terms','Status']} rows={(lists.topVendors||[]).map(v=>[
         v.vendor_name||'Unknown',
         <span style={{color:PALETTE.purple,fontWeight:700}}>{fmt(v.total,true)}</span>,
         v.invoice_count||0,
         fmt(parseFloat(v.total||0)/Math.max(1,parseInt(v.invoice_count||1)),true),
         'Net 30',
-        <StatusBadge text="Active" color={PALETTE.green}/>
+        <Badge text="Active" color={PALETTE.green}/>
       ])} empty="No vendor data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1512,7 +1522,7 @@ const PurchasingDash = () => {
         <KPITile label="Approved" value={(pos.find(r=>r.status==='approved')?.count||0).toLocaleString('en-IN')} color={PALETTE.green}/>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        <ChartCard title="PO Status Distribution" sub="Count by approval status">
+        <Card title="PO Status Distribution">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={(pos.length?pos:[{status:'No POs',count:1}]).map(r=>({name:r.status,value:parseInt(r.count||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1522,8 +1532,8 @@ const PurchasingDash = () => {
               <Legend wrapperStyle={{fontSize:10}}/>
             </PieChart>
           </ResponsiveContainer>
-        </ChartCard>
-        <ChartCard title="PO Value by Status" sub="Financial exposure by approval stage">
+        </Card>
+        <Card title="PO Value by Status">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={pos.map(r=>({name:r.status,value:parseFloat(r.total||0),count:parseInt(r.count||0)}))}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1535,16 +1545,16 @@ const PurchasingDash = () => {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </Card>
       </div>
-      <ChartCard title="PO Status Summary">
-        <TableGrid headers={['Status','Count','Total Value','Avg Value','% of Total']} rows={pos.map(r=>[
-          <StatusBadge text={r.status} color={r.status==='approved'?PALETTE.green:r.status==='pending'?PALETTE.amber:PALETTE.blue}/>,
+      <Card title="PO Status Summary">
+        <MiniTableSimple headers={['Status','Count','Total Value','Avg Value','% of Total']} rows={pos.map(r=>[
+          <Badge text={r.status} color={r.status==='approved'?PALETTE.green:r.status==='pending'?PALETTE.amber:PALETTE.blue}/>,
           r.count||0, fmt(r.total,true),
           fmt(parseFloat(r.total||0)/Math.max(1,parseInt(r.count||1)),true),
           totalVal>0?(parseFloat(r.total||0)/totalVal*100).toFixed(1)+'%':'—'
         ])} empty="No purchase orders. Create POs in the Procurement module."/>
-      </ChartCard>
+      </Card>
     </div>
   );
 };
@@ -1558,7 +1568,7 @@ const APAutomationDash = () => (
       <KPITile label="Exception Rate" value="12%" color={PALETTE.red}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="AP Automation Funnel" sub="Invoice processing pipeline">
+      <Card title="AP Automation Funnel">
         <ResponsiveContainer width="100%" height={240}>
           <FunnelChart>
             <Tooltip formatter={v=>v+' invoices'}/>
@@ -1572,8 +1582,8 @@ const APAutomationDash = () => (
             </Funnel>
           </FunnelChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Processing Time Distribution" sub="Days to process invoice">
+      </Card>
+      <Card title="Processing Time Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={[{d:'Same Day',pct:28},{d:'1 Day',pct:34},{d:'2-3 Days',pct:22},{d:'4-7 Days',pct:11},{d:'>7 Days',pct:5}]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1585,19 +1595,19 @@ const APAutomationDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Automation Metrics">
-      <TableGrid headers={['Metric','Current','Target','Status','Trend']} rows={[
-        ['Automation Rate','78%','85%',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'↑ Improving'],
-        ['Touchless Rate','62%','70%',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'↑ Improving'],
-        ['Avg Processing Time','1.2 days','<1 day',<StatusBadge text="Watch" color={PALETTE.amber}/>,'→ Stable'],
-        ['Exception Rate','12%','<8%',<StatusBadge text="High" color={PALETTE.red}/>,'↓ Reducing'],
-        ['Vendor Portal Adoption','45%','80%',<StatusBadge text="Low" color={PALETTE.red}/>,'↑ Growing'],
-        ['2-way Match Rate','88%','95%',<StatusBadge text="Good" color={PALETTE.green}/>,'↑ Improving'],
-        ['3-way Match Rate','72%','90%',<StatusBadge text="Watch" color={PALETTE.amber}/>,'↑ Improving'],
+    <Card title="Automation Metrics">
+      <MiniTableSimple headers={['Metric','Current','Target','Status','Trend']} rows={[
+        ['Automation Rate','78%','85%',<Badge text="Below Target" color={PALETTE.amber}/>,'↑ Improving'],
+        ['Touchless Rate','62%','70%',<Badge text="Below Target" color={PALETTE.amber}/>,'↑ Improving'],
+        ['Avg Processing Time','1.2 days','<1 day',<Badge text="Watch" color={PALETTE.amber}/>,'→ Stable'],
+        ['Exception Rate','12%','<8%',<Badge text="High" color={PALETTE.red}/>,'↓ Reducing'],
+        ['Vendor Portal Adoption','45%','80%',<Badge text="Low" color={PALETTE.red}/>,'↑ Growing'],
+        ['2-way Match Rate','88%','95%',<Badge text="Good" color={PALETTE.green}/>,'↑ Improving'],
+        ['3-way Match Rate','72%','90%',<Badge text="Watch" color={PALETTE.amber}/>,'↑ Improving'],
       ]} empty="No data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1613,7 +1623,7 @@ const PayrollDash = () => {
         <KPITile label="Avg Salary (CTC)" value={fmt(emp.avg_salary,true)} color={PALETTE.teal}/>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        <ChartCard title="Payroll Trend — Gross vs Net" sub="12-month payroll with deductions breakdown">
+        <Card title="Payroll Trend — Gross vs Net">
           <ResponsiveContainer width="100%" height={240}>
             <ComposedChart data={payrollTrend.slice().reverse().map(p=>({month:`${monthNames[p.month]} ${p.year}`,gross:parseFloat(p.total_gross||0),net:parseFloat(p.total_net||0),deductions:parseFloat(p.deductions||0)}))}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1626,8 +1636,8 @@ const PayrollDash = () => {
               <Bar dataKey="deductions" name="Deductions" fill={PALETTE.amber+'80'} radius={[3,3,0,0]}/>
             </ComposedChart>
           </ResponsiveContainer>
-        </ChartCard>
-        <ChartCard title="Salary Distribution" sub="Employee count by salary band">
+        </Card>
+        <Card title="Salary Distribution">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={[{range:'<3L',count:15},{range:'3-6L',count:35},{range:'6-10L',count:28},{range:'10-15L',count:14},{range:'>15L',count:8}]}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1639,18 +1649,18 @@ const PayrollDash = () => {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </Card>
       </div>
-      <ChartCard title="Payroll History Register">
-        <TableGrid headers={['Period','Gross Payroll','Deductions','Net Payroll','Employees','Status']} rows={payrollTrend.slice(0,8).map(p=>[
+      <Card title="Payroll History Register">
+        <MiniTableSimple headers={['Period','Gross Payroll','Deductions','Net Payroll','Employees','Status']} rows={payrollTrend.slice(0,8).map(p=>[
           `${monthNames[p.month]} ${p.year}`,
           <span style={{color:PALETTE.blue,fontWeight:700}}>{fmt(p.total_gross,true)}</span>,
           fmt(p.deductions,true),
           <span style={{color:PALETTE.green,fontWeight:700}}>{fmt(p.total_net,true)}</span>,
           parseInt(emp.total_employees||0).toLocaleString('en-IN'),
-          <StatusBadge text="Processed" color={PALETTE.green}/>
+          <Badge text="Processed" color={PALETTE.green}/>
         ])} empty="No payroll data. Run payroll in the HR & Payroll module."/>
-      </ChartCard>
+      </Card>
     </div>
   );
 };
@@ -1664,7 +1674,7 @@ const HRDash = () => (
       <KPITile label="Avg CTC" value={fmt(emp.avg_salary,true)} color={PALETTE.teal}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Employment Type Distribution">
+      <Card title="Employment Type Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Full-time',value:78},{name:'Contract',value:14},{name:'Part-time',value:8}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1674,8 +1684,8 @@ const HRDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Headcount Trend" sub="Actual vs target headcount">
+      </Card>
+      <Card title="Headcount Trend">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={trendChartData.map((t,i)=>({month:t.month,headcount:Math.max(1,parseInt(emp.total_employees||0)-trendChartData.length+i+1),target:parseInt(emp.total_employees||0)+5}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1687,18 +1697,18 @@ const HRDash = () => (
             <Line type="monotone" dataKey="target" name="Target" stroke={PALETTE.green} strokeWidth={1.5} strokeDasharray="5 5"/>
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Workforce Metrics">
-      <TableGrid headers={['Metric','Value','Benchmark','Status']} rows={[
-        ['Total Headcount',parseInt(emp.total_employees||0).toLocaleString('en-IN'),'—',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Full-time %','78%','>70%',<StatusBadge text="Healthy" color={PALETTE.green}/>],
-        ['Avg CTC',fmt(emp.avg_salary,true),'Market Rate',<StatusBadge text="Competitive" color={PALETTE.blue}/>],
-        ['Attrition Rate','8.2%','<12%',<StatusBadge text="Healthy" color={PALETTE.green}/>],
-        ['Training Hours/Employee','24 hrs/yr','40 hrs/yr',<StatusBadge text="Below Target" color={PALETTE.amber}/>],
-        ['Gender Diversity','34% F','40% F',<StatusBadge text="Improving" color={PALETTE.amber}/>],
+    <Card title="Workforce Metrics">
+      <MiniTableSimple headers={['Metric','Value','Benchmark','Status']} rows={[
+        ['Total Headcount',parseInt(emp.total_employees||0).toLocaleString('en-IN'),'—',<Badge text="Active" color={PALETTE.green}/>],
+        ['Full-time %','78%','>70%',<Badge text="Healthy" color={PALETTE.green}/>],
+        ['Avg CTC',fmt(emp.avg_salary,true),'Market Rate',<Badge text="Competitive" color={PALETTE.blue}/>],
+        ['Attrition Rate','8.2%','<12%',<Badge text="Healthy" color={PALETTE.green}/>],
+        ['Training Hours/Employee','24 hrs/yr','40 hrs/yr',<Badge text="Below Target" color={PALETTE.amber}/>],
+        ['Gender Diversity','34% F','40% F',<Badge text="Improving" color={PALETTE.amber}/>],
       ]} empty="No HR data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1711,7 +1721,7 @@ const InventoryDash = () => (
       <KPITile label="Categories" value={(inv.byCategory||[]).length} color={PALETTE.teal}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Inventory Value by Category" sub="Stock value distribution">
+      <Card title="Inventory Value by Category">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(inv.byCategory||[]).map(c=>({name:(c.category||'Other').substring(0,12),value:parseFloat(c.value||0),alerts:parseInt(c.reorder_alerts||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1723,8 +1733,8 @@ const InventoryDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Stock Distribution" sub="Percentage share by category">
+      </Card>
+      <Card title="Stock Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(inv.byCategory||[{category:'No Data',value:1}]).map(c=>({name:c.category||'Other',value:parseFloat(c.value||0)}))} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value">
@@ -1734,17 +1744,17 @@ const InventoryDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Inventory Category Analysis">
-      <TableGrid headers={['Category','Items','Stock Value','Reorder Alerts','Avg Value/Item','Status']} rows={(inv.byCategory||[]).map(c=>[
+    <Card title="Inventory Category Analysis">
+      <MiniTableSimple headers={['Category','Items','Stock Value','Reorder Alerts','Avg Value/Item','Status']} rows={(inv.byCategory||[]).map(c=>[
         c.category||'Other',c.items||0,
         <span style={{color:PALETTE.green,fontWeight:700}}>{fmt(c.value,true)}</span>,
-        <StatusBadge text={parseInt(c.reorder_alerts||0)>0?c.reorder_alerts+' Alerts':'OK'} color={parseInt(c.reorder_alerts||0)>0?PALETTE.red:PALETTE.green}/>,
+        <Badge text={parseInt(c.reorder_alerts||0)>0?c.reorder_alerts+' Alerts':'OK'} color={parseInt(c.reorder_alerts||0)>0?PALETTE.red:PALETTE.green}/>,
         fmt(parseFloat(c.value||0)/Math.max(1,parseInt(c.items||1)),true),
-        <StatusBadge text={parseInt(c.reorder_alerts||0)>0?'Reorder':'Healthy'} color={parseInt(c.reorder_alerts||0)>0?PALETTE.amber:PALETTE.green}/>
+        <Badge text={parseInt(c.reorder_alerts||0)>0?'Reorder':'Healthy'} color={parseInt(c.reorder_alerts||0)>0?PALETTE.amber:PALETTE.green}/>
       ])} empty="No inventory data. Add items in the Inventory module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1763,7 +1773,7 @@ const GSTDash = () => {
         <KPITile label="ITC Utilization" value={outGST>0?(inGST/outGST*100).toFixed(1)+'%':'N/A'} color={PALETTE.blue}/>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        <ChartCard title="GST Component Breakdown" sub="CGST vs SGST vs IGST by transaction type">
+        <Card title="GST Component Breakdown">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={gstData.map(g=>({name:g.transaction_type,cgst:parseFloat(g.cgst||0),sgst:parseFloat(g.sgst||0),igst:parseFloat(g.igst||0)}))}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1776,8 +1786,8 @@ const GSTDash = () => {
               <Bar dataKey="igst" name="IGST" fill={PALETTE.amber} stackId="a" radius={[3,3,0,0]}/>
             </BarChart>
           </ResponsiveContainer>
-        </ChartCard>
-        <ChartCard title="GST Filing Status Distribution">
+        </Card>
+        <Card title="GST Filing Status Distribution">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={[{name:'Filed',value:8},{name:'Pending',value:2},{name:'Overdue',value:1}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1787,16 +1797,16 @@ const GSTDash = () => {
               <Legend wrapperStyle={{fontSize:10}}/>
             </PieChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </Card>
       </div>
-      <ChartCard title="GST Reconciliation Statement">
-        <TableGrid headers={['Transaction Type','CGST','SGST','IGST','Total GST','Action']} rows={gstData.map(g=>[
-          <StatusBadge text={g.transaction_type} color={g.transaction_type==='sale'?PALETTE.red:PALETTE.green}/>,
+      <Card title="GST Reconciliation Statement">
+        <MiniTableSimple headers={['Transaction Type','CGST','SGST','IGST','Total GST','Action']} rows={gstData.map(g=>[
+          <Badge text={g.transaction_type} color={g.transaction_type==='sale'?PALETTE.red:PALETTE.green}/>,
           fmt(g.cgst,true),fmt(g.sgst,true),fmt(g.igst,true),
           <span style={{fontWeight:700,color:g.transaction_type==='sale'?PALETTE.red:PALETTE.green}}>{fmt(g.total_gst,true)}</span>,
           g.transaction_type==='sale'?'Collect & Remit':'Claim ITC'
         ])} empty="No GST transactions. Record transactions in the GST module."/>
-      </ChartCard>
+      </Card>
     </div>
   );
 };
@@ -1810,7 +1820,7 @@ const TDSDash = () => (
       <KPITile label="Returns Filed" value="3/4" color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="TDS Trend — Deducted vs Deposited" sub="Monthly TDS flow with pending balance">
+      <Card title="TDS Trend — Deducted vs Deposited">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData.map(t=>({month:t.month,deducted:t.Expenses*0.02,deposited:t.Expenses*0.018,pending:t.Expenses*0.002}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1823,8 +1833,8 @@ const TDSDash = () => (
             <Line type="monotone" dataKey="pending" name="Pending Deposit" stroke={PALETTE.red} strokeWidth={2}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="TDS by Section" sub="Deduction breakdown by TDS section">
+      </Card>
+      <Card title="TDS by Section">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'194C Contract',value:35},{name:'194J Professional',value:28},{name:'194I Rent',value:18},{name:'194H Commission',value:12},{name:'Others',value:7}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value">
@@ -1834,16 +1844,16 @@ const TDSDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="TDS Quarterly Filing Calendar">
-      <TableGrid headers={['Quarter','Period','Due Date','Challan','Return Status','Action']} rows={[
-        ['Q1','Apr-Jun 2026','31 Jul 2026',<StatusBadge text="Paid" color={PALETTE.green}/>,<StatusBadge text="Filed" color={PALETTE.green}/>,'View Certificate'],
-        ['Q2','Jul-Sep 2026','31 Oct 2026',<StatusBadge text="Due" color={PALETTE.amber}/>,<StatusBadge text="Pending" color={PALETTE.amber}/>,'File Now'],
-        ['Q3','Oct-Dec 2026','31 Jan 2027',<StatusBadge text="Upcoming" color={PALETTE.blue}/>,<StatusBadge text="Upcoming" color={PALETTE.blue}/>,'Schedule'],
-        ['Q4','Jan-Mar 2027','31 May 2027',<StatusBadge text="Upcoming" color={PALETTE.blue}/>,<StatusBadge text="Upcoming" color={PALETTE.blue}/>,'Schedule'],
+    <Card title="TDS Quarterly Filing Calendar">
+      <MiniTableSimple headers={['Quarter','Period','Due Date','Challan','Return Status','Action']} rows={[
+        ['Q1','Apr-Jun 2026','31 Jul 2026',<Badge text="Paid" color={PALETTE.green}/>,<Badge text="Filed" color={PALETTE.green}/>,'View Certificate'],
+        ['Q2','Jul-Sep 2026','31 Oct 2026',<Badge text="Due" color={PALETTE.amber}/>,<Badge text="Pending" color={PALETTE.amber}/>,'File Now'],
+        ['Q3','Oct-Dec 2026','31 Jan 2027',<Badge text="Upcoming" color={PALETTE.blue}/>,<Badge text="Upcoming" color={PALETTE.blue}/>,'Schedule'],
+        ['Q4','Jan-Mar 2027','31 May 2027',<Badge text="Upcoming" color={PALETTE.blue}/>,<Badge text="Upcoming" color={PALETTE.blue}/>,'Schedule'],
       ]} empty="No TDS data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1856,7 +1866,7 @@ const BankingDash = () => (
       <KPITile label="Unreconciled Items" value="12" color={PALETTE.amber}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Balance by Bank Account" sub="Current balance across all accounts">
+      <Card title="Balance by Bank Account">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={(d?.banking?.accounts||[]).map(a=>({name:(a.account_name||a.bank_name||'Account').substring(0,14),balance:parseFloat(a.current_balance||0)}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1868,8 +1878,8 @@ const BankingDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Account Type Distribution" sub="Balance by account type">
+      </Card>
+      <Card title="Account Type Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={(d?.banking?.accounts||[{account_type:'current',current_balance:0}]).reduce((acc,a)=>{const ex=acc.find(x=>x.name===a.account_type);if(ex)ex.value+=parseFloat(a.current_balance||0);else acc.push({name:a.account_type||'current',value:parseFloat(a.current_balance||0)});return acc;},[]).filter(x=>x.value>0)} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1879,16 +1889,16 @@ const BankingDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Bank Account Register">
-      <TableGrid headers={['Bank','Account Name','Type','Account No.','Balance','Reconciliation']} rows={(d?.banking?.accounts||[]).map(a=>[
+    <Card title="Bank Account Register">
+      <MiniTableSimple headers={['Bank','Account Name','Type','Account No.','Balance','Reconciliation']} rows={(d?.banking?.accounts||[]).map(a=>[
         a.bank_name||'—',a.account_name||'—',a.account_type||'current',
         a.account_number?'****'+String(a.account_number).slice(-4):'—',
         <span style={{color:parseFloat(a.current_balance||0)>=0?PALETTE.green:PALETTE.red,fontWeight:700}}>{fmt(a.current_balance,true)}</span>,
-        <StatusBadge text="Reconciled" color={PALETTE.green}/>
+        <Badge text="Reconciled" color={PALETTE.green}/>
       ])} empty="No bank accounts. Add accounts in the Banking module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1901,7 +1911,7 @@ const AuditDash = () => (
       <KPITile label="Compliance Score" value="94%" color={PALETTE.green}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Compliance Score Trend" sub="Monthly compliance score vs target">
+      <Card title="Compliance Score Trend">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={trendChartData.map((t,i)=>({month:t.month,score:88+i*1.2,target:95}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1914,8 +1924,8 @@ const AuditDash = () => (
             <Line type="monotone" dataKey="target" name="Target" stroke={PALETTE.green} strokeWidth={1.5} strokeDasharray="5 5"/>
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Risk Distribution" sub="Risk level breakdown">
+      </Card>
+      <Card title="Risk Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Low Risk',value:65},{name:'Medium Risk',value:25},{name:'High Risk',value:8},{name:'Critical',value:2}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -1925,17 +1935,17 @@ const AuditDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Recent Audit Trail">
-      <TableGrid headers={['Timestamp','User','Action','Module','Risk Level','Result']} rows={[
-        [new Date().toLocaleString('en-IN'),'Admin','Login','Auth',<StatusBadge text="Low" color={PALETTE.green}/>,'Success'],
-        [new Date(Date.now()-3600000).toLocaleString('en-IN'),'Admin','Invoice Created','AR',<StatusBadge text="Low" color={PALETTE.green}/>,'Success'],
-        [new Date(Date.now()-7200000).toLocaleString('en-IN'),'Admin','Report Sent','Reports',<StatusBadge text="Low" color={PALETTE.green}/>,'Success'],
-        [new Date(Date.now()-10800000).toLocaleString('en-IN'),'Admin','Data Import','Ingestion',<StatusBadge text="Medium" color={PALETTE.amber}/>,'Success'],
-        [new Date(Date.now()-14400000).toLocaleString('en-IN'),'Admin','Budget Update','Finance',<StatusBadge text="Low" color={PALETTE.green}/>,'Success'],
+    <Card title="Recent Audit Trail">
+      <MiniTableSimple headers={['Timestamp','User','Action','Module','Risk Level','Result']} rows={[
+        [new Date().toLocaleString('en-IN'),'Admin','Login','Auth',<Badge text="Low" color={PALETTE.green}/>,'Success'],
+        [new Date(Date.now()-3600000).toLocaleString('en-IN'),'Admin','Invoice Created','AR',<Badge text="Low" color={PALETTE.green}/>,'Success'],
+        [new Date(Date.now()-7200000).toLocaleString('en-IN'),'Admin','Report Sent','Reports',<Badge text="Low" color={PALETTE.green}/>,'Success'],
+        [new Date(Date.now()-10800000).toLocaleString('en-IN'),'Admin','Data Import','Ingestion',<Badge text="Medium" color={PALETTE.amber}/>,'Success'],
+        [new Date(Date.now()-14400000).toLocaleString('en-IN'),'Admin','Budget Update','Finance',<Badge text="Low" color={PALETTE.green}/>,'Success'],
       ]} empty="No audit events"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -1952,7 +1962,7 @@ const BoardDash = () => (
       <KPITile label="Cash Position" value={fmt(d?.banking?.totalBalance,true)} color={PALETTE.teal}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Revenue & Profit Trend" sub="Board-level financial overview">
+      <Card title="Revenue & Profit Trend">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1964,22 +1974,22 @@ const BoardDash = () => (
             <Line type="monotone" dataKey="Profit" name="Net Profit" stroke={PALETTE.blue} strokeWidth={2} dot={{r:4}}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="KPI Scorecard" sub="Board metrics vs targets">
-        <TableGrid headers={['KPI','Actual','Target','Status']} rows={[
-          ['Revenue Growth','18.6%','15%',<StatusBadge text="Achieved" color={PALETTE.green}/>],
-          ['Gross Margin',parseFloat(s.grossMargin||0).toFixed(1)+'%','40%',<StatusBadge text={parseFloat(s.grossMargin||0)>=40?'Achieved':'Watch'} color={parseFloat(s.grossMargin||0)>=40?PALETTE.green:PALETTE.amber}/>],
-          ['Net Margin',parseFloat(s.netMargin||0).toFixed(1)+'%','15%',<StatusBadge text={parseFloat(s.netMargin||0)>=15?'Achieved':'Watch'} color={parseFloat(s.netMargin||0)>=15?PALETTE.green:PALETTE.amber}/>],
-          ['DSO',parseFloat(ar.avg_dso||42).toFixed(0)+'d','<45d',<StatusBadge text={parseFloat(ar.avg_dso||42)<45?'On Track':'Watch'} color={parseFloat(ar.avg_dso||42)<45?PALETTE.green:PALETTE.amber}/>],
-          ['Collection Rate','92.4%','90%',<StatusBadge text="Achieved" color={PALETTE.green}/>],
-          ['Compliance Score','94%','95%',<StatusBadge text="Watch" color={PALETTE.amber}/>],
-          ['Budget Variance',fmt(parseFloat(bud.total_budget||0)-parseFloat(bud.total_spent||0),true),'Positive',<StatusBadge text={parseFloat(bud.total_budget||0)>=parseFloat(bud.total_spent||0)?'Under Budget':'Over Budget'} color={parseFloat(bud.total_budget||0)>=parseFloat(bud.total_spent||0)?PALETTE.green:PALETTE.red}/>],
-          ['Headcount',parseInt(emp.total_employees||0).toLocaleString('en-IN'),'Target',<StatusBadge text="On Track" color={PALETTE.green}/>],
+      </Card>
+      <Card title="KPI Scorecard">
+        <MiniTableSimple headers={['KPI','Actual','Target','Status']} rows={[
+          ['Revenue Growth','18.6%','15%',<Badge text="Achieved" color={PALETTE.green}/>],
+          ['Gross Margin',parseFloat(s.grossMargin||0).toFixed(1)+'%','40%',<Badge text={parseFloat(s.grossMargin||0)>=40?'Achieved':'Watch'} color={parseFloat(s.grossMargin||0)>=40?PALETTE.green:PALETTE.amber}/>],
+          ['Net Margin',parseFloat(s.netMargin||0).toFixed(1)+'%','15%',<Badge text={parseFloat(s.netMargin||0)>=15?'Achieved':'Watch'} color={parseFloat(s.netMargin||0)>=15?PALETTE.green:PALETTE.amber}/>],
+          ['DSO',parseFloat(ar.avg_dso||42).toFixed(0)+'d','<45d',<Badge text={parseFloat(ar.avg_dso||42)<45?'On Track':'Watch'} color={parseFloat(ar.avg_dso||42)<45?PALETTE.green:PALETTE.amber}/>],
+          ['Collection Rate','92.4%','90%',<Badge text="Achieved" color={PALETTE.green}/>],
+          ['Compliance Score','94%','95%',<Badge text="Watch" color={PALETTE.amber}/>],
+          ['Budget Variance',fmt(parseFloat(bud.total_budget||0)-parseFloat(bud.total_spent||0),true),'Positive',<Badge text={parseFloat(bud.total_budget||0)>=parseFloat(bud.total_spent||0)?'Under Budget':'Over Budget'} color={parseFloat(bud.total_budget||0)>=parseFloat(bud.total_spent||0)?PALETTE.green:PALETTE.red}/>],
+          ['Headcount',parseInt(emp.total_employees||0).toLocaleString('en-IN'),'Target',<Badge text="On Track" color={PALETTE.green}/>],
         ]} empty="No data"/>
-      </ChartCard>
+      </Card>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
-      <ChartCard title="AR vs AP Position" height={180}>
+      <Card title="AR vs AP Position" style={{height:180}}>
         <ResponsiveContainer width="100%" height={180}>
           <BarChart data={[{name:'AR Outstanding',v:arOut},{name:'AP Outstanding',v:apOut}]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -1991,8 +2001,8 @@ const BoardDash = () => (
             </Bar>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Strategic Highlights" height={180}>
+      </Card>
+      <Card title="Strategic Highlights" style={{height:180}}>
         <div style={{padding:8,fontSize:11}}>
           {[
             ['Revenue up 18.6% YoY — exceeding growth targets',PALETTE.green],
@@ -2004,8 +2014,8 @@ const BoardDash = () => (
             <div key={i} style={{color,marginBottom:6,lineHeight:1.4,fontSize:10}}>{'• '+msg}</div>
           ))}
         </div>
-      </ChartCard>
-      <ChartCard title="Compliance Summary" height={180}>
+      </Card>
+      <Card title="Compliance Summary" style={{height:180}}>
         <div style={{padding:8}}>
           {[
             ['Tax Filings',(d?.taxFilings||[]).filter(f=>f.filing_status==='filed').length+'/'+(d?.taxFilings||[]).length+' filed',true],
@@ -2020,7 +2030,7 @@ const BoardDash = () => (
             </div>
           ))}
         </div>
-      </ChartCard>
+      </Card>
     </div>
   </div>
 );
@@ -2036,7 +2046,7 @@ const MultiCurrencyDash = () => (
       <KPITile label="Hedge Coverage" value="68%" sub="Target: >80%" color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Currency Exposure by Revenue" sub="Multi-currency revenue breakdown">
+      <Card title="Currency Exposure by Revenue">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'INR',value:47},{name:'USD',value:35},{name:'EUR',value:18}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2046,8 +2056,8 @@ const MultiCurrencyDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Exchange Rate Trend" sub="USD/INR and EUR/INR movement">
+      </Card>
+      <Card title="Exchange Rate Trend">
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={trendChartData.map((t,i)=>({month:t.month,usd:83.2+i*0.15,eur:89.5+i*0.2}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2059,16 +2069,16 @@ const MultiCurrencyDash = () => (
             <Line type="monotone" dataKey="eur" name="EUR/INR" stroke={PALETTE.green} strokeWidth={2} dot={{r:3}}/>
           </LineChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Currency Risk Summary">
-      <TableGrid headers={['Currency','Exposure','Rate','INR Value','Hedge %','Risk Level']} rows={[
-        ['USD',fmt(totalRev*0.35,true),'83.45',fmt(totalRev*0.35,true),<StatusBadge text="72%" color={PALETTE.green}/>,'Low'],
-        ['EUR',fmt(totalRev*0.18,true),'89.72',fmt(totalRev*0.18,true),<StatusBadge text="55%" color={PALETTE.amber}/>,'Medium'],
-        ['GBP',fmt(totalRev*0.05,true),'104.30',fmt(totalRev*0.05,true),<StatusBadge text="30%" color={PALETTE.red}/>,'High'],
-        ['AED',fmt(totalRev*0.02,true),'22.71',fmt(totalRev*0.02,true),<StatusBadge text="0%" color={PALETTE.red}/>,'High'],
+    <Card title="Currency Risk Summary">
+      <MiniTableSimple headers={['Currency','Exposure','Rate','INR Value','Hedge %','Risk Level']} rows={[
+        ['USD',fmt(totalRev*0.35,true),'83.45',fmt(totalRev*0.35,true),<Badge text="72%" color={PALETTE.green}/>,'Low'],
+        ['EUR',fmt(totalRev*0.18,true),'89.72',fmt(totalRev*0.18,true),<Badge text="55%" color={PALETTE.amber}/>,'Medium'],
+        ['GBP',fmt(totalRev*0.05,true),'104.30',fmt(totalRev*0.05,true),<Badge text="30%" color={PALETTE.red}/>,'High'],
+        ['AED',fmt(totalRev*0.02,true),'22.71',fmt(totalRev*0.02,true),<Badge text="0%" color={PALETTE.red}/>,'High'],
       ]} empty="No multi-currency transactions"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2081,7 +2091,7 @@ const IntercompanyDash = () => (
       <KPITile label="Net Exposure" value={fmt(totalRev*0.02,true)} color={PALETTE.green}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Intercompany Transactions" sub="Cross-entity flow analysis">
+      <Card title="Intercompany Transactions">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={[{entity:'Parent Co',ar:totalRev*0.06,ap:apOut*0.04},{entity:'Sub A',ar:totalRev*0.04,ap:apOut*0.02},{entity:'Sub B',ar:totalRev*0.02,ap:apOut*0.02}]}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2093,8 +2103,8 @@ const IntercompanyDash = () => (
             <Bar dataKey="ap" name="IC Payable" fill={PALETTE.purple} radius={[3,3,0,0]}/>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Elimination Summary" sub="Consolidation eliminations">
+      </Card>
+      <Card title="Elimination Summary">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Revenue Eliminated',value:60},{name:'Cost Eliminated',value:30},{name:'Net IC Profit',value:10}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2104,15 +2114,15 @@ const IntercompanyDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Intercompany Reconciliation">
-      <TableGrid headers={['Entity','IC Receivable','IC Payable','Net Position','Elimination','Status']} rows={[
-        ['Parent Co',fmt(totalRev*0.06,true),fmt(apOut*0.04,true),fmt(totalRev*0.02,true),fmt(totalRev*0.05,true),<StatusBadge text="Reconciled" color={PALETTE.green}/>],
-        ['Subsidiary A',fmt(totalRev*0.04,true),fmt(apOut*0.02,true),fmt(totalRev*0.02,true),fmt(totalRev*0.03,true),<StatusBadge text="Reconciled" color={PALETTE.green}/>],
-        ['Subsidiary B',fmt(totalRev*0.02,true),fmt(apOut*0.02,true),'₹0',fmt(totalRev*0.02,true),<StatusBadge text="Pending" color={PALETTE.amber}/>],
+    <Card title="Intercompany Reconciliation">
+      <MiniTableSimple headers={['Entity','IC Receivable','IC Payable','Net Position','Elimination','Status']} rows={[
+        ['Parent Co',fmt(totalRev*0.06,true),fmt(apOut*0.04,true),fmt(totalRev*0.02,true),fmt(totalRev*0.05,true),<Badge text="Reconciled" color={PALETTE.green}/>],
+        ['Subsidiary A',fmt(totalRev*0.04,true),fmt(apOut*0.02,true),fmt(totalRev*0.02,true),fmt(totalRev*0.03,true),<Badge text="Reconciled" color={PALETTE.green}/>],
+        ['Subsidiary B',fmt(totalRev*0.02,true),fmt(apOut*0.02,true),'₹0',fmt(totalRev*0.02,true),<Badge text="Pending" color={PALETTE.amber}/>],
       ]} empty="No intercompany transactions configured"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2125,7 +2135,7 @@ const ESGDash = () => (
       <KPITile label="Gender Diversity" value="34%" sub="Target: >40%" color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="ESG Score Components" sub="Environmental, Social, Governance breakdown">
+      <Card title="ESG Score Components">
         <ResponsiveContainer width="100%" height={240}>
           <RadarChart data={[
             {metric:'Environment',score:68,target:80},
@@ -2143,8 +2153,8 @@ const ESGDash = () => (
             <Tooltip/>
           </RadarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Carbon Footprint Trend" sub="Monthly CO₂ emissions">
+      </Card>
+      <Card title="Carbon Footprint Trend">
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={trendChartData.map((t,i)=>({month:t.month,emissions:180-i*4,target:150}))}>
             <defs><linearGradient id="co2g" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={PALETTE.green} stopOpacity={0.3}/><stop offset="95%" stopColor={PALETTE.green} stopOpacity={0}/></linearGradient></defs>
@@ -2157,20 +2167,20 @@ const ESGDash = () => (
             <Area type="monotone" dataKey="emissions" name="Emissions (tCO₂)" stroke={PALETTE.green} fill="url(#co2g)" strokeWidth={2}/>
           </AreaChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="ESG Metrics Summary">
-      <TableGrid headers={['Metric','Category','Current','Target','Status','YoY Change']} rows={[
-        ['Carbon Emissions','Environment','1,248 tCO₂','<1,000 tCO₂',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'-8% ▼'],
-        ['Renewable Energy','Environment','34%','>50%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +6%'],
-        ['Water Usage','Environment','12,450 kL','<10,000 kL',<StatusBadge text="High" color={PALETTE.red}/>,'↓ -3%'],
-        ['Gender Diversity','Social','34%','>40%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +2%'],
-        ['Employee Training','Social','24 hrs/emp','40 hrs/emp',<StatusBadge text="Low" color={PALETTE.red}/>,'↑ +4hrs'],
-        ['Board Independence','Governance','67%','>70%',<StatusBadge text="Watch" color={PALETTE.amber}/>,'→ Stable'],
-        ['Ethics Violations','Governance','0','0',<StatusBadge text="Compliant" color={PALETTE.green}/>,'→ 0'],
-        ['Supply Chain Audit','Governance','78%','100%',<StatusBadge text="In Progress" color={PALETTE.blue}/>,'↑ +12%'],
+    <Card title="ESG Metrics Summary">
+      <MiniTableSimple headers={['Metric','Category','Current','Target','Status','YoY Change']} rows={[
+        ['Carbon Emissions','Environment','1,248 tCO₂','<1,000 tCO₂',<Badge text="Below Target" color={PALETTE.amber}/>,'-8% ▼'],
+        ['Renewable Energy','Environment','34%','>50%',<Badge text="Improving" color={PALETTE.amber}/>,'↑ +6%'],
+        ['Water Usage','Environment','12,450 kL','<10,000 kL',<Badge text="High" color={PALETTE.red}/>,'↓ -3%'],
+        ['Gender Diversity','Social','34%','>40%',<Badge text="Improving" color={PALETTE.amber}/>,'↑ +2%'],
+        ['Employee Training','Social','24 hrs/emp','40 hrs/emp',<Badge text="Low" color={PALETTE.red}/>,'↑ +4hrs'],
+        ['Board Independence','Governance','67%','>70%',<Badge text="Watch" color={PALETTE.amber}/>,'→ Stable'],
+        ['Ethics Violations','Governance','0','0',<Badge text="Compliant" color={PALETTE.green}/>,'→ 0'],
+        ['Supply Chain Audit','Governance','78%','100%',<Badge text="In Progress" color={PALETTE.blue}/>,'↑ +12%'],
       ]} empty="No ESG data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2183,7 +2193,7 @@ const LoansDash = () => (
       <KPITile label="Debt/Equity Ratio" value="0.42x" sub="Healthy <1.0x" color={PALETTE.green}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Loan Portfolio by Type" sub="Outstanding balance by loan category">
+      <Card title="Loan Portfolio by Type">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Term Loan',value:45},{name:'Working Capital',value:30},{name:'Equipment Loan',value:15},{name:'Overdraft',value:10}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2193,8 +2203,8 @@ const LoansDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Repayment Schedule" sub="Principal vs Interest trend">
+      </Card>
+      <Card title="Repayment Schedule">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData.map(t=>({month:t.month,principal:t.Revenue*0.018,interest:t.Revenue*0.007}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2206,16 +2216,16 @@ const LoansDash = () => (
             <Bar dataKey="interest" name="Interest" fill={PALETTE.red} stackId="a" radius={[3,3,0,0]}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Loan Register">
-      <TableGrid headers={['Loan Type','Lender','Outstanding','Interest Rate','EMI','Maturity','Status']} rows={[
-        ['Term Loan','HDFC Bank',fmt(totalRev*0.18,true),'8.25%',fmt(totalRev*0.01,true),'Mar 2028',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Working Capital','SBI',fmt(totalRev*0.12,true),'9.00%',fmt(totalRev*0.008,true),'Revolving',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Equipment Loan','ICICI',fmt(totalRev*0.06,true),'7.75%',fmt(totalRev*0.005,true),'Jun 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Overdraft','Axis Bank',fmt(totalRev*0.04,true),'11.00%','On Demand','Revolving',<StatusBadge text="Utilized" color={PALETTE.amber}/>],
+    <Card title="Loan Register">
+      <MiniTableSimple headers={['Loan Type','Lender','Outstanding','Interest Rate','EMI','Maturity','Status']} rows={[
+        ['Term Loan','HDFC Bank',fmt(totalRev*0.18,true),'8.25%',fmt(totalRev*0.01,true),'Mar 2028',<Badge text="Active" color={PALETTE.green}/>],
+        ['Working Capital','SBI',fmt(totalRev*0.12,true),'9.00%',fmt(totalRev*0.008,true),'Revolving',<Badge text="Active" color={PALETTE.green}/>],
+        ['Equipment Loan','ICICI',fmt(totalRev*0.06,true),'7.75%',fmt(totalRev*0.005,true),'Jun 2027',<Badge text="Active" color={PALETTE.green}/>],
+        ['Overdraft','Axis Bank',fmt(totalRev*0.04,true),'11.00%','On Demand','Revolving',<Badge text="Utilized" color={PALETTE.amber}/>],
       ]} empty="No loan data. Add loans in the Finance module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2228,7 +2238,7 @@ const InvestmentDash = () => (
       <KPITile label="Portfolio IRR" value="12.4%" sub="Target: >12%" color={PALETTE.amber}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Investment Portfolio Mix" sub="Asset allocation by category">
+      <Card title="Investment Portfolio Mix">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Fixed Deposits',value:40},{name:'Mutual Funds',value:25},{name:'Bonds',value:20},{name:'Equity',value:10},{name:'Others',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2238,8 +2248,8 @@ const InvestmentDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Portfolio Value Trend" sub="Investment growth over time">
+      </Card>
+      <Card title="Portfolio Value Trend">
         <ResponsiveContainer width="100%" height={240}>
           <AreaChart data={trendChartData.map((t,i)=>({month:t.month,value:totalRev*0.22+i*totalRev*0.005}))}>
             <defs><linearGradient id="invg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={PALETTE.green} stopOpacity={0.3}/><stop offset="95%" stopColor={PALETTE.green} stopOpacity={0}/></linearGradient></defs>
@@ -2250,16 +2260,16 @@ const InvestmentDash = () => (
             <Area type="monotone" dataKey="value" name="Portfolio Value" stroke={PALETTE.green} fill="url(#invg)" strokeWidth={2}/>
           </AreaChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Investment Register">
-      <TableGrid headers={['Investment','Type','Amount','Current Value','Return %','Maturity','Status']} rows={[
-        ['HDFC FD','Fixed Deposit',fmt(totalRev*0.10,true),fmt(totalRev*0.107,true),'7.0%','Dec 2026',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['SBI Mutual Fund','Equity MF',fmt(totalRev*0.06,true),fmt(totalRev*0.069,true),'15.2%','Open-ended',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Govt Bonds','Bonds',fmt(totalRev*0.05,true),fmt(totalRev*0.053,true),'6.5%','Mar 2028',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['NSE Equity','Equity',fmt(totalRev*0.025,true),fmt(totalRev*0.031,true),'24.0%','Open-ended',<StatusBadge text="Active" color={PALETTE.green}/>],
+    <Card title="Investment Register">
+      <MiniTableSimple headers={['Investment','Type','Amount','Current Value','Return %','Maturity','Status']} rows={[
+        ['HDFC FD','Fixed Deposit',fmt(totalRev*0.10,true),fmt(totalRev*0.107,true),'7.0%','Dec 2026',<Badge text="Active" color={PALETTE.green}/>],
+        ['SBI Mutual Fund','Equity MF',fmt(totalRev*0.06,true),fmt(totalRev*0.069,true),'15.2%','Open-ended',<Badge text="Active" color={PALETTE.green}/>],
+        ['Govt Bonds','Bonds',fmt(totalRev*0.05,true),fmt(totalRev*0.053,true),'6.5%','Mar 2028',<Badge text="Active" color={PALETTE.green}/>],
+        ['NSE Equity','Equity',fmt(totalRev*0.025,true),fmt(totalRev*0.031,true),'24.0%','Open-ended',<Badge text="Active" color={PALETTE.green}/>],
       ]} empty="No investment data. Add investments in the Finance module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2272,7 +2282,7 @@ const InsuranceDash = () => (
       <KPITile label="Claims This Year" value="2" color={PALETTE.red}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Insurance Coverage by Type" sub="Coverage amount by policy type">
+      <Card title="Insurance Coverage by Type">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Property',value:35},{name:'Liability',value:25},{name:'Business Interruption',value:20},{name:'Employee',value:15},{name:'Cyber',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2282,8 +2292,8 @@ const InsuranceDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Premium vs Claims Trend" sub="Annual premium paid vs claims made">
+      </Card>
+      <Card title="Premium vs Claims Trend">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData.map(t=>({month:t.month,premium:t.Revenue*0.0013,claims:t.Revenue*0.0003}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2295,17 +2305,17 @@ const InsuranceDash = () => (
             <Bar dataKey="claims" name="Claims Filed" fill={PALETTE.red} radius={[3,3,0,0]}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Insurance Policy Register">
-      <TableGrid headers={['Policy Type','Insurer','Coverage','Premium','Renewal Date','Status']} rows={[
-        ['Property Insurance','New India Assurance',fmt(totalRev*1.0,true),fmt(totalRev*0.004,true),'31 Mar 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Liability Insurance','HDFC Ergo',fmt(totalRev*0.75,true),fmt(totalRev*0.003,true),'30 Jun 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Business Interruption','ICICI Lombard',fmt(totalRev*0.50,true),fmt(totalRev*0.003,true),'31 Dec 2026',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Group Health','Star Health',fmt(totalRev*0.10,true),fmt(totalRev*0.002,true),'31 Mar 2027',<StatusBadge text="Active" color={PALETTE.green}/>],
-        ['Cyber Insurance','Bajaj Allianz',fmt(totalRev*0.15,true),fmt(totalRev*0.002,true),'30 Sep 2026',<StatusBadge text="Renew Soon" color={PALETTE.amber}/>],
+    <Card title="Insurance Policy Register">
+      <MiniTableSimple headers={['Policy Type','Insurer','Coverage','Premium','Renewal Date','Status']} rows={[
+        ['Property Insurance','New India Assurance',fmt(totalRev*1.0,true),fmt(totalRev*0.004,true),'31 Mar 2027',<Badge text="Active" color={PALETTE.green}/>],
+        ['Liability Insurance','HDFC Ergo',fmt(totalRev*0.75,true),fmt(totalRev*0.003,true),'30 Jun 2027',<Badge text="Active" color={PALETTE.green}/>],
+        ['Business Interruption','ICICI Lombard',fmt(totalRev*0.50,true),fmt(totalRev*0.003,true),'31 Dec 2026',<Badge text="Active" color={PALETTE.green}/>],
+        ['Group Health','Star Health',fmt(totalRev*0.10,true),fmt(totalRev*0.002,true),'31 Mar 2027',<Badge text="Active" color={PALETTE.green}/>],
+        ['Cyber Insurance','Bajaj Allianz',fmt(totalRev*0.15,true),fmt(totalRev*0.002,true),'30 Sep 2026',<Badge text="Renew Soon" color={PALETTE.amber}/>],
       ]} empty="No insurance data. Add policies in the Risk module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2318,7 +2328,7 @@ const CRMDash = () => (
       <KPITile label="Avg Deal Size" value={fmt(totalRev*0.08,true)} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Sales Pipeline Funnel" sub="Leads through stages to closure">
+      <Card title="Sales Pipeline Funnel">
         <ResponsiveContainer width="100%" height={240}>
           <FunnelChart>
             <Tooltip formatter={v=>v+' leads'}/>
@@ -2333,8 +2343,8 @@ const CRMDash = () => (
             </Funnel>
           </FunnelChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Revenue by Lead Source" sub="Where customers come from">
+      </Card>
+      <Card title="Revenue by Lead Source">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'Referral',value:35},{name:'Direct',value:28},{name:'Digital',value:22},{name:'Events',value:10},{name:'Partners',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2344,10 +2354,10 @@ const CRMDash = () => (
             <Legend wrapperStyle={{fontSize:9}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Pipeline Summary">
-      <TableGrid headers={['Stage','Leads','Pipeline Value','Win Rate','Avg Age','Action']} rows={[
+    <Card title="Pipeline Summary">
+      <MiniTableSimple headers={['Stage','Leads','Pipeline Value','Win Rate','Avg Age','Action']} rows={[
         ['Leads',248,fmt(totalRev*0.5,true),'—','3 days','Qualify'],
         ['Qualified',142,fmt(totalRev*0.8,true),'57%','8 days','Propose'],
         ['Proposal Sent',89,fmt(totalRev*0.4,true),'62%','14 days','Follow Up'],
@@ -2355,7 +2365,7 @@ const CRMDash = () => (
         ['Closed Won',31,fmt(totalRev*0.2,true),'100%','—','Invoice'],
         ['Closed Lost',18,'—','—','—','Nurture'],
       ]} empty="No CRM data. Add leads in the CRM module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2368,7 +2378,7 @@ const StatutoryDash = () => (
       <KPITile label="PT Liability" value={fmt(parseInt(emp.total_employees||0)*200,true)} color={PALETTE.purple}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Statutory Contribution Trend" sub="PF + ESIC monthly contributions">
+      <Card title="Statutory Contribution Trend">
         <ResponsiveContainer width="100%" height={240}>
           <ComposedChart data={trendChartData.map(t=>({month:t.month,pf:t.Expenses*0.05,esic:t.Expenses*0.014,gratuity:t.Expenses*0.02,pt:parseInt(emp.total_employees||0)*200}))}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2382,8 +2392,8 @@ const StatutoryDash = () => (
             <Line type="monotone" dataKey="pt" name="Prof Tax" stroke={PALETTE.purple} strokeWidth={2}/>
           </ComposedChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Compliance Filing Status" sub="Statutory filing deadlines">
+      </Card>
+      <Card title="Compliance Filing Status">
         <div style={{overflowY:'auto',height:240}}>
           {[
             {l:'PF ECR Monthly',d:'15th of next month',s:'filed',c:PALETTE.green},
@@ -2395,22 +2405,22 @@ const StatutoryDash = () => (
           ].map((item,i)=>(
             <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid #f8faff',fontSize:11}}>
               <div><div style={{fontWeight:600,color:'#334155'}}>{item.l}</div><div style={{fontSize:10,color:'#94a3b8'}}>Due: {item.d}</div></div>
-              <StatusBadge text={item.s} color={item.c}/>
+              <Badge text={item.s} color={item.c}/>
             </div>
           ))}
         </div>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Statutory Liability Summary">
-      <TableGrid headers={['Liability','Rate','Monthly Amount','YTD Total','Due Date','Status']} rows={[
-        ['PF - Employee','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
-        ['PF - Employer','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
-        ['ESIC - Employee','0.75% Gross',fmt(parseFloat(emp.total_salary||0)*0.0075,true),fmt(parseFloat(emp.total_salary||0)*0.0075*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
-        ['ESIC - Employer','3.25% Gross',fmt(parseFloat(emp.total_salary||0)*0.0325,true),fmt(parseFloat(emp.total_salary||0)*0.0325*8,true),'15th',<StatusBadge text="Paid" color={PALETTE.green}/>],
-        ['Gratuity Provision','4.81% Basic',fmt(parseFloat(emp.total_salary||0)*0.0481,true),fmt(parseFloat(emp.total_salary||0)*0.0481*8,true),'Annual',<StatusBadge text="Provisioned" color={PALETTE.blue}/>],
-        ['Professional Tax','₹200/emp/month',fmt(parseInt(emp.total_employees||0)*200,true),fmt(parseInt(emp.total_employees||0)*200*8,true),'Month End',<StatusBadge text="Due" color={PALETTE.amber}/>],
+    <Card title="Statutory Liability Summary">
+      <MiniTableSimple headers={['Liability','Rate','Monthly Amount','YTD Total','Due Date','Status']} rows={[
+        ['PF - Employee','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<Badge text="Paid" color={PALETTE.green}/>],
+        ['PF - Employer','12% of Basic',fmt(parseFloat(emp.total_salary||0)*0.12,true),fmt(parseFloat(emp.total_salary||0)*0.12*8,true),'15th',<Badge text="Paid" color={PALETTE.green}/>],
+        ['ESIC - Employee','0.75% Gross',fmt(parseFloat(emp.total_salary||0)*0.0075,true),fmt(parseFloat(emp.total_salary||0)*0.0075*8,true),'15th',<Badge text="Paid" color={PALETTE.green}/>],
+        ['ESIC - Employer','3.25% Gross',fmt(parseFloat(emp.total_salary||0)*0.0325,true),fmt(parseFloat(emp.total_salary||0)*0.0325*8,true),'15th',<Badge text="Paid" color={PALETTE.green}/>],
+        ['Gratuity Provision','4.81% Basic',fmt(parseFloat(emp.total_salary||0)*0.0481,true),fmt(parseFloat(emp.total_salary||0)*0.0481*8,true),'Annual',<Badge text="Provisioned" color={PALETTE.blue}/>],
+        ['Professional Tax','₹200/emp/month',fmt(parseInt(emp.total_employees||0)*200,true),fmt(parseInt(emp.total_employees||0)*200*8,true),'Month End',<Badge text="Due" color={PALETTE.amber}/>],
       ]} empty="No statutory data"/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2423,7 +2433,7 @@ const ProjectsDash = () => (
       <KPITile label="Overdue Tasks" value="8" color={PALETTE.red}/>
     </div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-      <ChartCard title="Project Budget vs Actual" sub="Cost performance by project">
+      <Card title="Project Budget vs Actual">
         <ResponsiveContainer width="100%" height={240}>
           <BarChart data={[
             {name:'Project A',budget:totalRev*0.12,actual:totalRev*0.09},
@@ -2441,8 +2451,8 @@ const ProjectsDash = () => (
             <Bar dataKey="actual" name="Actual Cost" fill={PALETTE.green} radius={[3,3,0,0]}/>
           </BarChart>
         </ResponsiveContainer>
-      </ChartCard>
-      <ChartCard title="Project Status Distribution">
+      </Card>
+      <Card title="Project Status Distribution">
         <ResponsiveContainer width="100%" height={240}>
           <PieChart>
             <Pie data={[{name:'On Track',value:5},{name:'At Risk',value:4},{name:'Delayed',value:2},{name:'Completed',value:1}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={3} dataKey="value">
@@ -2452,17 +2462,17 @@ const ProjectsDash = () => (
             <Legend wrapperStyle={{fontSize:10}}/>
           </PieChart>
         </ResponsiveContainer>
-      </ChartCard>
+      </Card>
     </div>
-    <ChartCard title="Project Register">
-      <TableGrid headers={['Project','Budget','Actual Cost','Variance','Progress','Status']} rows={[
-        ['ERP Implementation',fmt(totalRev*0.12,true),fmt(totalRev*0.09,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.03,true)}</span>,'75%',<StatusBadge text="On Track" color={PALETTE.green}/>],
-        ['Digital Transformation',fmt(totalRev*0.10,true),fmt(totalRev*0.11,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'60%',<StatusBadge text="At Risk" color={PALETTE.amber}/>],
-        ['Market Expansion',fmt(totalRev*0.08,true),fmt(totalRev*0.06,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.02,true)}</span>,'40%',<StatusBadge text="On Track" color={PALETTE.green}/>],
-        ['Product Development',fmt(totalRev*0.15,true),fmt(totalRev*0.10,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.05,true)}</span>,'55%',<StatusBadge text="On Track" color={PALETTE.green}/>],
-        ['Office Renovation',fmt(totalRev*0.07,true),fmt(totalRev*0.08,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'90%',<StatusBadge text="Delayed" color={PALETTE.red}/>],
+    <Card title="Project Register">
+      <MiniTableSimple headers={['Project','Budget','Actual Cost','Variance','Progress','Status']} rows={[
+        ['ERP Implementation',fmt(totalRev*0.12,true),fmt(totalRev*0.09,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.03,true)}</span>,'75%',<Badge text="On Track" color={PALETTE.green}/>],
+        ['Digital Transformation',fmt(totalRev*0.10,true),fmt(totalRev*0.11,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'60%',<Badge text="At Risk" color={PALETTE.amber}/>],
+        ['Market Expansion',fmt(totalRev*0.08,true),fmt(totalRev*0.06,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.02,true)}</span>,'40%',<Badge text="On Track" color={PALETTE.green}/>],
+        ['Product Development',fmt(totalRev*0.15,true),fmt(totalRev*0.10,true),<span style={{color:PALETTE.green,fontWeight:700}}>+{fmt(totalRev*0.05,true)}</span>,'55%',<Badge text="On Track" color={PALETTE.green}/>],
+        ['Office Renovation',fmt(totalRev*0.07,true),fmt(totalRev*0.08,true),<span style={{color:PALETTE.red,fontWeight:700}}>-{fmt(totalRev*0.01,true)}</span>,'90%',<Badge text="Delayed" color={PALETTE.red}/>],
       ]} empty="No project data. Add projects in the Project module."/>
-    </ChartCard>
+    </Card>
   </div>
 );
 
@@ -2479,7 +2489,7 @@ const ProcurementDash = () => {
         <KPITile label="Savings Achieved" value={fmt((totalVal||apOut)*0.04,true)} sub="4% vs budget" color={PALETTE.green}/>
       </div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
-        <ChartCard title="Procurement by Category" sub="Spend analysis by category">
+        <Card title="Procurement by Category">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={[{name:'IT & Tech',value:30},{name:'Raw Materials',value:25},{name:'Services',value:20},{name:'Marketing',value:12},{name:'Facilities',value:8},{name:'Others',value:5}]} cx="50%" cy="50%" outerRadius={90} paddingAngle={2} dataKey="value">
@@ -2489,8 +2499,8 @@ const ProcurementDash = () => {
               <Legend wrapperStyle={{fontSize:9}}/>
             </PieChart>
           </ResponsiveContainer>
-        </ChartCard>
-        <ChartCard title="Procurement Trend" sub="Monthly spend vs budget">
+        </Card>
+        <Card title="Procurement Trend">
           <ResponsiveContainer width="100%" height={240}>
             <ComposedChart data={trendChartData.map(t=>({month:t.month,spend:t.Expenses*0.6,budget:t.Expenses*0.65,savings:t.Expenses*0.05}))}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9"/>
@@ -2503,19 +2513,19 @@ const ProcurementDash = () => {
               <Bar dataKey="savings" name="Savings" fill={PALETTE.green} radius={[3,3,0,0]}/>
             </ComposedChart>
           </ResponsiveContainer>
-        </ChartCard>
+        </Card>
       </div>
-      <ChartCard title="Procurement Analytics Summary">
-        <TableGrid headers={['Metric','Value','Target','Status','YoY']} rows={[
-          ['Total Spend',fmt(totalVal||apOut,true),'—',<StatusBadge text="On Budget" color={PALETTE.green}/>,'↑ +12%'],
-          ['Vendor Count',parseInt(d?.vendors?.total||0).toLocaleString('en-IN'),'<50',<StatusBadge text="Optimizing" color={PALETTE.amber}/>,'↓ -3'],
-          ['PO Cycle Time','3.2 days','<2 days',<StatusBadge text="Watch" color={PALETTE.amber}/>,'↓ -0.5d'],
-          ['Savings Achieved',fmt((totalVal||apOut)*0.04,true),'4%',<StatusBadge text="On Target" color={PALETTE.green}/>,'↑ +0.5%'],
-          ['3-way Match Rate','88%','>95%',<StatusBadge text="Below Target" color={PALETTE.amber}/>,'↑ +3%'],
-          ['Contract Coverage','72%','>80%',<StatusBadge text="Improving" color={PALETTE.amber}/>,'↑ +8%'],
-          ['Preferred Vendor %','65%','>70%',<StatusBadge text="Watch" color={PALETTE.amber}/>,'↑ +5%'],
+      <Card title="Procurement Analytics Summary">
+        <MiniTableSimple headers={['Metric','Value','Target','Status','YoY']} rows={[
+          ['Total Spend',fmt(totalVal||apOut,true),'—',<Badge text="On Budget" color={PALETTE.green}/>,'↑ +12%'],
+          ['Vendor Count',parseInt(d?.vendors?.total||0).toLocaleString('en-IN'),'<50',<Badge text="Optimizing" color={PALETTE.amber}/>,'↓ -3'],
+          ['PO Cycle Time','3.2 days','<2 days',<Badge text="Watch" color={PALETTE.amber}/>,'↓ -0.5d'],
+          ['Savings Achieved',fmt((totalVal||apOut)*0.04,true),'4%',<Badge text="On Target" color={PALETTE.green}/>,'↑ +0.5%'],
+          ['3-way Match Rate','88%','>95%',<Badge text="Below Target" color={PALETTE.amber}/>,'↑ +3%'],
+          ['Contract Coverage','72%','>80%',<Badge text="Improving" color={PALETTE.amber}/>,'↑ +8%'],
+          ['Preferred Vendor %','65%','>70%',<Badge text="Watch" color={PALETTE.amber}/>,'↑ +5%'],
         ]} empty="No procurement data"/>
-      </ChartCard>
+      </Card>
     </div>
   );
 };
