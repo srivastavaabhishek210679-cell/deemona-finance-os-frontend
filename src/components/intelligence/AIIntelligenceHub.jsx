@@ -165,6 +165,8 @@ export default function AIIntelligenceHub() {
       )}
 
       {/* PREDICT */}
+      {mod==='marketcap' && <MarketCapView/>}
+      {mod==='joinexit' && <JoinExitView showToast={showToast}/>}
       {mod==='predict' && (
         <PredictView onPredict={async(p)=>{setLoad('pred',true);const r=await api('/api/ai/predict','POST',p);setLoad('pred',false);return r;}} predicting={loading.pred}/>
       )}
