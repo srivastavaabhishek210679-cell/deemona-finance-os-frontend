@@ -82,6 +82,7 @@ export default function AIIntelligenceHub() {
     if (mod==='filing') load('filing','/api/ai/filing/templates');
     if (mod==='admin') { load('flags','/api/ai/admin/flags'); load('metrics','/api/ai/admin/metrics'); }
     if (mod==='whatif') load('scenarios','/api/ai/whatif/scenarios');
+    if (mod==='joinexit') load('attrition','/api/ai/hr/attrition');
   }, [mod]);
 
   const m = MODULES.find(x=>x.id===mod)||MODULES[0];
@@ -690,3 +691,333 @@ function PredictView({onPredict, predicting}) {
     </div>
   );
 }
+
+function MarketCapView() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [ticker, setTicker] = useState('RELIANCE');
+  const watchlist = [
+    {symbol:'RELIANCE',name:'Reliance Industries'},{symbol:'TCS',name:'TCS'},
+    {symbol:'INFY',name:'Infosys'},{symbol:'HDFCBANK',name:'HDFC Bank'},
+    {symbol:'ICICIBANK',name:'ICICI Bank'},{symbol:'WIPRO',name:'Wipro'},
+    {symbol:'BAJFINANCE',name:'Bajaj Finance'},{symbol:'TATAMOTORS',name:'Tata Motors'},
+  ];
+  const mockPrices = {RELIANCE:2934,TCS:4218,INFY:1876,HDFCBANK:1743,ICICIBANK:1289,WIPRO:567,BAJFINANCE:7234,TATAMOTORS:1023};
+  const mockCaps = {RELIANCE:1987000,TCS:1534000,INFY:784000,HDFCBANK:1243000,ICICIBANK:910000,WIPRO:296000,BAJFINANCE:435000,TATAMOTORS:374000};
+
+  const getMock = (sym) => {
+    const price = mockPrices[sym]||1200;
+    const change = (Math.random()-0.4)*price*0.025;
+    const history = Array.from({length:22},(_,i)=>({
+      date:new Date(Date.now()-(21-i)*86400000).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}),
+      close:parseFloat((price*(0.94+Math.random()*0.12)).toFixed(2)),
+    }));
+    return {symbol:sym,name:watchlist.find(w=>w.symbol===sym)?.name||sym,price,change,changePct:change/price*100,
+      high52:price*1.38,low52:price*0.71,marketCap:(mockCaps[sym]||price*100)*10000000,
+      volume:Math.round(2000000+Math.random()*4000000),avgVolume:2500000,pe:parseFloat((22+Math.random()*18).toFixed(1)),
+      eps:parseFloat((price/(22+Math.random()*18)).toFixed(2)),priceHistory:history,source:'NSE Mock Data'};
+  };
+
+  const fetchData = async (sym) => {
+    setLoading(true); setTicker(sym);
+    try {
+      const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}.NS?interval=1d&range=1mo`);
+      if (r.ok) {
+        const j = await r.json();
+        const res = j.chart?.result?.[0];
+        if (res) {
+          const meta = res.meta||{};
+          const closes = res.indicators?.quote?.[0]?.close||[];
+          const ts = res.timestamp||[];
+          const history = ts.map((t,i)=>({date:new Date(t*1000).toLocaleDateString('en-IN',{day:'2-digit',month:'short'}),close:parseFloat((closes[i]||0).toFixed(2))})).filter(d=>d.close>0);
+          const cp = meta.regularMarketPrice||closes[closes.length-1]||0;
+          const pc = meta.previousClose||closes[closes.length-2]||cp;
+          const ch = cp-pc;
+          setData({symbol:sym,name:meta.longName||meta.shortName||sym,price:cp,change:ch,changePct:pc>0?ch/pc*100:0,
+            high52:meta.fiftyTwoWeekHigh||Math.max(...closes.filter(Boolean)),low52:meta.fiftyTwoWeekLow||Math.min(...closes.filter(Boolean)),
+            marketCap:(meta.regularMarketPrice||0)*(meta.sharesOutstanding||0),volume:meta.regularMarketVolume||0,
+            avgVolume:meta.averageDailyVolume3Month||0,pe:meta.trailingPE||0,eps:meta.epsTrailingTwelveMonths||0,
+            priceHistory:history,source:'Yahoo Finance / NSE'});
+          setLoading(false); return;
+        }
+      }
+    } catch {}
+    setData(getMock(sym)); setLoading(false);
+  };
+
+  useEffect(()=>{ fetchData('RELIANCE'); },[]);
+
+  const fmtP = (n) => parseFloat(n||0).toLocaleString('en-IN',{maximumFractionDigits:2});
+  const fmtC = (n) => { const v=parseFloat(n||0); if(v>=10000000000) return '\u20b9'+(v/10000000000).toFixed(2)+'L Cr'; if(v>=10000000) return '\u20b9'+(v/10000000).toFixed(2)+'Cr'; if(v>=100000) return '\u20b9'+(v/100000).toFixed(2)+'L'; return '\u20b9'+v.toFixed(2); };
+  const up = data?.changePct>=0;
+
+  return (
+    <div>
+      <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:12,alignItems:'center'}}>
+        {watchlist.map(s=><button key={s.symbol} onClick={()=>fetchData(s.symbol)} style={{padding:'5px 10px',borderRadius:7,border:`2px solid ${ticker===s.symbol?'#059669':'#e2e8f0'}`,background:ticker===s.symbol?'#f0fdf4':'#fff',color:ticker===s.symbol?'#059669':'#64748b',fontSize:10,fontWeight:ticker===s.symbol?700:400,cursor:'pointer'}}>{s.symbol}</button>)}
+        <div style={{display:'flex',gap:6,marginLeft:'auto'}}>
+          <input value={ticker} onChange={e=>setTicker(e.target.value.toUpperCase())} placeholder="Enter NSE symbol" style={{padding:'6px 10px',borderRadius:7,border:'1px solid #e2e8f0',fontSize:11,width:160,outline:'none'}}/>
+          <button onClick={()=>fetchData(ticker)} style={{padding:'6px 12px',borderRadius:7,border:'none',background:'#059669',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>Search</button>
+        </div>
+      </div>
+      {loading&&<div style={{textAlign:'center',padding:40,color:'#94a3b8'}}>Fetching market data...</div>}
+      {data&&!loading&&(
+        <div>
+          <div style={{background:'linear-gradient(135deg,#0f172a,#1e3a8a)',borderRadius:12,padding:'16px 20px',marginBottom:12,color:'#fff',display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+            <div>
+              <div style={{fontSize:11,color:'rgba(255,255,255,0.6)',marginBottom:2}}>NSE \u00b7 {data.name}</div>
+              <div style={{fontSize:28,fontWeight:900}}>\u20b9{fmtP(data.price)}</div>
+              <div style={{fontSize:13,color:up?'#34d399':'#f87171',fontWeight:700,marginTop:4}}>{up?'\u25b2':'\u25bc'} \u20b9{Math.abs(data.change).toFixed(2)} ({data.changePct.toFixed(2)}%)</div>
+              <div style={{fontSize:9,color:'rgba(255,255,255,0.4)',marginTop:4}}>Source: {data.source}</div>
+            </div>
+            <div style={{textAlign:'right'}}>
+              <div style={{fontSize:10,color:'rgba(255,255,255,0.6)'}}>Market Cap</div>
+              <div style={{fontSize:20,fontWeight:800,color:'#34d399'}}>{fmtC(data.marketCap)||'N/A'}</div>
+              <div style={{fontSize:10,color:'rgba(255,255,255,0.5)',marginTop:4}}>P/E: {data.pe?data.pe.toFixed(1):'N/A'} \u00b7 EPS: \u20b9{fmtP(data.eps)}</div>
+            </div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:8,marginBottom:12}}>
+            {[['52W High','\u20b9'+fmtP(data.high52),'#059669'],['52W Low','\u20b9'+fmtP(data.low52),'#dc2626'],['Volume',parseInt(data.volume||0).toLocaleString('en-IN'),'#1d4ed8'],['Avg Vol',parseInt(data.avgVolume||0).toLocaleString('en-IN'),'#64748b'],['EPS','\u20b9'+fmtP(data.eps),'#7c3aed']].map(([l,v,c],i)=>(
+              <div key={i} style={{background:'#fff',borderRadius:8,border:'1px solid #e2e8f0',padding:'8px 10px',borderLeft:`3px solid ${c}`}}>
+                <div style={{fontSize:9,color:'#94a3b8',fontWeight:700,textTransform:'uppercase',marginBottom:2}}>{l}</div>
+                <div style={{fontSize:12,fontWeight:800,color:c}}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16,marginBottom:12}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:10}}>{data.symbol} \u2014 1 Month Price Chart</div>
+            <div style={{display:'flex',alignItems:'flex-end',gap:1.5,height:160}}>
+              {data.priceHistory.map((d,i)=>{
+                const mn=Math.min(...data.priceHistory.map(x=>x.close));
+                const mx=Math.max(...data.priceHistory.map(x=>x.close));
+                const h=mx>mn?(((d.close-mn)/(mx-mn))*140+15):80;
+                const col=i>0&&d.close>=data.priceHistory[i-1].close?'#059669':'#dc2626';
+                return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:1}}>
+                  {i%4===0&&<div style={{fontSize:7,color:'#94a3b8',transform:'rotate(-40deg)',whiteSpace:'nowrap',marginBottom:2}}>{d.date}</div>}
+                  <div title={`${d.date}: \u20b9${d.close}`} style={{width:'100%',flex:1,background:col,borderRadius:'2px 2px 0 0',minHeight:h+'px',opacity:0.8}}/>
+                </div>;
+              })}
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#94a3b8',marginTop:6}}>
+              <span>Low: \u20b9{Math.min(...data.priceHistory.map(x=>x.close)).toFixed(2)}</span>
+              <span style={{color:'#059669',fontWeight:600}}>\u25a0 Up \u00a0<span style={{color:'#dc2626'}}>\u25a0 Down</span></span>
+              <span>High: \u20b9{Math.max(...data.priceHistory.map(x=>x.close)).toFixed(2)}</span>
+            </div>
+          </div>
+          <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
+            <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:8}}>52-Week Range</div>
+            <div style={{position:'relative',height:8,background:'#e2e8f0',borderRadius:4,margin:'8px 0'}}>
+              <div style={{position:'absolute',left:0,width:((data.price-data.low52)/Math.max(0.01,data.high52-data.low52)*100)+'%',height:'100%',background:'linear-gradient(90deg,#dc2626,#059669)',borderRadius:4}}/>
+              <div style={{position:'absolute',left:((data.price-data.low52)/Math.max(0.01,data.high52-data.low52)*100)+'%',top:-4,width:16,height:16,borderRadius:'50%',background:'#1d4ed8',border:'2px solid #fff',boxShadow:'0 2px 6px rgba(0,0,0,0.2)',transform:'translateX(-50%)'}}/>
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10}}>
+              <span style={{color:'#dc2626',fontWeight:700}}>\u20b9{fmtP(data.low52)} (Low)</span>
+              <span style={{color:'#1d4ed8',fontWeight:700}}>Current: \u20b9{fmtP(data.price)}</span>
+              <span style={{color:'#059669',fontWeight:700}}>\u20b9{fmtP(data.high52)} (High)</span>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function JoinExitView({showToast}) {
+  const [tab, setTab] = useState('overview');
+  const [attrData, setAttrData] = useState(null);
+  const [employees, setEmployees] = useState([]);
+  const [form, setForm] = useState({employee_id:'',joining_date:'',exit_date:'',exit_reason:''});
+  const EXIT_REASONS = ['Resignation','Better Opportunity','Higher Studies','Personal Reasons','Relocation','Health Issues','Retirement','Termination','Contract End','Other'];
+
+  useEffect(()=>{
+    api('/api/ai/hr/attrition').then(r=>setAttrData(r));
+    api('/api/employees').then(r=>setEmployees(r.employees||r.data||[]));
+  },[]);
+
+  const updateEmp = async () => {
+    if (!form.employee_id) return showToast('\u274c Select employee',false);
+    const payload = {joining_date:form.joining_date||null,exit_date:form.exit_date||null,exit_reason:form.exit_reason||null};
+    if (form.exit_date) payload.status='inactive';
+    const r = await api('/api/employees/'+form.employee_id,'PUT',payload);
+    if (r.success||r.employee||r.id) {
+      showToast('\u2705 Updated');
+      api('/api/ai/hr/attrition').then(r=>setAttrData(r));
+      api('/api/employees').then(r=>setEmployees(r.employees||r.data||[]));
+    } else showToast('\u274c '+r.error,false);
+  };
+
+  const s = attrData?.summary||{};
+  const joined = employees.filter(e=>e.joining_date);
+  const exited = employees.filter(e=>e.exit_date);
+  const reasons = EXIT_REASONS.map(r=>({reason:r,count:employees.filter(e=>e.exit_reason===r).length})).filter(r=>r.count>0).sort((a,b)=>b.count-a.count);
+
+  const monthNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const trendData = monthNames.map((m,mi)=>({
+    month:m,
+    joinings:employees.filter(e=>e.joining_date&&new Date(e.joining_date).getMonth()===mi).length,
+    exits:employees.filter(e=>e.exit_date&&new Date(e.exit_date).getMonth()===mi).length,
+  }));
+
+  return (
+    <div>
+      <div style={{display:'flex',gap:8,marginBottom:14,flexWrap:'wrap'}}>
+        {[['overview','Overview'],['joinings','Joinings'],['exits','Exits'],['trend','Trend'],['update','Update Record']].map(([id,label])=>(
+          <button key={id} onClick={()=>setTab(id)} style={{padding:'7px 14px',borderRadius:8,border:`2px solid ${tab===id?'#7c3aed':'#e2e8f0'}`,background:tab===id?'#f5f3ff':'#fff',color:tab===id?'#7c3aed':'#64748b',fontSize:11,fontWeight:tab===id?700:400,cursor:'pointer'}}>{label}</button>
+        ))}
+      </div>
+
+      {tab==='overview'&&(
+        <div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:12}}>
+            {[['Total',s.total||0,'#1d4ed8'],['Active',s.active||0,'#059669'],['Exits',s.exits||0,'#dc2626'],['Attrition',(s.attritionRate||0)+'%',parseFloat(s.attritionRate||0)<12?'#059669':'#dc2626']].map(([l,v,c],i)=>(
+              <div key={i} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:'12px 14px',borderLeft:`4px solid ${c}`}}>
+                <div style={{fontSize:9,color:'#64748b',fontWeight:700,textTransform:'uppercase',marginBottom:3}}>{l}</div>
+                <div style={{fontSize:22,fontWeight:800,color:c}}>{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:12}}>
+            {[['YTD Joinings',joined.length,'#059669'],['YTD Exits',exited.length,'#dc2626'],['Net Change',joined.length-exited.length,joined.length>=exited.length?'#059669':'#dc2626']].map(([l,v,c],i)=>(
+              <div key={i} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:'12px 14px',borderLeft:`4px solid ${c}`}}>
+                <div style={{fontSize:9,color:'#64748b',fontWeight:700,textTransform:'uppercase',marginBottom:3}}>{l}</div>
+                <div style={{fontSize:20,fontWeight:800,color:c}}>{v>0?'+':''}{v}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
+            <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:10}}>Attrition by Department</div>
+              {(attrData?.byDepartment||[]).map((d,i)=>{
+                const rate=d.total>0?d.exits/d.total*100:0;
+                return <div key={i} style={{marginBottom:8}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:2}}><span style={{fontWeight:600}}>{d.department||'N/A'}</span><span style={{color:rate>15?'#dc2626':rate>8?'#d97706':'#059669',fontWeight:700}}>{rate.toFixed(1)}%</span></div>
+                  <div style={{height:5,background:'#f1f5f9',borderRadius:3}}><div style={{height:'100%',width:Math.min(100,rate*3)+'%',background:rate>15?'#dc2626':rate>8?'#d97706':'#059669',borderRadius:3}}/></div>
+                  <div style={{fontSize:9,color:'#94a3b8',marginTop:1}}>{d.total} total \u00b7 {d.exits} exits</div>
+                </div>;
+              })}
+              {!attrData?.byDepartment?.length&&<div style={{color:'#94a3b8',fontSize:11,textAlign:'center',padding:16}}>No data. Assign departments to employees.</div>}
+            </div>
+            <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:10}}>Exit Reasons</div>
+              {reasons.length?reasons.map((r,i)=>(
+                <div key={i} style={{marginBottom:7}}>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:11,marginBottom:2}}><span>{r.reason}</span><span style={{fontWeight:700,color:'#dc2626'}}>{r.count}</span></div>
+                  <div style={{height:4,background:'#f1f5f9',borderRadius:2}}><div style={{height:'100%',width:(r.count/Math.max(1,reasons[0].count)*100)+'%',background:'#dc2626',borderRadius:2}}/></div>
+                </div>
+              )):<div style={{background:'#fffbeb',borderRadius:8,padding:12,fontSize:11,color:'#78350f'}}><strong>\u26a0\ufe0f</strong> Add exit reasons via "Update Record" tab to see breakdown.</div>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==='joinings'&&(
+        <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden'}}>
+          <div style={{padding:'10px 14px',background:'#f0fdf4',borderBottom:'1px solid #e2e8f0',fontSize:12,fontWeight:700,color:'#14532d'}}>Employee Joinings ({joined.length})</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+            <thead><tr style={{background:'#f8faff'}}>{['Employee','Department','Joining Date','Tenure','Status'].map(h=><th key={h} style={{padding:'7px 12px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:10,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
+            <tbody>{joined.sort((a,b)=>new Date(b.joining_date)-new Date(a.joining_date)).map((e,i)=>{
+              const days=Math.round((new Date()-new Date(e.joining_date))/86400000);
+              const tenure=days>365?Math.floor(days/365)+'y '+Math.floor(days%365/30)+'m':Math.floor(days/30)+'m';
+              return <tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>
+                <td style={{padding:'7px 12px',fontWeight:600,color:'#334155'}}>{e.name||e.full_name||'—'}</td>
+                <td style={{padding:'7px 12px',color:'#64748b'}}>{e.department||'—'}</td>
+                <td style={{padding:'7px 12px'}}>{new Date(e.joining_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</td>
+                <td style={{padding:'7px 12px',color:'#1d4ed8',fontWeight:700}}>{tenure}</td>
+                <td style={{padding:'7px 12px'}}><span style={{padding:'2px 8px',borderRadius:4,fontSize:10,fontWeight:700,background:e.status==='active'?'#f0fdf4':'#fef2f2',color:e.status==='active'?'#16a34a':'#dc2626'}}>{e.status||'active'}</span></td>
+              </tr>;
+            })}</tbody>
+          </table>
+          {!joined.length&&<div style={{padding:30,textAlign:'center',color:'#94a3b8'}}>No joining records. Add via "Update Record" tab.</div>}
+        </div>
+      )}
+
+      {tab==='exits'&&(
+        <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden'}}>
+          <div style={{padding:'10px 14px',background:'#fef2f2',borderBottom:'1px solid #e2e8f0',fontSize:12,fontWeight:700,color:'#991b1b'}}>Employee Exits ({exited.length})</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+            <thead><tr style={{background:'#f8faff'}}>{['Employee','Dept','Joining Date','Exit Date','Tenure','Reason'].map(h=><th key={h} style={{padding:'7px 12px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:10,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
+            <tbody>{exited.sort((a,b)=>new Date(b.exit_date)-new Date(a.exit_date)).map((e,i)=>{
+              const days=e.joining_date?Math.round((new Date(e.exit_date)-new Date(e.joining_date))/86400000):0;
+              const tenure=days>365?Math.floor(days/365)+'y '+Math.floor(days%365/30)+'m':Math.floor(days/30)+'m';
+              return <tr key={i} style={{borderBottom:'1px solid #f8faff',background:i%2===0?'#fff':'#fafbff'}}>
+                <td style={{padding:'7px 12px',fontWeight:600}}>{e.name||e.full_name||'—'}</td>
+                <td style={{padding:'7px 12px',color:'#64748b'}}>{e.department||'—'}</td>
+                <td style={{padding:'7px 12px',color:'#94a3b8'}}>{e.joining_date?new Date(e.joining_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}):'—'}</td>
+                <td style={{padding:'7px 12px',color:'#dc2626',fontWeight:700}}>{new Date(e.exit_date).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'})}</td>
+                <td style={{padding:'7px 12px',color:'#64748b'}}>{tenure||'—'}</td>
+                <td style={{padding:'7px 12px'}}>{e.exit_reason?<span style={{padding:'2px 8px',borderRadius:4,fontSize:10,background:'#fef2f2',color:'#dc2626',fontWeight:700}}>{e.exit_reason}</span>:'—'}</td>
+              </tr>;
+            })}</tbody>
+          </table>
+          {!exited.length&&<div style={{padding:30,textAlign:'center',color:'#94a3b8'}}>No exit records yet.</div>}
+        </div>
+      )}
+
+      {tab==='trend'&&(
+        <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:12}}>Monthly Joining vs Exit Trend</div>
+          <div style={{display:'flex',alignItems:'flex-end',gap:4,height:180,marginBottom:8}}>
+            {trendData.map((d,i)=>{
+              const mx=Math.max(...trendData.map(x=>Math.max(x.joinings,x.exits)),1);
+              return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                <div style={{width:'100%',display:'flex',gap:1,alignItems:'flex-end',height:160}}>
+                  <div title={`Join: ${d.joinings}`} style={{flex:1,height:(d.joinings/mx*150+5)+'px',background:'#059669',borderRadius:'2px 2px 0 0',opacity:0.85}}/>
+                  <div title={`Exit: ${d.exits}`} style={{flex:1,height:(d.exits/mx*150+5)+'px',background:'#dc2626',borderRadius:'2px 2px 0 0',opacity:0.85}}/>
+                </div>
+                <div style={{fontSize:8,color:'#94a3b8'}}>{d.month}</div>
+              </div>;
+            })}
+          </div>
+          <div style={{display:'flex',gap:14,justifyContent:'center',fontSize:11}}>
+            <span><span style={{display:'inline-block',width:10,height:10,background:'#059669',borderRadius:2,marginRight:4}}/>Joinings</span>
+            <span><span style={{display:'inline-block',width:10,height:10,background:'#dc2626',borderRadius:2,marginRight:4}}/>Exits</span>
+          </div>
+        </div>
+      )}
+
+      {tab==='update'&&(
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14}}>
+          <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:20}}>
+            <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:14}}>Update Employee Record</div>
+            <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:3}}>SELECT EMPLOYEE</label>
+              <select value={form.employee_id} onChange={e=>{const emp=employees.find(x=>x.id===e.target.value);setForm(p=>({...p,employee_id:e.target.value,joining_date:emp?.joining_date?.split('T')[0]||'',exit_date:emp?.exit_date?.split('T')[0]||'',exit_reason:emp?.exit_reason||''}));}} style={{width:'100%',padding:'8px 12px',borderRadius:7,border:'1px solid #e2e8f0',fontSize:11,outline:'none'}}>
+                <option value="">-- Select Employee --</option>
+                {employees.map(e=><option key={e.id} value={e.id}>{e.name||e.full_name} {e.department?`(${e.department})`:''}</option>)}
+              </select>
+            </div>
+            <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:3}}>JOINING DATE</label>
+              <input type="date" value={form.joining_date||''} onChange={e=>setForm(p=>({...p,joining_date:e.target.value}))} style={{width:'100%',padding:'8px 12px',borderRadius:7,border:'1px solid #e2e8f0',fontSize:11,outline:'none',boxSizing:'border-box'}}/>
+            </div>
+            <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:3}}>EXIT DATE (blank if active)</label>
+              <input type="date" value={form.exit_date||''} onChange={e=>setForm(p=>({...p,exit_date:e.target.value}))} style={{width:'100%',padding:'8px 12px',borderRadius:7,border:'1px solid #e2e8f0',fontSize:11,outline:'none',boxSizing:'border-box'}}/>
+            </div>
+            {form.exit_date&&<div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',display:'block',marginBottom:3}}>EXIT REASON</label>
+              <select value={form.exit_reason||''} onChange={e=>setForm(p=>({...p,exit_reason:e.target.value}))} style={{width:'100%',padding:'8px 12px',borderRadius:7,border:'1px solid #e2e8f0',fontSize:11,outline:'none'}}>
+                <option value="">-- Select --</option>
+                {EXIT_REASONS.map(r=><option key={r}>{r}</option>)}
+              </select>
+            </div>}
+            <button onClick={updateEmp} disabled={!form.employee_id} style={{width:'100%',padding:'10px 0',borderRadius:8,border:'none',background:form.employee_id?'#7c3aed':'#e2e8f0',color:'#fff',fontSize:12,fontWeight:700,cursor:form.employee_id?'pointer':'not-allowed'}}>Update Employee Record</button>
+          </div>
+          <div>
+            <div style={{background:'#f0fdf4',borderRadius:10,border:'1px solid #bbf7d0',padding:16,marginBottom:12}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#16a34a',marginBottom:6}}>\u2705 What This Enables</div>
+              {['Accurate attrition rate','Tenure analysis at exit','Department exit trends','Monthly joining vs exit charts','Exit reason breakdown','Early attrition warnings'].map((x,i)=><div key={i} style={{fontSize:11,color:'#334155',marginBottom:3}}>\u2022 {x}</div>)}
+            </div>
+            <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',padding:16}}>
+              <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginBottom:8}}>Missing Joining Date ({employees.filter(e=>!e.joining_date).length})</div>
+              {employees.filter(e=>!e.joining_date).slice(0,8).map((e,i)=>(
+                <div key={i} style={{display:'flex',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f8faff',fontSize:11}}>
+                  <span style={{color:'#334155'}}>{e.name||e.full_name}</span>
+                  <span style={{color:'#94a3b8'}}>{e.department||'—'}</span>
+                </div>
+              ))}
+              {!employees.filter(e=>!e.joining_date).length&&<div style={{color:'#059669',fontSize:11}}>\u2705 All employees have joining dates!</div>}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
