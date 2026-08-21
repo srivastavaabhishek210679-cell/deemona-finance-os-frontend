@@ -28,6 +28,8 @@ const MODULES = [
   {id:'blockchain',label:'Blockchain Audit',icon:'\ud83d\udd17',color:'#334155'},
   {id:'filing',label:'Filing Automation',icon:'\ud83d\udcc4',color:'#dc2626'},
   {id:'admin',label:'Admin & Metrics',icon:'\u2699\ufe0f',color:'#64748b'},
+  {id:'marketcap',label:'Market Cap Reports',icon:'\ud83d\udcb9',color:'#059669'},
+  {id:'joinexit',label:'Joining & Exit Analytics',icon:'\ud83d\udc65',color:'#7c3aed'},
   {id:'predict',label:'Predictive Modeling',icon:'\ud83d\udd2e',color:'#7c3aed'},
 ];
 
