@@ -195,7 +195,7 @@ function CollapsibleNav() {
   );
 }
 
-function Sidebar({ user, tenant, onLogout }) {
+function Sidebar({ user, tenant, onLogout, onClose }) {
   return (
     <aside style={{ width: 220, flexShrink: 0, background: '#1B4FD8', borderRight: 'none', display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Logo */}
