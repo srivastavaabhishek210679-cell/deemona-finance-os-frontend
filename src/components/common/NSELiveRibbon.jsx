@@ -64,11 +64,19 @@ export default function NSELiveRibbon() {
     if (!inner) return;
     let last = null;
 
+    // Wait for layout to settle before reading scrollWidth
+    let halfW = 0;
+    const getHalfW = () => {
+      const w = inner.scrollWidth / 2;
+      if (w > 100) halfW = w;
+    };
+    setTimeout(getHalfW, 500);
+
     const tick = (ts) => {
+      if (halfW === 0) getHalfW();
       if (last !== null) {
         pos.current -= speed * (ts - last) / 1000;
-        const halfW = inner.scrollWidth / 2;
-        if (-pos.current >= halfW) pos.current = 0;
+        if (halfW > 0 && -pos.current >= halfW) pos.current = 0;
         inner.style.transform = `translateX(${pos.current}px)`;
       }
       last = ts;
