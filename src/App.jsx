@@ -473,44 +473,36 @@ function NSELiveRibbon() {
       loaded: false,
     }))
   );
-  const [nifty, setNifty] = React.useState({value:24589.12, change:0.43});
-  const [sensex, setSensex] = React.useState({value:80892.34, change:0.51});
+  const [nifty] = React.useState({value:24589.12, change:0.43});
+  const [sensex] = React.useState({value:80892.34, change:0.51});
   const [time, setTime] = React.useState(new Date());
+  const tickerRef = React.useRef(null);
+  const posRef = React.useRef(0);
+  const rafRef = React.useRef(null);
 
   React.useEffect(() => {
-    // Fetch real stock data
-    const fetchStock = async (sym, idx) => {
-      try {
-        const r = await fetch('https://query1.finance.yahoo.com/v8/finance/chart/' + sym + '.NS?interval=1d&range=1d');
-        if (!r.ok) return;
-        const j = await r.json();
-        const meta = j.chart?.result?.[0]?.meta;
-        if (!meta || !meta.regularMarketPrice) return;
-        const price = parseFloat(meta.regularMarketPrice.toFixed(2));
-        const prev = meta.previousClose || meta.chartPreviousClose || price;
-        const change = parseFloat((price - prev).toFixed(2));
-        const changePct = parseFloat(((price - prev) / prev * 100).toFixed(2));
-        setStocks(s => s.map((st,i) => i===idx ? {...st, price, change, changePct, loaded:true} : st));
-      } catch {}
+    const el = tickerRef.current;
+    if (!el) return;
+    const speed = 80; // pixels per second
+    let last = null;
+    const animate = (ts) => {
+      if (last !== null) {
+        const delta = (ts - last) / 1000;
+        posRef.current -= speed * delta;
+        const halfW = el.scrollWidth / 2;
+        if (Math.abs(posRef.current) >= halfW) posRef.current = 0;
+        el.style.transform = 'translateX(' + posRef.current + 'px)';
+      }
+      last = ts;
+      rafRef.current = requestAnimationFrame(animate);
     };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [stocks]);
 
-    NSE_STOCKS.forEach((s, idx) => setTimeout(() => fetchStock(s.sym, idx), idx * 500));
-    const refresh = setInterval(() => {
-      NSE_STOCKS.forEach((s, idx) => setTimeout(() => fetchStock(s.sym, idx), idx * 500));
-    }, 60000);
-
-    // Simulate micro price movements
-    const ticker = setInterval(() => {
-      setStocks(s => s.map(st => {
-        const delta = st.price * (Math.random() - 0.5) * 0.0008;
-        const newPrice = parseFloat((st.price + delta).toFixed(2));
-        const newChange = parseFloat((st.change + delta).toFixed(2));
-        return {...st, price: newPrice, change: newChange};
-      }));
-      setTime(new Date());
-    }, 3000);
-
-    return () => { clearInterval(refresh); clearInterval(ticker); };
+  React.useEffect(() => {
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
   }, []);
 
   const fmtPrice = (p) => p >= 1000 ? p.toLocaleString('en-IN', {maximumFractionDigits:2}) : p.toFixed(2);
@@ -574,10 +566,7 @@ function NSELiveRibbon() {
       </div>
 
       <style>{`
-        @keyframes nse-scroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
+
         @keyframes nse-pulse {
           0%,100% { opacity:1; transform:scale(1); }
           50% { opacity:0.3; transform:scale(0.7); }
