@@ -41,7 +41,7 @@ export default function NSELiveRibbon() {
     STOCKS.forEach((s, idx) => {
       setTimeout(async () => {
         try {
-          const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}.NS?interval=1d&range=1d`);
+          const r = await fetch(`https://deemona-finance-os-api.onrender.com/api/ai/market/quote?sym=${s.sym}`);
           if (!r.ok) return;
           const j = await r.json();
           const meta = j?.chart?.result?.[0]?.meta;
@@ -55,7 +55,8 @@ export default function NSELiveRibbon() {
     });
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);  // intentionally no deps - RAF runs once
 
   useEffect(() => {
     const el = containerRef.current;
