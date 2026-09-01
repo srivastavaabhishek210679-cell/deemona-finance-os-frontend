@@ -554,7 +554,7 @@ function NSELiveRibbon() {
             {[...stocks,...stocks].map((st,i) => {
               const up = st.changePct >= 0;
               return (
-                <div key={i} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'0 16px',borderRight:'1px solid #1e293b',height:26,flexShrink:0,whiteSpace:'nowrap'}}>
+                <div key={i} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'0 10px',borderRight:'1px solid #1e293b',height:26,flexShrink:0,whiteSpace:'nowrap'}}>
                   <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>{st.name}</span>
                   <span style={{fontSize:11,fontWeight:800,color:up?'#4ade80':'#f87171'}}>
                     ₹{fmtPrice(st.price)}
