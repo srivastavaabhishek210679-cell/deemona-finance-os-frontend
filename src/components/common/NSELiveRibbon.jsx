@@ -66,16 +66,10 @@ export default function NSELiveRibbon() {
     let singleWidth = 0;
 
     const measureAndStart = () => {
-      // Measure width of ONE copy (first child)
-      const children = el.children;
-      if (!children.length) return;
-      // Each copy spans children.length/COPIES items
-      const itemsPerCopy = Math.floor(children.length / COPIES);
-      let w = 0;
-      for (let i = 0; i < itemsPerCopy; i++) {
-        w += children[i].offsetWidth;
-      }
-      singleWidth = w;
+      if (!el.scrollWidth) return;
+      // 5 copies rendered, so one copy = total/5
+      singleWidth = Math.floor(el.scrollWidth / COPIES);
+      console.log('[NSE] scrollWidth:', el.scrollWidth, 'singleWidth:', singleWidth);
 
       let last = null;
       const tick = (ts) => {
