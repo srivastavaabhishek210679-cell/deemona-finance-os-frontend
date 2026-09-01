@@ -538,6 +538,10 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/privacy-policy" element={<PrivacyPolicy/>}/>
+        <Route path="/terms" element={<TermsOfService/>}/>
+        <Route path="/license" element={<LicenseAgreement/>}/>
+        <Route path="/about" element={<AboutUs/>}/>
         {routes.map(r => (
           <Route key={r.path} path={r.path} element={
             <Layout title={r.title} subtitle={r.sub}>{r.comp}</Layout>
