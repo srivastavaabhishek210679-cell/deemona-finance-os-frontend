@@ -32,69 +32,86 @@ const INDICES = [
 export default function NSELiveRibbon() {
   const [stocks, setStocks] = useState(STOCKS);
   const [time, setTime] = useState(new Date());
-  const outerRef = useRef(null);
-  const innerRef = useRef(null);
-  const pos = useRef(0);
-  const raf = useRef(null);
-  const speed = 120; // px per second
+  const containerRef = useRef(null);
+  const posRef = useRef(0);
+  const rafRef = useRef(null);
+  const SPEED = 100; // px/sec
 
   useEffect(() => {
-    // Fetch live prices
     STOCKS.forEach((s, idx) => {
       setTimeout(async () => {
         try {
           const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${s.sym}.NS?interval=1d&range=1d`);
           if (!r.ok) return;
           const j = await r.json();
-          const meta = j.chart?.result?.[0]?.meta;
+          const meta = j?.chart?.result?.[0]?.meta;
           if (!meta?.regularMarketPrice) return;
           const price = parseFloat(meta.regularMarketPrice.toFixed(2));
           const prev = meta.previousClose || price;
           const chg = parseFloat(((price - prev) / prev * 100).toFixed(2));
-          setStocks(prev => prev.map((st, i) => i === idx ? { ...st, price, chg } : st));
+          setStocks(p => p.map((st, i) => i === idx ? { ...st, price, chg } : st));
         } catch {}
-      }, idx * 700);
+      }, idx * 800);
     });
     const t = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(t);
   }, []);
 
   useEffect(() => {
-    const inner = innerRef.current;
-    if (!inner) return;
-    let last = null;
+    const el = containerRef.current;
+    if (!el) return;
 
-    // Wait for layout to settle before reading scrollWidth
-    let halfW = 0;
-    const getHalfW = () => {
-      const w = inner.scrollWidth / 2;
-      if (w > 100) halfW = w;
-    };
-    setTimeout(getHalfW, 500);
+    // Use 5 copies to ensure seamless loop
+    const COPIES = 5;
+    let singleWidth = 0;
 
-    const tick = (ts) => {
-      if (halfW === 0) getHalfW();
-      if (last !== null) {
-        pos.current -= speed * (ts - last) / 1000;
-        if (halfW > 0 && -pos.current >= halfW) pos.current = 0;
-        inner.style.transform = `translateX(${pos.current}px)`;
+    const measureAndStart = () => {
+      // Measure width of ONE copy (first child)
+      const children = el.children;
+      if (!children.length) return;
+      // Each copy spans children.length/COPIES items
+      const itemsPerCopy = Math.floor(children.length / COPIES);
+      let w = 0;
+      for (let i = 0; i < itemsPerCopy; i++) {
+        w += children[i].offsetWidth;
       }
-      last = ts;
-      raf.current = requestAnimationFrame(tick);
+      singleWidth = w;
+
+      let last = null;
+      const tick = (ts) => {
+        if (last !== null) {
+          posRef.current -= SPEED * (ts - last) / 1000;
+          // Reset when one full copy has scrolled
+          if (singleWidth > 0 && -posRef.current >= singleWidth) {
+            posRef.current += singleWidth;
+          }
+          el.style.transform = `translateX(${posRef.current}px)`;
+        }
+        last = ts;
+        rafRef.current = requestAnimationFrame(tick);
+      };
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    raf.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf.current);
+    // Wait for DOM to render
+    const t = setTimeout(measureAndStart, 300);
+    return () => {
+      clearTimeout(t);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   const fmt = (p) => p >= 1000
     ? p.toLocaleString('en-IN', { maximumFractionDigits: 2 })
     : p.toFixed(2);
 
+  // Render 5 copies for seamless infinite scroll
+  const allStocks = [...stocks, ...stocks, ...stocks, ...stocks, ...stocks];
+
   return (
     <div style={{ background: '#0a0f1e', flexShrink: 0 }}>
       {/* Index Bar */}
-      <div style={{ display: 'flex', alignItems: 'center', height: 22, borderBottom: '1px solid #1e293b', overflowX: 'auto' }}>
+      <div style={{ display: 'flex', alignItems: 'center', height: 22, borderBottom: '1px solid #1e293b', overflowX: 'auto', overflowY: 'hidden' }}>
         <div style={{ background: '#1d4ed8', color: '#fff', fontSize: 9, fontWeight: 800, padding: '0 8px', height: '100%', display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
           <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
           MARKET
@@ -112,12 +129,12 @@ export default function NSELiveRibbon() {
       </div>
 
       {/* Stock Ticker */}
-      <div ref={outerRef} style={{ height: 26, display: 'flex', alignItems: 'center', overflow: 'hidden', position: 'relative' }}>
-        <div style={{ background: '#dc2626', color: '#fff', fontSize: 9, fontWeight: 800, padding: '0 7px', height: '100%', display: 'flex', alignItems: 'center', flexShrink: 0, zIndex: 2 }}>NSE</div>
+      <div style={{ height: 26, display: 'flex', alignItems: 'center', overflow: 'hidden' }}>
+        <div style={{ background: '#dc2626', color: '#fff', fontSize: 9, fontWeight: 800, padding: '0 7px', height: '100%', display: 'flex', alignItems: 'center', flexShrink: 0 }}>NSE</div>
         <div style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
-          <div ref={innerRef} style={{ display: 'inline-flex', whiteSpace: 'nowrap', willChange: 'transform' }}>
-            {[...stocks, ...stocks].map((s, i) => (
-              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 12px', borderRight: '1px solid #1e293b', height: 26 }}>
+          <div ref={containerRef} style={{ display: 'inline-flex', whiteSpace: 'nowrap', willChange: 'transform' }}>
+            {allStocks.map((s, i) => (
+              <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '0 10px', borderRight: '1px solid #1e293b', height: 26, flexShrink: 0 }}>
                 <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>{s.name}</span>
                 <span style={{ fontSize: 11, color: s.chg >= 0 ? '#4ade80' : '#f87171', fontWeight: 800 }}>&#8377;{fmt(s.price)}</span>
                 <span style={{ fontSize: 9, color: s.chg >= 0 ? '#4ade80' : '#f87171' }}>{s.chg >= 0 ? '▲' : '▼'}{Math.abs(s.chg).toFixed(2)}%</span>
@@ -125,7 +142,7 @@ export default function NSELiveRibbon() {
             ))}
           </div>
         </div>
-        <div style={{ background: '#0a0f1e', padding: '0 8px', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0, borderLeft: '1px solid #1e293b', zIndex: 2 }}>
+        <div style={{ padding: '0 8px', display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0, borderLeft: '1px solid #1e293b', background: '#0a0f1e' }}>
           <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#4ade80', display: 'inline-block' }} />
           <span style={{ fontSize: 9, color: '#64748b', fontWeight: 700 }}>LIVE</span>
         </div>
