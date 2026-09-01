@@ -34,6 +34,7 @@ import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabe
 import LandingPage from './pages/LandingPage';
 import AutomationLogsPage from './components/automation/AutomationLogsPage';
 import Batch2DocsPage from './components/docs/Batch2DocsPage';
+import GoogleCallback from './components/auth/GoogleCallback';
 import PrivacyPolicy from './components/public/PrivacyPolicy';
 import TermsOfService from './components/public/TermsOfService';
 import LicenseAgreement from './components/public/LicenseAgreement';
@@ -538,6 +539,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/auth/google/callback" element={<GoogleCallback/>}/>
         <Route path="/privacy-policy" element={<PrivacyPolicy/>}/>
         <Route path="/terms" element={<TermsOfService/>}/>
         <Route path="/license" element={<LicenseAgreement/>}/>

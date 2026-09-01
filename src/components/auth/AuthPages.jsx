@@ -47,10 +47,38 @@ function Alert({ msg, type }) {
   return <div style={{ padding:'10px 14px', borderRadius:8, marginBottom:14, background:c.bg, border:'1px solid '+c.border, color:c.color, fontSize:13 }}>{msg}</div>;
 }
 
+function renderGoogleButton(elementId, callback) {
+  if (!window.google || !GOOGLE_CLIENT_ID) return;
+  window.google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback,
+    use_fedcm_for_prompt: false,
+  });
+  const el = document.getElementById(elementId);
+  if (el) {
+    window.google.accounts.oauth2 ? null : null;
+    window.google.accounts.id.renderButton(el, {
+      type: 'standard',
+      shape: 'rectangular',
+      theme: 'outline',
+      text: 'signin_with',
+      size: 'large',
+      width: el.offsetWidth || 320,
+    });
+  }
+}
+
 function useGoogleInit(callback) {
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
-    const init = () => { if (window.google) window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback }); };
+    const init = () => { if (window.google) {
+    window.google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback,
+      use_fedcm_for_prompt: false,
+      ux_mode: 'popup',
+    });
+  } };
     if (window.google) { init(); return; }
     const s = document.createElement('script');
     s.src = 'https://accounts.google.com/gsi/client'; s.async = true; s.defer = true; s.onload = init;
@@ -230,7 +258,31 @@ export function LoginPage({ onSwitch }) {
 
   const handleGoogle = () => {
     if (!GOOGLE_CLIENT_ID) { setError('Google Sign-In not configured. Add VITE_GOOGLE_CLIENT_ID to frontend .env'); return; }
-    if (window.google) window.google.accounts.id.prompt();
+    if (window.google) {
+    // Use OAuth2 redirect flow - works on all platforms including mobile
+    const client = window.google.accounts.oauth2.initCodeClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      ux_mode: 'popup',
+      callback: (response) => {
+        if (response.error) { setError('Google sign-in failed: ' + response.error); setGoogleLoading(false); return; }
+      },
+    });
+    // Fallback: use id token flow with popup
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // Prompt not shown - open OAuth popup manually
+        const params = new URLSearchParams({
+          client_id: GOOGLE_CLIENT_ID,
+          redirect_uri: window.location.origin + '/auth/google/callback',
+          response_type: 'id_token',
+          scope: 'openid email profile',
+          nonce: Math.random().toString(36).slice(2),
+        });
+        const popup = window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params, '_blank', 'width=500,height=600');
+      }
+    });
+  }
   };
 
   const handleLogin = async e => {
@@ -300,7 +352,31 @@ export function RegisterPage({ onSwitch }) {
 
   const handleGoogle = () => {
     if (!GOOGLE_CLIENT_ID) { setError('Google Sign-In not configured. Add VITE_GOOGLE_CLIENT_ID to frontend .env'); return; }
-    if (window.google) window.google.accounts.id.prompt();
+    if (window.google) {
+    // Use OAuth2 redirect flow - works on all platforms including mobile
+    const client = window.google.accounts.oauth2.initCodeClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      ux_mode: 'popup',
+      callback: (response) => {
+        if (response.error) { setError('Google sign-in failed: ' + response.error); setGoogleLoading(false); return; }
+      },
+    });
+    // Fallback: use id token flow with popup
+    window.google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // Prompt not shown - open OAuth popup manually
+        const params = new URLSearchParams({
+          client_id: GOOGLE_CLIENT_ID,
+          redirect_uri: window.location.origin + '/auth/google/callback',
+          response_type: 'id_token',
+          scope: 'openid email profile',
+          nonce: Math.random().toString(36).slice(2),
+        });
+        const popup = window.open('https://accounts.google.com/o/oauth2/v2/auth?' + params, '_blank', 'width=500,height=600');
+      }
+    });
+  }
   };
 
   const handleRegister = async e => {
