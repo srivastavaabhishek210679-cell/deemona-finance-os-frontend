@@ -59,6 +59,88 @@ export default function NSELiveRibbon() {
   }, []);  // intentionally no deps - RAF runs once
 
   useEffect(() => {
+    let pos = 0;
+    let last = null;
+    const SPEED = 100;
+    // Each stock item ~144px wide, 18 stocks = 2592px for one copy
+    const SINGLE_WIDTH = 18 * 144;
+    let raf;
+
+    const tick = (ts) => {
+      if (last !== null) {
+        pos -= SPEED * (ts - last) / 1000;
+        if (-pos >= SINGLE_WIDTH) pos += SINGLE_WIDTH;
+        if (containerRef.current) {
+          containerRef.current.style.transform = "translateX(" + pos + "px)";
+        }
+      }
+      last = ts;
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);';
+
+const STOCKS = [
+  {sym:'RELIANCE',name:'Reliance',price:2934.50,chg:0.82},
+  {sym:'TCS',name:'TCS',price:4218.30,chg:-0.43},
+  {sym:'INFY',name:'Infosys',price:1876.20,chg:1.21},
+  {sym:'HDFCBANK',name:'HDFC Bank',price:1743.10,chg:-0.67},
+  {sym:'ICICIBANK',name:'ICICI Bank',price:1289.40,chg:0.34},
+  {sym:'WIPRO',name:'Wipro',price:567.80,chg:-0.89},
+  {sym:'BAJFINANCE',name:'Bajaj Fin',price:7234.60,chg:1.45},
+  {sym:'TATAMOTORS',name:'Tata Motors',price:1023.70,chg:2.13},
+  {sym:'SBIN',name:'SBI',price:812.30,chg:0.56},
+  {sym:'BHARTIARTL',name:'Airtel',price:1654.20,chg:0.91},
+  {sym:'ITC',name:'ITC',price:478.50,chg:-0.22},
+  {sym:'KOTAKBANK',name:'Kotak Bank',price:1789.40,chg:0.78},
+  {sym:'LT',name:'L&T',price:3456.80,chg:1.34},
+  {sym:'AXISBANK',name:'Axis Bank',price:1123.60,chg:-0.45},
+  {sym:'MARUTI',name:'Maruti',price:12456.90,chg:0.67},
+  {sym:'SUNPHARMA',name:'Sun Pharma',price:1678.30,chg:-0.33},
+  {sym:'ADANIENT',name:'Adani Ent.',price:2876.50,chg:-1.23},
+  {sym:'ASIANPAINT',name:'Asian Paints',price:2987.40,chg:-0.78},
+];
+
+const INDICES = [
+  {l:'NIFTY 50',v:24589.12,c:0.43},
+  {l:'SENSEX',v:80892.34,c:0.51},
+  {l:'NIFTY BANK',v:51234.56,c:-0.23},
+  {l:'NIFTY IT',v:38456.78,c:1.12},
+  {l:'INR/USD',v:83.45,c:-0.12},
+];
+
+export default function NSELiveRibbon() {
+  const [stocks, setStocks] = useState(STOCKS);
+  const [time, setTime] = useState(new Date());
+  const containerRef = useRef(null);
+  const posRef = useRef(0);
+  const rafRef = useRef(null);
+  const SPEED = 100; // px/sec
+
+  useEffect(() => {
+    STOCKS.forEach((s, idx) => {
+      setTimeout(async () => {
+        try {
+          const r = await fetch(`https://deemona-finance-os-api.onrender.com/api/ai/market/quote?sym=${s.sym}`);
+          if (!r.ok) return;
+          const j = await r.json();
+          const meta = j?.chart?.result?.[0]?.meta;
+          if (!meta?.regularMarketPrice) return;
+          const price = parseFloat(meta.regularMarketPrice.toFixed(2));
+          const prev = meta.previousClose || price;
+          const chg = parseFloat(((price - prev) / prev * 100).toFixed(2));
+          setStocks(p => p.map((st, i) => i === idx ? { ...st, price, chg } : st));
+        } catch {}
+      }, idx * 800);
+    });
+    const t = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(t);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);  // intentionally no deps - RAF runs once
+
+  useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
