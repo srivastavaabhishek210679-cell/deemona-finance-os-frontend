@@ -427,26 +427,41 @@ function RightPanel() {
 // ── Layout ──────────────────────────────────────────────────
 function Layout({ title, subtitle, children }) {
   const { user, tenant, logout } = useAuth();
-  const [showRight, setShowRight] = React.useState(true);
+  const [showRight, setShowRight] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const isMobile = () => window.innerWidth < 768;
   return (
     <div style={{ display: 'flex', height: '100vh', overflow: 'hidden', background: '#EEF3FD' }}>
-      <Sidebar user={user} tenant={tenant} onLogout={logout} />
+      {/* Mobile overlay */}
+      {sidebarOpen && isMobile() && (
+        <div onClick={() => setSidebarOpen(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 998 }}/>
+      )}
+      {/* Sidebar */}
+      <div style={{ position: isMobile() ? 'fixed' : 'relative', left: isMobile() ? (sidebarOpen ? 0 : -240) : 0, top: 0, bottom: 0, zIndex: 999, transition: 'left 0.25s ease', flexShrink: 0 }}>
+        <Sidebar user={user} tenant={tenant} onLogout={logout} onClose={() => setSidebarOpen(false)} />
+      </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        <TopBar title={title} subtitle={subtitle} />
+        {/* Top bar with hamburger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', borderBottom: '1px solid #e2e8f0', flexShrink: 0, minHeight: 48 }}>
+          <button onClick={() => setSidebarOpen(p => !p)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#1B4FD8', display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+            <span style={{ display: 'block', width: 22, height: 2, background: '#1B4FD8', borderRadius: 2 }}/>
+            <span style={{ display: 'block', width: 22, height: 2, background: '#1B4FD8', borderRadius: 2 }}/>
+            <span style={{ display: 'block', width: 22, height: 2, background: '#1B4FD8', borderRadius: 2 }}/>
+          </button>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{title || 'Deemona AI Finance OS'}</div>
+            {subtitle && <div style={{ fontSize: 10, color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{subtitle}</div>}
+          </div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: '#1B4FD8', background: '#eff6ff', padding: '3px 8px', borderRadius: 5, whiteSpace: 'nowrap', flexShrink: 0 }}>AI Finance OS</div>
+        </div>
         <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
           <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>{children}</div>
-          {showRight && <RightPanel />}
+          {showRight && !isMobile() && <RightPanel />}
         </div>
       </div>
-      <button
-        onClick={() => setShowRight(p => !p)}
-        title={showRight ? 'Hide panel' : 'Show panel'}
-        style={{ position: 'fixed', right: showRight ? 252 : 10, bottom: 24, zIndex: 99, width: 30, height: 30, borderRadius: '50%', background: '#1B4FD8', color: '#fff', border: 'none', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(27,79,216,0.4)', transition: 'right 0.25s' }}
-      >{showRight ? '›' : '‹'}</button>
     </div>
   );
 }
-
 function AuthGate() {
   const [showRegister, setShowRegister] = useState(false);
   return showRegister
