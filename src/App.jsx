@@ -34,6 +34,10 @@ import { WhiteLabelPage, NotificationCenter } from './components/admin/WhiteLabe
 import LandingPage from './pages/LandingPage';
 import AutomationLogsPage from './components/automation/AutomationLogsPage';
 import Batch2DocsPage from './components/docs/Batch2DocsPage';
+import PrivacyPolicy from './components/public/PrivacyPolicy';
+import TermsOfService from './components/public/TermsOfService';
+import LicenseAgreement from './components/public/LicenseAgreement';
+import AboutUs from './components/public/AboutUs';
 import Batch4DocsPage from './components/docs/Batch4DocsPage';
 import Batch3DocsPage from './components/docs/Batch3DocsPage';
 import MissingDocsPage from './components/docs/MissingDocsPage';
