@@ -548,10 +548,10 @@ function NSELiveRibbon() {
         <div style={{flex:1,overflow:'hidden',position:'relative'}}>
           <div style={{
             display:'flex',
-            animation:'nse-scroll 8s linear infinite',
+            animation:'nse-scroll 40s linear infinite',
             willChange:'transform',
           }}>
-            {[...stocks,...stocks,...stocks].map((st,i) => {
+            {[...stocks,...stocks].map((st,i) => {
               const up = st.changePct >= 0;
               return (
                 <div key={i} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'0 16px',borderRight:'1px solid #1e293b',height:26,flexShrink:0,whiteSpace:'nowrap'}}>
@@ -576,7 +576,7 @@ function NSELiveRibbon() {
       <style>{`
         @keyframes nse-scroll {
           0% { transform: translateX(0); }
-          100% { transform: translateX(-33.33%); }
+          100% { transform: translateX(-50%); }
         }
         @keyframes nse-pulse {
           0%,100% { opacity:1; transform:scale(1); }
