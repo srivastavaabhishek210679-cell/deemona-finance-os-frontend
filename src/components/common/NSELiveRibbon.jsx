@@ -62,15 +62,16 @@ export default function NSELiveRibbon() {
     const el = containerRef.current;
     if (!el) return;
 
-    // Use 5 copies to ensure seamless loop
     const COPIES = 5;
-    let singleWidth = 0;
+    let singleWidth = 2591; // fallback from measured value
+    let started = false;
 
     const measureAndStart = () => {
-      if (!el.scrollWidth) return;
-      // 5 copies rendered, so one copy = total/5
-      singleWidth = Math.floor(el.scrollWidth / COPIES);
-      console.log('[NSE] scrollWidth:', el.scrollWidth, 'singleWidth:', singleWidth);
+      const sw = el.scrollWidth;
+      if (sw > 500) {
+        singleWidth = Math.floor(sw / COPIES);
+        console.log('[NSE] scrollWidth:', sw, 'singleWidth:', singleWidth);
+      }
 
       let last = null;
       const tick = (ts) => {
@@ -89,7 +90,9 @@ export default function NSELiveRibbon() {
     };
 
     // Wait for DOM to render
-    const t = setTimeout(measureAndStart, 300);
+    // measure immediately and also after delay
+    measureAndStart();
+    const t = setTimeout(measureAndStart, 1000);
     return () => {
       clearTimeout(t);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
