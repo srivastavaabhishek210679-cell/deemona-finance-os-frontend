@@ -19,6 +19,61 @@ const Toggle = ({value, onChange}) => (
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const DATA_TYPES = ['Auto-detect','SALES_INVOICES','PURCHASE_INVOICES','EXPENSES','INVENTORY','PAYROLL','CUSTOMERS','VENDORS','BANK_TRANSACTIONS','ASSETS'];
 
+
+function SlackTeamsTab({api}) {
+  const [slackConfig, setSlackConfig] = React.useState(null);
+  const [teamsConfig, setTeamsConfig] = React.useState(null);
+  const [logs, setLogs] = React.useState([]);
+  React.useEffect(()=>{
+    api('/api/auto-ingest/slack/config').then(r=>setSlackConfig(r));
+    api('/api/auto-ingest/teams/config').then(r=>setTeamsConfig(r));
+    api('/api/auto-ingest/logs').then(r=>setLogs((r.logs||[]).filter(l=>l.channel==='slack'||l.channel==='teams')));
+  },[]);
+
+  const Card = ({name,color,config}) => (
+    <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',marginBottom:14}}>
+      <div style={{padding:'10px 14px',background:color,display:'flex',alignItems:'center',gap:8}}>
+        <span style={{color:'#fff',fontWeight:800,fontSize:13}}>{name}</span>
+        <span style={{marginLeft:'auto',padding:'2px 8px',background:'rgba(255,255,255,0.2)',borderRadius:4,fontSize:10,color:'#fff',fontWeight:600}}>Webhook</span>
+      </div>
+      <div style={{padding:14}}>
+        <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>WEBHOOK URL (paste into {name})</div>
+        <div style={{background:'#f8faff',borderRadius:6,padding:'8px 10px',fontSize:11,color:'#334155',fontFamily:'monospace',wordBreak:'break-all',border:'1px solid #e2e8f0',marginBottom:6}}>{config?.webhook_url||'Loading...'}</div>
+        <button onClick={()=>navigator.clipboard?.writeText(config?.webhook_url||'')} style={{padding:'5px 10px',borderRadius:5,border:'1px solid #e2e8f0',background:'#fff',fontSize:10,cursor:'pointer',color:'#1d4ed8',fontWeight:600,marginBottom:12}}>Copy URL</button>
+        <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:6}}>SETUP STEPS</div>
+        {(config?.setup_steps||[]).map((s,i)=><div key={i} style={{fontSize:11,color:'#334155',marginBottom:3,padding:'4px 8px',background:'#f8faff',borderRadius:4,borderLeft:'3px solid '+color}}>{s}</div>)}
+        <div style={{marginTop:10,fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>FINANCIAL KEYWORDS DETECTED</div>
+        <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>{(config?.keywords_detected||[]).map((k,i)=><span key={i} style={{padding:'2px 8px',background:'#f0f4ff',color:'#1d4ed8',borderRadius:4,fontSize:10,fontWeight:600}}>{k}</span>)}</div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:14}}>
+        <Card name="Slack" color="#4A154B" config={slackConfig}/>
+        <Card name="Microsoft Teams" color="#6264A7" config={teamsConfig}/>
+      </div>
+      <div style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden'}}>
+        <div style={{padding:'10px 14px',borderBottom:'1px solid #e2e8f0',fontSize:12,fontWeight:700,color:'#0f172a'}}>Recent Slack & Teams Captures</div>
+        {!logs.length?<div style={{padding:24,textAlign:'center',color:'#94a3b8',fontSize:12}}>No messages captured yet. Configure webhooks above.</div>:(
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:11}}>
+            <thead><tr style={{background:'#f8faff'}}>{['Channel','Message','Time','Status'].map(h=><th key={h} style={{padding:'7px 12px',textAlign:'left',fontWeight:700,color:'#64748b',fontSize:10,borderBottom:'1px solid #e2e8f0'}}>{h}</th>)}</tr></thead>
+            <tbody>{logs.map((l,i)=>(
+              <tr key={i} style={{borderBottom:'1px solid #f8faff'}}>
+                <td style={{padding:'7px 12px'}}><span style={{padding:'2px 8px',borderRadius:4,fontSize:10,fontWeight:700,background:l.channel==='slack'?'#f3e8ff':'#ede9fe',color:l.channel==='slack'?'#7c3aed':'#6264A7'}}>{(l.channel||'').toUpperCase()}</span></td>
+                <td style={{padding:'7px 12px',color:'#334155',maxWidth:240,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.message}</td>
+                <td style={{padding:'7px 12px',color:'#94a3b8'}}>{new Date(l.created_at).toLocaleString('en-IN')}</td>
+                <td style={{padding:'7px 12px'}}><span style={{padding:'2px 6px',borderRadius:4,fontSize:10,background:'#f0fdf4',color:'#16a34a',fontWeight:700}}>{l.status}</span></td>
+              </tr>
+            ))}</tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function AutoIngestHub() {
   const [tab, setTab] = useState('overview');
   const [stats, setStats] = useState({});
