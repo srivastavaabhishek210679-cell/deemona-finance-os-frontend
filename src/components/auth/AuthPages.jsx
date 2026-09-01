@@ -1,4 +1,12 @@
-﻿import { apiURL } from '../../api.js';
+<div style={{marginBottom:14,padding:'12px 14px',background:'#f0fdf4',borderRadius:8,border:'1px solid #bbf7d0'}}>
+          <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer'}}>
+            <input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)} style={{marginTop:3,width:15,height:15,accentColor:'#1d4ed8',flexShrink:0}}/>
+            <span style={{fontSize:11,color:'#334155',lineHeight:1.6}}>
+              I have read and agree to the <a href="/terms" target="_blank" style={{color:'#1d4ed8',fontWeight:700}}>Terms of Service</a>, <a href="/privacy-policy" target="_blank" style={{color:'#1d4ed8',fontWeight:700}}>Privacy Policy</a>, and <a href="/license" target="_blank" style={{color:'#1d4ed8',fontWeight:700}}>License Agreement</a>. I understand that Deemona AI Finance OS shall not be responsible for any financial loss incurred.
+            </span>
+          </label>
+        </div>
+        ﻿import { apiURL } from '../../api.js';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -210,6 +218,7 @@ export function LoginPage({ onSwitch }) {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState('');
@@ -305,6 +314,7 @@ export function RegisterPage({ onSwitch }) {
 
   const handleRegister = async e => {
     e.preventDefault();
+    if (!termsAccepted) { setError('You must accept the Terms of Service, Privacy Policy, and License Agreement to register.'); return; }
     if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
     setLoading(true); setError('');
