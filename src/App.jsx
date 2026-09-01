@@ -1,5 +1,4 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
-import NSELiveRibbon from './components/common/NSELiveRibbon';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -443,8 +442,6 @@ function Layout({ title, subtitle, children }) {
         <Sidebar user={user} tenant={tenant} onLogout={logout} onClose={() => setSidebarOpen(false)} />
       </div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
-        {/* NSE Live Ticker */}
-        <NSELiveRibbon />
         {/* Top bar with hamburger */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#fff', borderBottom: '1px solid #e2e8f0', flexShrink: 0, minHeight: 48 }}>
           <button onClick={() => setSidebarOpen(p => !p)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 6, color: '#1B4FD8', display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
