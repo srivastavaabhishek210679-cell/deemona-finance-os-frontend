@@ -548,7 +548,7 @@ function NSELiveRibbon() {
         <div style={{flex:1,overflow:'hidden',position:'relative'}}>
           <div style={{
             display:'flex',
-            animation:'nse-scroll 25s linear infinite',
+            animation:'nse-scroll 8s linear infinite',
             willChange:'transform',
           }}>
             {[...stocks,...stocks,...stocks].map((st,i) => {
