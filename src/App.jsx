@@ -1,4 +1,5 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
+import LiveStreamStatus from './LiveStreamStatus';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { LoginPage, RegisterPage } from './components/auth/AuthPages';
@@ -209,7 +210,7 @@ function Sidebar({ user, tenant, onLogout, onClose }) {
         <div style={{ width: 30, height: 30, borderRadius: 7, background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: '#fff', flexShrink: 0 }}>D</div>
         <div style={{ minWidth: 0 }}>
           <div style={{ fontSize: 12, fontWeight: 700, color: '#FFFFFF', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{tenant?.name || 'Deemona'}</div>
-          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>AI Finance OS</div>
+          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)' }}>AI Finance OS</div><LiveStreamStatus/>
         </div>
       </div>
       {/* Nav */}
