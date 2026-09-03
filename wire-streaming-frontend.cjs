@@ -1,0 +1,11 @@
+﻿const fs = require("fs");
+const f = "C:/deemona-finance-os/frontend/src/App.jsx";
+let lines = fs.readFileSync(f, "utf8").split("\n");
+const importIdx = lines.findIndex(l => l.includes("import UniversalPoller"));
+lines.splice(importIdx, 0, "import MessageStreaming from './components/integrations/MessageStreaming';");
+const routesIdx = lines.findIndex(l => l.includes("path: '/integrations'") && l.includes("comp:"));
+lines.splice(routesIdx+1, 0, "    { path: '/message-streaming', title: 'Message Streaming', sub: 'Kafka, RabbitMQ, Azure Service Bus, AWS SQS', comp: <MessageStreaming/> },");
+const sidebarIdx = lines.findIndex(l => l.includes("path: '/integrations'") && l.includes("label:"));
+lines.splice(sidebarIdx+1, 0, "          { path: '/message-streaming', label: 'Message Streaming', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },");
+fs.writeFileSync(f, lines.join("\n"), "utf8");
+console.log("Wired:", fs.readFileSync(f,"utf8").includes("MessageStreaming"));
