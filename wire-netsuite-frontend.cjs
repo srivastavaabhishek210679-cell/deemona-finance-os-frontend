@@ -1,0 +1,11 @@
+﻿const fs = require("fs");
+const f = "C:/deemona-finance-os/frontend/src/App.jsx";
+let lines = fs.readFileSync(f, "utf8").split("\n");
+const importIdx = lines.findIndex(l => l.includes("import MessageStreaming"));
+lines.splice(importIdx, 0, "import NetSuiteConnector from './components/integrations/NetSuiteConnector';");
+const routesIdx = lines.findIndex(l => l.includes("path: '/message-streaming'") && l.includes("comp:"));
+lines.splice(routesIdx+1, 0, "    { path: '/netsuite', title: 'Oracle NetSuite', sub: 'Real-time sync of invoices, bills, customers, vendors', comp: <NetSuiteConnector/> },");
+const sidebarIdx = lines.findIndex(l => l.includes("path: '/message-streaming'") && l.includes("label:"));
+lines.splice(sidebarIdx+1, 0, "          { path: '/netsuite', label: 'Oracle NetSuite', icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },");
+fs.writeFileSync(f, lines.join("\n"), "utf8");
+console.log("Wired:", fs.readFileSync(f,"utf8").includes("NetSuiteConnector"));

@@ -41,6 +41,7 @@ import TermsOfService from './components/public/TermsOfService';
 import LicenseAgreement from './components/public/LicenseAgreement';
 import AboutUs from './components/public/AboutUs';
 import RealTimeReports from './components/reports/RealTimeReports';
+import NetSuiteConnector from './components/integrations/NetSuiteConnector';
 import MessageStreaming from './components/integrations/MessageStreaming';
 import UniversalPoller from './components/integrations/UniversalPoller';
 import ReportCenter from './components/reports/ReportCenter';
@@ -136,6 +137,7 @@ const NAV_GROUPS = [
 
       { path: '/integrations', label: 'Data Integrations', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
           { path: '/message-streaming', label: 'Message Streaming', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
+          { path: '/netsuite', label: 'Oracle NetSuite', icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
           { path: '/report-center', label: 'Report Center', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
           { path: '/realtime-reports', label: 'Real-Time Reports', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
           { path: '/governance-docs-batch4', label: 'Investment & ESG Docs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
@@ -498,6 +500,7 @@ export default function App() {
   const routes = [
     { path: '/integrations', title: 'Data Integrations', sub: 'Connect ERP, CRM and REST APIs', comp: <UniversalPoller/> },
     { path: '/message-streaming', title: 'Message Streaming', sub: 'Kafka, RabbitMQ, Azure Service Bus, AWS SQS', comp: <MessageStreaming/> },
+    { path: '/netsuite', title: 'Oracle NetSuite', sub: 'Real-time sync of invoices, bills, customers, vendors', comp: <NetSuiteConnector/> },
     { path: '/report-center', title: 'Report Center', sub: 'All scheduled reports - send any on-demand', comp: <ReportCenter/> },
     { path: '/realtime-reports', title: 'Real-Time Reports', sub: 'Live database reports', comp: <RealTimeReports/> },
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
