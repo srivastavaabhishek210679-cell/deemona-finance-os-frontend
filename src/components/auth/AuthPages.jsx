@@ -7,6 +7,35 @@ const inp = { width:'100%', boxSizing:'border-box', padding:'11px 14px', borderR
 const focusBlue = e => e.target.style.borderColor = '#1B4FD8';
 const blurGray  = e => e.target.style.borderColor = 'var(--border)';
 
+// -- Legal consent (policy pages are static files in /public) --
+const TERMS_VERSION = '2026-10-27';
+const legalLink = { color:'#6C63FF', textDecoration:'none', fontWeight:600 };
+function ConsentBox({ checked, onChange }) {
+  return (
+    <label style={{ display:'flex', alignItems:'flex-start', gap:10, margin:'0 0 18px', fontSize:12.5, lineHeight:1.55, color:'var(--text-secondary)', cursor:'pointer' }}>
+      <input type="checkbox" checked={checked} onChange={e=>onChange(e.target.checked)} style={{ marginTop:3, width:16, height:16, accentColor:'#6C63FF', flexShrink:0 }} />
+      <span>
+        I have read and agree to the{' '}
+        <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={legalLink}>Terms of Service</a>,{' '}
+        <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={legalLink}>Privacy Policy</a>,{' '}
+        <a href="/acceptable-use.html" target="_blank" rel="noopener noreferrer" style={legalLink}>Acceptable Use Policy</a> and{' '}
+        <a href="/data-processing.html" target="_blank" rel="noopener noreferrer" style={legalLink}>Data Processing terms</a>. *
+      </span>
+    </label>
+  );
+}
+function LegalFooter() {
+  const links = [['Terms','/terms.html'],['Privacy','/privacy.html'],['Refunds','/refund-policy.html'],['Cookies','/cookie-policy.html'],['Acceptable Use','/acceptable-use.html'],['Grievance Officer','/grievance.html'],['Contact','/contact.html'],['All policies','/legal.html']];
+  return (
+    <div style={{ marginTop:22, paddingTop:16, borderTop:'1px solid var(--border)', textAlign:'center', fontSize:11.5, color:'var(--text-muted)', lineHeight:1.9 }}>
+      {links.map(([l,h],i)=>(
+        <span key={h}>{i>0 && <span style={{ margin:'0 6px', opacity:0.5 }}>|</span>}<a href={h} target="_blank" rel="noopener noreferrer" style={{ color:'var(--text-muted)', textDecoration:'none' }}>{l}</a></span>
+      ))}
+      <div style={{ marginTop:4 }}>&copy; Deemona Global Solutions, New Delhi</div>
+    </div>
+  );
+}
+
 function Logo() {
   return (
     <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:28 }}>
@@ -89,15 +118,17 @@ function useGoogleInit(callback) {
 function GoogleCompanyModal({ googleData, onComplete, onCancel }) {
   const [company, setCompany] = useState('');
   const [industry, setIndustry] = useState('Technology');
+  const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const submit = async e => {
     e.preventDefault();
     if (!company.trim()) { setError('Company name is required'); return; }
+    if (!agreed) { setError('Please accept the Terms, Privacy Policy and Acceptable Use Policy to continue'); return; }
     setLoading(true);
     try {
-      const res = await fetch(apiURL('/api/auth/google'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:googleData.idToken, company_name:company, industry }) });
+      const res = await fetch(apiURL('/api/auth/google'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ id_token:googleData.idToken, company_name:company, industry, accepted_terms:true, terms_version:TERMS_VERSION }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       localStorage.setItem('token', data.token);
@@ -120,8 +151,9 @@ function GoogleCompanyModal({ googleData, onComplete, onCancel }) {
               {['Technology','Manufacturing','Retail','Healthcare','Financial Services','Education','Real Estate','Logistics','Other'].map(i=><option key={i} value={i}>{i}</option>)}
             </select>
           </div>
+          <ConsentBox checked={agreed} onChange={setAgreed} />
           <div style={{ display:'flex', gap:10 }}>
-            <button type="submit" disabled={loading} style={{ flex:1, padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>{loading?'Setting up...':'Create Finance OS'}</button>
+            <button type="submit" disabled={loading||!agreed} style={{ flex:1, padding:'11px', borderRadius:10, fontSize:14, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:(loading||!agreed)?'not-allowed':'pointer', opacity:agreed?1:0.6 }}>{loading?'Setting up...':'Create Finance OS'}</button>
             <button type="button" onClick={onCancel} style={{ padding:'11px 16px', borderRadius:10, background:'var(--surface-3)', border:'1px solid var(--border)', color:'var(--text-secondary)', cursor:'pointer', fontSize:14 }}>Cancel</button>
           </div>
         </form>
@@ -323,6 +355,7 @@ export function LoginPage({ onSwitch }) {
           Don't have an account?{' '}
           <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontWeight:600, fontSize:13 }}>Create one</button>
         </div>
+        <LegalFooter />
       </div>
     </div>
   );
@@ -337,6 +370,7 @@ export function RegisterPage({ onSwitch }) {
   const [success, setSuccess] = useState('');
   const [googleData, setGoogleData] = useState(null);
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
+  const [agreed, setAgreed] = useState(false);
 
   useGoogleInit(async response => {
     setGoogleLoading(true); setError('');
@@ -384,9 +418,10 @@ export function RegisterPage({ onSwitch }) {
     if (!termsAccepted) { setError('You must accept the Terms of Service, Privacy Policy, and License Agreement to register.'); return; }
     if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
+    if (!agreed) { setError('Please accept the Terms, Privacy Policy and Acceptable Use Policy to create an account'); return; }
     setLoading(true); setError('');
     try {
-      const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(form) });
+      const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ ...form, accepted_terms:true, terms_version:TERMS_VERSION }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSuccess('Account created successfully! Please sign in with your credentials.');
@@ -453,7 +488,8 @@ export function RegisterPage({ onSwitch }) {
               {pwMatch && <div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
             </div>
           </div>
-          <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
+          <ConsentBox checked={agreed} onChange={setAgreed} />
+          <button type="submit" disabled={loading||!!success||!agreed} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
             {loading?'Creating account...':success?'Redirecting to sign in...':'Create Account'}
           </button>
         </form>
@@ -461,6 +497,7 @@ export function RegisterPage({ onSwitch }) {
           Already have an account?{' '}
           <button onClick={onSwitch} style={{ background:'none', border:'none', color:'#1B4FD8', cursor:'pointer', fontWeight:600, fontSize:13 }}>Sign in</button>
         </div>
+        <LegalFooter />
       </div>
     </div>
   );
