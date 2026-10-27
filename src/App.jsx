@@ -46,6 +46,7 @@ import MessageStreaming from './components/integrations/MessageStreaming';
 import UniversalPoller from './components/integrations/UniversalPoller';
 import ReportCenter from './components/reports/ReportCenter';
 import CFOSetup from './components/cfo/CFOSetup';
+import CFOInbox from './components/cfo/CFOInbox';
 import Batch4DocsPage from './components/docs/Batch4DocsPage';
 import Batch3DocsPage from './components/docs/Batch3DocsPage';
 import MissingDocsPage from './components/docs/MissingDocsPage';
@@ -141,6 +142,7 @@ const NAV_GROUPS = [
           { path: '/netsuite', label: 'Oracle NetSuite', icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
           { path: '/report-center', label: 'Report Center', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
           { path: '/cfo-setup', label: 'CFO Setup', icon: 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4' },
+          { path: '/cfo-inbox', label: 'CFO Inbox', icon: 'M15 17h5l-1.4-1.4A2 2 0 0118 14.2V11a6 6 0 10-12 0v3.2c0 .5-.2 1-.6 1.4L4 17h5m6 0a3 3 0 11-6 0m6 0H9' },
           { path: '/realtime-reports', label: 'Real-Time Reports', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
           { path: '/governance-docs-batch4', label: 'Investment & ESG Docs', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
           { path: '/governance-docs', label: 'Governance Docs', icon: 'M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4' },
@@ -505,6 +507,7 @@ export default function App() {
     { path: '/netsuite', title: 'Oracle NetSuite', sub: 'Real-time sync of invoices, bills, customers, vendors', comp: <NetSuiteConnector/> },
     { path: '/report-center', title: 'Report Center', sub: 'All scheduled reports - send any on-demand', comp: <ReportCenter/> },
     { path: '/cfo-setup', title: 'CFO Setup', sub: 'Targets, business units, regions, products and forecasts for the CFO agent', comp: <CFOSetup/> },
+    { path: '/cfo-inbox', title: 'CFO Inbox', sub: 'Alerts, scheduled briefs and board packs from your Digital CFO', comp: <CFOInbox/> },
     { path: '/realtime-reports', title: 'Real-Time Reports', sub: 'Live database reports', comp: <RealTimeReports/> },
     { path: '/',             title: 'Deemona Finance OS', sub: 'India\'s first AI-native finance platform.', comp: <LandingPage />, public: true },
     { path: '/compliance-docs', title: 'Compliance Docs', sub: 'SOX, transfer pricing, dividends, CapEx, whistleblower.', comp: <Batch2DocsPage /> },
