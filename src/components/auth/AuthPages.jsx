@@ -371,6 +371,10 @@ export function RegisterPage({ onSwitch }) {
   const [googleData, setGoogleData] = useState(null);
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
   const [agreed, setAgreed] = useState(false);
+  const [codeSent, setCodeSent] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [info, setInfo] = useState('');
+  const [hp, setHp] = useState('');
 
   useGoogleInit(async response => {
     setGoogleLoading(true); setError('');
@@ -418,9 +422,20 @@ export function RegisterPage({ onSwitch }) {
     if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
     if (!agreed) { setError('Please accept the Terms, Privacy Policy and Acceptable Use Policy to create an account'); return; }
+    if (!codeSent) {
+      setLoading(true); setError(''); setInfo('');
+      try {
+        const r = await fetch(apiURL('/api/auth/register/send-code'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:form.email, website:hp }) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'Could not send the code');
+        setCodeSent(true); setInfo('We sent a 6-digit code to ' + form.email + '. It expires in 10 minutes. Check spam if you do not see it.');
+      } catch (err) { setError(err.message); } finally { setLoading(false); }
+      return;
+    }
+    if (!/^\d{6}$/.test(otp)) { setError('Enter the 6-digit code from your email'); return; }
     setLoading(true); setError('');
     try {
-      const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ ...form, accepted_terms:true, terms_version:TERMS_VERSION }) });
+      const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ ...form, accepted_terms:true, terms_version:TERMS_VERSION, email_otp:otp }) });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setSuccess('Account created successfully! Please sign in with your credentials.');
@@ -438,6 +453,7 @@ export function RegisterPage({ onSwitch }) {
         <h2 style={{ fontSize:22, fontWeight:700, marginBottom:4 }}>Set up your Finance OS</h2>
         <p style={{ fontSize:14, color:'var(--text-muted)', marginBottom:24 }}>Create your organization account</p>
         <Alert msg={error} type="error" />
+        <Alert msg={info} type="success" />
         <Alert msg={success} type="success" />
         <GoogleBtn onClick={handleGoogle} loading={googleLoading} label="Sign up with Google" />
         <Divider />
@@ -472,7 +488,7 @@ export function RegisterPage({ onSwitch }) {
           </div>
           <div style={{ marginBottom:10 }}>
             <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Work Email *</div>
-            <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="abhishek@company.com" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
+            <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} readOnly={codeSent} placeholder="abhishek@company.com" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
             <div>
@@ -487,9 +503,21 @@ export function RegisterPage({ onSwitch }) {
               {pwMatch && <div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
             </div>
           </div>
+          <input type="text" name="website" value={hp} onChange={e=>setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} />
+          {codeSent && (
+            <div style={{ marginBottom:16 }}>
+              <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Verification code *</div>
+              <input value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="000000" maxLength={6} inputMode="numeric" autoComplete="one-time-code" required
+                style={{...inp, textAlign:'center', fontSize:26, fontWeight:700, letterSpacing:10, fontFamily:'monospace'}} onFocus={focusBlue} onBlur={blurGray}/>
+              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6 }}>
+                Wrong email?{' '}
+                <button type="button" onClick={()=>{ setCodeSent(false); setOtp(''); setInfo(''); setError(''); }} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Change it / resend code</button>
+              </div>
+            </div>
+          )}
           <ConsentBox checked={agreed} onChange={setAgreed} />
           <button type="submit" disabled={loading||!!success||!agreed} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
-            {loading?'Creating account...':success?'Redirecting to sign in...':'Create Account'}
+            {loading?(codeSent?'Creating account...':'Sending code...'):success?'Redirecting to sign in...':(codeSent?'Verify & Create Account':'Send Verification Code')}
           </button>
         </form>
         <div style={{ textAlign:'center', marginTop:20, fontSize:13, color:'var(--text-muted)' }}>
