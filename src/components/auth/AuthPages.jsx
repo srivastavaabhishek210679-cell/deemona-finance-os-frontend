@@ -375,6 +375,7 @@ export function RegisterPage({ onSwitch }) {
   const [otp, setOtp] = useState('');
   const [info, setInfo] = useState('');
   const [hp, setHp] = useState('');
+  const [step, setStep] = useState('email');
 
   useGoogleInit(async response => {
     setGoogleLoading(true); setError('');
@@ -419,20 +420,11 @@ export function RegisterPage({ onSwitch }) {
 
   const handleRegister = async e => {
     e.preventDefault();
+    if (step === 'email') { sendCode(); return; }
+    if (step === 'code') { verifyCode(); return; }
     if (form.password !== form.confirm_password) { setError('Passwords do not match'); return; }
     if (form.password.length < 8) { setError('Password must be at least 8 characters'); return; }
     if (!agreed) { setError('Please accept the Terms, Privacy Policy and Acceptable Use Policy to create an account'); return; }
-    if (!codeSent) {
-      setLoading(true); setError(''); setInfo('');
-      try {
-        const r = await fetch(apiURL('/api/auth/register/send-code'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:form.email, website:hp }) });
-        const d = await r.json();
-        if (!r.ok) throw new Error(d.error || 'Could not send the code');
-        setCodeSent(true); setInfo('We sent a 6-digit code to ' + form.email + '. It expires in 10 minutes. Check spam if you do not see it.');
-      } catch (err) { setError(err.message); } finally { setLoading(false); }
-      return;
-    }
-    if (!/^\d{6}$/.test(otp)) { setError('Enter the 6-digit code from your email'); return; }
     setLoading(true); setError('');
     try {
       const res = await fetch(apiURL('/api/auth/register'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ ...form, accepted_terms:true, terms_version:TERMS_VERSION, email_otp:otp }) });
@@ -440,6 +432,31 @@ export function RegisterPage({ onSwitch }) {
       if (!res.ok) throw new Error(data.error);
       setSuccess('Account created successfully! Please sign in with your credentials.');
       setTimeout(()=>onSwitch(), 2000);
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  };
+
+  const sendCode = async () => {
+    setError(''); setInfo('');
+    const em = form.email.trim().toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { setError('Enter a valid email address'); return; }
+    setLoading(true);
+    try {
+      const r = await fetch(apiURL('/api/auth/register/send-code'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:em, website:hp }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Could not send the code');
+      set('email', em); setOtp(''); setStep('code');
+      setInfo('We sent a 6-digit code to ' + em + '. It expires in 10 minutes. Check spam if you do not see it.');
+    } catch (err) { setError(err.message); } finally { setLoading(false); }
+  };
+  const verifyCode = async () => {
+    setError('');
+    if (!/^\d{6}$/.test(otp)) { setError('Enter the 6-digit code from your email'); return; }
+    setLoading(true);
+    try {
+      const r = await fetch(apiURL('/api/auth/register/verify-code'), { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ email:form.email, email_otp:otp }) });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Incorrect code');
+      setStep('details'); setInfo('Email verified. Now tell us about your company.');
     } catch (err) { setError(err.message); } finally { setLoading(false); }
   };
 
@@ -458,6 +475,7 @@ export function RegisterPage({ onSwitch }) {
         <GoogleBtn onClick={handleGoogle} loading={googleLoading} label="Sign up with Google" />
         <Divider />
         <form onSubmit={handleRegister}>
+          {step === 'details' ? (<>
           <div style={{ fontSize:11, fontWeight:700, color:'#1B4FD8', marginBottom:8, letterSpacing:'0.08em' }}>COMPANY</div>
           <div style={{ marginBottom:10 }}>
             <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Company Name *</div>
@@ -488,7 +506,7 @@ export function RegisterPage({ onSwitch }) {
           </div>
           <div style={{ marginBottom:10 }}>
             <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Work Email *</div>
-            <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} readOnly={codeSent} placeholder="abhishek@company.com" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
+            <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} readOnly placeholder="abhishek@company.com" required style={inp} onFocus={focusBlue} onBlur={blurGray}/>
           </div>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:24 }}>
             <div>
@@ -503,22 +521,43 @@ export function RegisterPage({ onSwitch }) {
               {pwMatch && <div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
             </div>
           </div>
-          <input type="text" name="website" value={hp} onChange={e=>setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} />
-          {codeSent && (
-            <div style={{ marginBottom:16 }}>
-              <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Verification code *</div>
-              <input value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="000000" maxLength={6} inputMode="numeric" autoComplete="one-time-code" required
-                style={{...inp, textAlign:'center', fontSize:26, fontWeight:700, letterSpacing:10, fontFamily:'monospace'}} onFocus={focusBlue} onBlur={blurGray}/>
-              <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6 }}>
-                Wrong email?{' '}
-                <button type="button" onClick={()=>{ setCodeSent(false); setOtp(''); setInfo(''); setError(''); }} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Change it / resend code</button>
-              </div>
-            </div>
-          )}
           <ConsentBox checked={agreed} onChange={setAgreed} />
           <button type="submit" disabled={loading||!!success||!agreed} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
-            {loading?(codeSent?'Creating account...':'Sending code...'):success?'Redirecting to sign in...':(codeSent?'Verify & Create Account':'Send Verification Code')}
+            {loading?'Creating account...':success?'Redirecting to sign in...':'Create Account'}
           </button>
+        </>) : (<>
+          <input type="text" name="website" value={hp} onChange={e=>setHp(e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden="true" style={{ position:'absolute', left:'-9999px', width:1, height:1, opacity:0 }} />
+          {step === 'email' && (
+            <>
+              <div style={{ fontSize:11, fontWeight:700, color:'#6C63FF', marginBottom:8, letterSpacing:'0.08em' }}>STEP 1 OF 3 - VERIFY YOUR EMAIL</div>
+              <p style={{ fontSize:13, color:'var(--text-muted)', margin:'0 0 12px' }}>Enter the email you will use to sign in. We will send a 6-digit code to it.</p>
+              <div style={{ marginBottom:16 }}>
+                <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>Work Email *</div>
+                <input type="email" value={form.email} onChange={e=>set('email',e.target.value)} placeholder="you@company.com" autoComplete="email" style={inp} onFocus={focusBlue} onBlur={blurGray}/>
+              </div>
+              <button type="button" onClick={sendCode} disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
+                {loading ? 'Sending code...' : 'Send Verification Code'}
+              </button>
+            </>
+          )}
+          {step === 'code' && (
+            <>
+              <div style={{ fontSize:11, fontWeight:700, color:'#6C63FF', marginBottom:8, letterSpacing:'0.08em' }}>STEP 2 OF 3 - ENTER THE CODE</div>
+              <p style={{ fontSize:13, color:'var(--text-muted)', margin:'0 0 12px' }}>Code sent to <strong style={{ color:'#6C63FF' }}>{form.email}</strong></p>
+              <div style={{ marginBottom:16 }}>
+                <input value={otp} onChange={e=>setOtp(e.target.value.replace(/\D/g,'').slice(0,6))} placeholder="000000" maxLength={6} inputMode="numeric" autoComplete="one-time-code" autoFocus
+                  style={{...inp, textAlign:'center', fontSize:26, fontWeight:700, letterSpacing:10, fontFamily:'monospace'}} onFocus={focusBlue} onBlur={blurGray}/>
+                <div style={{ fontSize:12, color:'var(--text-muted)', marginTop:6, display:'flex', justifyContent:'space-between' }}>
+                  <button type="button" onClick={()=>{ setStep('email'); setOtp(''); setInfo(''); setError(''); }} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Wrong email? Change it</button>
+                  <button type="button" onClick={sendCode} disabled={loading} style={{ background:'none', border:'none', color:'#6C63FF', cursor:'pointer', fontSize:12, fontWeight:600, padding:0 }}>Resend code</button>
+                </div>
+              </div>
+              <button type="button" onClick={verifyCode} disabled={loading} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:loading?'var(--surface-3)':'linear-gradient(135deg,#6C63FF,#9B8FFF)', color:loading?'var(--text-muted)':'#fff', border:'none', cursor:loading?'not-allowed':'pointer' }}>
+                {loading ? 'Verifying...' : 'Verify Email'}
+              </button>
+            </>
+          )}
+          </>)}
         </form>
         <div style={{ textAlign:'center', marginTop:20, fontSize:13, color:'var(--text-muted)' }}>
           Already have an account?{' '}
