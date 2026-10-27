@@ -43,7 +43,7 @@ function Markdown({ text }) {
     out.push(<p key={i} style={{ margin: '4px 0 8px' }}>{inline(l, 'p' + i)}</p>)
   })
   flush()
-  return <div style={{ fontSize: 14, lineHeight: 1.55, color: '#1e293b' }}>{out}</div>
+  return <div style={{ fontSize: 14, lineHeight: 1.55, color: '#1e293b', overflowWrap: 'anywhere' }}>{out}</div>
 }
 
 // ── shared styles ─────────────────────────────────────────────────────────
@@ -81,18 +81,18 @@ function AlertCard({ a, onChange, say }) {
   }
   const closed = a.status === 'resolved' || a.status === 'dismissed'
   return (
-    <div style={{ ...box, borderLeft: '4px solid ' + sev.fg, opacity: closed ? 0.75 : 1 }}>
+    <div style={{ ...box, borderLeft: '4px solid ' + sev.fg, opacity: closed ? 0.75 : 1, overflowWrap: 'anywhere' }}>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', marginBottom: 6 }}>
         <span style={{ fontSize: 12, fontWeight: 700, padding: '2px 8px', borderRadius: 999, background: sev.bg, color: sev.fg, border: '1px solid ' + sev.bd }}>{sev.label}</span>
         {a.status !== 'open' && <span style={{ fontSize: 12, color: '#64748b' }}>{a.status}</span>}
         <span style={{ fontSize: 12, color: '#94a3b8' }}>raised {when(a.first_raised_at)}</span>
       </div>
-      <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{a.title}</div>
-      <div style={{ fontSize: 13, color: '#475569', margin: '4px 0 10px' }}>{a.detail}</div>
-      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '8px 10px', fontSize: 14, color: '#1e293b' }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#1d4ed8' }}>DIGITAL CFO ASKS  </span>{a.ask}
+      <div style={{ fontWeight: 700, fontSize: 15, lineHeight: 1.35, color: '#0f172a' }}>{a.title}</div>
+      <div style={{ fontSize: 13, lineHeight: 1.5, color: '#475569', margin: '4px 0 12px' }}>{a.detail}</div>
+      <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderLeft: '3px solid #1d4ed8', borderRadius: 8, padding: '10px 12px', fontSize: 14, lineHeight: 1.5, color: '#1e293b' }}>
+        <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 0.5, color: '#1d4ed8', marginBottom: 2 }}>DIGITAL CFO ASKS</div>{a.ask}
       </div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 10 }}>
+      <div className="cfo-actions" style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 12 }}>
         {!closed && <button style={btn(true)} onClick={discuss} disabled={busy}>{busy ? 'Thinking…' : 'Discuss with Digital CFO'}</button>}
         {a.status === 'open' && <button style={btn()} onClick={() => set('acknowledged')}>Acknowledge</button>}
         {a.status === 'open' && <button style={btn(false, true)} onClick={() => set('dismissed')}>Dismiss</button>}
@@ -170,7 +170,7 @@ function Alerts({ say }) {
           {status === 'open' ? 'Nothing needs your attention right now. The system re-checks every hour; press "Check now" to run the rules immediately.' : 'No ' + status + ' alerts.'}
         </div>
       ) : (
-        <div style={{ display: 'grid', gap: 12 }}>{data.alerts.map(a => <AlertCard key={a.id} a={a} onChange={load} say={say} />)}</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 12 }}>{data.alerts.map(a => <AlertCard key={a.id} a={a} onChange={load} say={say} />)}</div>
       )}
     </div>
   )
@@ -206,7 +206,7 @@ function Briefs({ say }) {
   if (!settings) return <div style={{ color: '#94a3b8' }}>Loading…</div>
   const tog = k => <label style={{ fontSize: 14, display: 'flex', gap: 6, alignItems: 'center' }}><input type="checkbox" checked={settings[k] !== false} onChange={e => setSettings(s => ({ ...s, [k]: e.target.checked }))} />{k.split('_')[0][0].toUpperCase() + k.split('_')[0].slice(1)}</label>
   return (
-    <div style={{ display: 'grid', gap: 14 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 14 }}>
       <div style={box}>
         <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Scheduled briefs</h3>
         <p style={{ margin: '0 0 10px', fontSize: 13, color: '#475569' }}>The Digital CFO writes these on its own from live figures. Weekly briefs cover the week starting Monday; monthly briefs cover the last full month.</p>
@@ -229,12 +229,12 @@ function Briefs({ say }) {
         {briefs.length === 0 && <div style={{ fontSize: 14, color: '#64748b' }}>None yet. Scheduled briefs appear here automatically; you can also write one now.</div>}
         {briefs.map(b => (
           <div key={b.id} style={{ borderTop: '1px solid #f1f5f9', padding: '8px 0' }}>
-            <div style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }} onClick={() => show(b.id)}>
+            <div className="cfo-brief-head" style={{ display: 'flex', gap: 10, alignItems: 'center', cursor: 'pointer' }} onClick={() => show(b.id)}>
               <span style={{ fontSize: 12, fontWeight: 700, color: '#1d4ed8', minWidth: 62 }}>{CADENCE_LABEL[b.cadence]}</span>
               <span style={{ flex: 1, fontSize: 14, fontWeight: 600 }}>{b.title}</span>
               <span style={{ fontSize: 12, color: '#94a3b8' }}>{when(b.generated_at)}</span>
             </div>
-            {open && open.id === b.id && <div style={{ marginTop: 8, padding: '4px 4px 4px 72px' }}><Markdown text={open.content} />
+            {open && open.id === b.id && <div className="cfo-brief-body" style={{ marginTop: 8, padding: '4px 4px 4px 72px' }}><Markdown text={open.content} />
               {open.tools_used && open.tools_used.length > 0 && <div style={{ fontSize: 12, color: '#94a3b8' }}>Built from: {open.tools_used.join(', ')}</div>}</div>}
           </div>
         ))}
@@ -244,6 +244,13 @@ function Briefs({ say }) {
 }
 
 // ── Board pack ────────────────────────────────────────────────────────────
+const responsiveCss = `
+.cfo-inbox-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+@media (max-width: 640px) {
+  .cfo-actions button { flex: 1 1 100%; }
+  .cfo-brief-body { padding-left: 0 !important; }
+  .cfo-brief-head { flex-wrap: wrap; }
+}`
 const printCss = `
 @media print {
   body * { visibility: hidden !important; }
@@ -323,7 +330,7 @@ function BoardPack({ say }) {
     setBusy(false)
   }
   return (
-    <div style={{ display: 'grid', gap: 14 }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 14 }}>
       <style>{printCss}</style>
       <div className="no-print" style={{ ...box, display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
         <div style={{ flex: '1 1 280px', fontSize: 13, color: '#475569' }}>One click builds a board-ready summary from current figures: performance, cash, targets, segments, customers, risks and the matters for the board. It takes up to a minute.</div>
@@ -348,12 +355,13 @@ export default function CFOInbox() {
   const say = useCallback((type, text) => { setMsg({ type, text }); if (type === 'ok') setTimeout(() => setMsg(null), 4000) }, [])
   const tabs = [['alerts', 'Alerts & questions'], ['briefs', 'Scheduled briefs'], ['board', 'Board pack']]
   return (
-    <div style={{ padding: '0 0 24px' }}>
-      <p className="no-print" style={{ margin: '0 0 12px', fontSize: 14, color: '#475569' }}>
+    <div style={{ padding: '16px 16px 32px', maxWidth: 1080, margin: '0 auto', boxSizing: 'border-box', width: '100%', fontSize: 14 }}>
+      <style>{responsiveCss}</style>
+      <p className="no-print" style={{ margin: '0 0 14px', fontSize: 13.5, lineHeight: 1.5, color: '#475569', maxWidth: 760 }}>
         The Digital CFO watches your numbers on its own, raises questions when something crosses a threshold, writes daily, weekly and monthly briefs, and prepares board packs.
       </p>
       <div className="no-print" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
-        {tabs.map(([k, label]) => <button key={k} onClick={() => setTab(k)} style={{ ...btn(tab === k), padding: '8px 12px' }}>{label}</button>)}
+        {tabs.map(([k, label]) => <button key={k} onClick={() => setTab(k)} style={{ ...btn(tab === k), padding: '8px 14px' }}>{label}</button>)}
       </div>
       <Msg msg={msg} />
       {tab === 'alerts' && <Alerts say={say} />}

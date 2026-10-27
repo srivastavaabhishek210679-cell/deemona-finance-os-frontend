@@ -344,8 +344,8 @@ export default function CFOSetup() {
 
   const tabs = [['dimensions', '1. Business units, regions, products'], ['mapping', '2. Map customers & vendors'], ['targets', '3. Targets'], ['forecasts', '4. Forecasts']]
   return (
-    <div style={{ padding: '0 0 24px' }}>
-      <p style={{ margin: '0 0 12px', fontSize: 14, color: '#475569' }}>
+    <div style={{ padding: '16px 16px 32px', maxWidth: 1080, margin: '0 auto', boxSizing: 'border-box', width: '100%' }}>
+      <p style={{ margin: '0 0 14px', fontSize: 13.5, lineHeight: 1.5, color: '#475569', maxWidth: 760 }}>
         The CFO agent can only answer plan, business-unit, region and product questions once this information is filled in. Start with step 1 and work through to step 4.
       </p>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 14 }}>
