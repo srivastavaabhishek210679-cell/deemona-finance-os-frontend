@@ -24,25 +24,51 @@ const SEV = {
   info: { label: 'For info', bg: '#eff6ff', fg: '#1d4ed8', bd: '#bfdbfe' },
 }
 
-// ── tiny, safe markdown renderer (headings, bullets, **bold**) ────────────
+// ── small, safe markdown renderer (headings, bullets, numbered lists, tables, rules, **bold**, `code`) ──
 function inline(text, key) {
-  return text.split(/(\*\*[^*]+\*\*)/g).map((p, i) =>
-    p.startsWith('**') && p.endsWith('**') && p.length > 4 ? <strong key={key + '-' + i}>{p.slice(2, -2)}</strong> : <React.Fragment key={key + '-' + i}>{p}</React.Fragment>)
-}
-function Markdown({ text }) {
-  const lines = String(text || '').split('\n'); const out = []; let list = []
-  const flush = () => { if (list.length) { out.push(<ul key={'ul' + out.length} style={{ margin: '4px 0 10px', paddingLeft: 20 }}>{list.map((l, i) => <li key={i} style={{ marginBottom: 3 }}>{inline(l, 'li' + i)}</li>)}</ul>); list = [] } }
-  lines.forEach((raw, i) => {
-    const l = raw.trimEnd()
-    const bullet = l.match(/^\s*[-*•]\s+(.*)$/)
-    if (bullet) { list.push(bullet[1]); return }
-    flush()
-    const h = l.match(/^(#{1,4})\s+(.*)$/)
-    if (h) { out.push(<h4 key={i} style={{ margin: '14px 0 4px', fontSize: h[1].length <= 2 ? 16 : 14, color: '#0f172a' }}>{inline(h[2], 'h' + i)}</h4>); return }
-    if (!l.trim()) return
-    out.push(<p key={i} style={{ margin: '4px 0 8px' }}>{inline(l, 'p' + i)}</p>)
+  return text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g).map((p, i) => {
+    if (p.startsWith('**') && p.endsWith('**') && p.length > 4) return <strong key={key + '-' + i}>{p.slice(2, -2)}</strong>
+    if (p.startsWith('`') && p.endsWith('`') && p.length > 2) return <code key={key + '-' + i} style={{ background: '#f1f5f9', borderRadius: 4, padding: '0 4px', fontSize: '0.92em' }}>{p.slice(1, -1)}</code>
+    return <React.Fragment key={key + '-' + i}>{p}</React.Fragment>
   })
-  flush()
+}
+const cells = line => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(c => c.trim())
+const isTableRow = l => /^\s*\|.*\|\s*$/.test(l)
+const isSeparator = l => isTableRow(l) && cells(l).every(c => /^:?-{2,}:?$/.test(c))
+function Markdown({ text }) {
+  const lines = String(text || '').split('\n'); const out = []
+  let i = 0
+  while (i < lines.length) {
+    const l = lines[i].trimEnd()
+    if (!l.trim()) { i++; continue }
+    if (/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(l)) { out.push(<hr key={'hr' + i} style={{ border: 0, borderTop: '1px solid #e2e8f0', margin: '12px 0' }} />); i++; continue }
+    const h = l.match(/^(#{1,4})\s+(.*)$/)
+    if (h) { out.push(<h4 key={'h' + i} style={{ margin: '14px 0 4px', fontSize: h[1].length <= 2 ? 16 : 14, color: '#0f172a' }}>{inline(h[2], 'h' + i)}</h4>); i++; continue }
+    if (isTableRow(l)) {
+      const block = []; while (i < lines.length && isTableRow(lines[i])) { block.push(lines[i]); i++ }
+      const hasHead = block.length > 1 && isSeparator(block[1])
+      const head = hasHead ? cells(block[0]) : null
+      const body = block.filter((r, idx) => !(hasHead && idx < 2)).map(cells)
+      const cols = Math.max(head ? head.length : 0, ...body.map(r => r.length))
+      out.push(
+        <div key={'t' + i} style={{ overflowX: 'auto', margin: '6px 0 12px' }}>
+          <table style={{ borderCollapse: 'collapse', minWidth: '50%' }}>
+            {head && <thead><tr>{head.map((c, k) => <th key={k} style={{ ...th, color: '#334155', background: '#f8fafc' }}>{inline(c, 'th' + k)}</th>)}</tr></thead>}
+            <tbody>{body.map((r, ri) => <tr key={ri}>{Array.from({ length: cols }, (_, k) => <td key={k} style={td}>{inline(r[k] || '', 'td' + ri + k)}</td>)}</tr>)}</tbody>
+          </table>
+        </div>)
+      continue
+    }
+    const ul = l.match(/^\s*[-*•]\s+(.*)$/), ol = l.match(/^\s*\d+[.)]\s+(.*)$/)
+    if (ul || ol) {
+      const items = []; const re = ul ? /^\s*[-*•]\s+(.*)$/ : /^\s*\d+[.)]\s+(.*)$/
+      while (i < lines.length) { const m = lines[i].trimEnd().match(re); if (!m) break; items.push(m[1]); i++ }
+      const kids = items.map((t, k) => <li key={k} style={{ marginBottom: 3 }}>{inline(t, 'li' + k)}</li>)
+      out.push(ul ? <ul key={'ul' + i} style={{ margin: '4px 0 10px', paddingLeft: 20 }}>{kids}</ul> : <ol key={'ol' + i} style={{ margin: '4px 0 10px', paddingLeft: 22 }}>{kids}</ol>)
+      continue
+    }
+    out.push(<p key={'p' + i} style={{ margin: '4px 0 8px' }}>{inline(l.replace(/^>\s?/, ''), 'p' + i)}</p>); i++
+  }
   return <div style={{ fontSize: 14, lineHeight: 1.55, color: '#1e293b', overflowWrap: 'anywhere' }}>{out}</div>
 }
 
