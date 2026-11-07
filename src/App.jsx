@@ -14,6 +14,7 @@ import { ExpensesPage, AssetsPage, InventoryPage, ProjectsPage, CompliancePage, 
 import DigitalTwinPage from './components/digitaltwin/DigitalTwinPage';
 import StatementsPage from './components/statements/StatementsPage';
 import CashBalancePage from './components/cash/CashBalancePage';
+import DataSyncPage from './components/datasync/DataSyncPage';
 import CFOAgentPage from './components/cfoagent/CFOAgentPage';
 import DocumentAIPage from './components/documentai/DocumentAIPage';
 import AutomationPage from './components/automation/AutomationPage';
@@ -136,6 +137,7 @@ const NAV_GROUPS = [
     items: [
 
       { path: '/integrations', label: 'Data Integrations', icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
+      { path: '/data-sync', label: 'Data Sync', icon: 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15' },
           { path: '/message-streaming', label: 'Message Streaming', icon: 'M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z' },
           { path: '/netsuite', label: 'Oracle NetSuite', icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2z' },
           { path: '/report-center', label: 'Report Center', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
@@ -541,6 +543,7 @@ export default function App() {
     { path: '/crm',          title: 'CRM',                   sub: 'Sales pipeline, leads, and customer revenue.',       comp: <CRMPage /> },
     { path: '/digitaltwin',  title: 'Digital Twin',          sub: 'Simulate scenarios before making real decisions.',   comp: <DigitalTwinPage /> },
     { path: '/cash-balance', title: 'Cash Balance', sub: 'Enter your cash and bank balance. No bank data is stored.', comp: <CashBalancePage /> },
+    { path: '/data-sync', title: 'Data Sync', sub: 'Real-time webhooks and the freshness of every data source.', comp: <DataSyncPage /> },
     { path: '/statements',   title: 'Financial Statements',  sub: 'P&L, Balance Sheet, and Cash Flow.',                 comp: <StatementsPage /> },
     { path: '/cfo',          title: 'Digital CFO',           sub: 'AI-powered executive financial intelligence.',       comp: <CFOAgentPage /> },
     { path: '/document-ai',  title: 'Document AI',           sub: 'Invoice OCR and automated AP entry creation.',       comp: <DocumentAIPage /> },
