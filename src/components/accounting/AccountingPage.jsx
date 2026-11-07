@@ -572,7 +572,7 @@ function InvoiceTable({ type, invoices, onPay }) {
         <span>INVOICE #</span><span>{isAr ? 'CUSTOMER' : 'VENDOR'}</span><span>{isAr ? 'DUE DATE' : 'DATE'}</span>
         <span style={{ textAlign: 'right' }}>AMOUNT</span>
         <span style={{ textAlign: 'right' }}>BALANCE</span>
-        <span>STATUS</span>
+        <span style={{ paddingLeft: 14 }}>STATUS</span>
         <span />
       </div>
       {invoices.map((inv, i) => (
@@ -582,7 +582,7 @@ function InvoiceTable({ type, invoices, onPay }) {
           <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(inv.due_date)}</span>
           <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatINR(inv.total_amount)}</span>
           <span style={{ textAlign: 'right', color: parseFloat(inv.balance_due) > 0 ? '#FF5C5C' : '#22C98A', fontWeight: 600 }}>{formatINR(inv.balance_due)}</span>
-          <StatusBadge status={inv.status} />
+          <span style={{ paddingLeft: 14 }}><StatusBadge status={inv.status} /></span>
           <PayButton invoice={inv} type={type} onPay={onPay} />
         </div>
       ))}
