@@ -6,7 +6,6 @@ import { LoginPage, RegisterPage } from './components/auth/AuthPages';
 import FinanceMemoryPage from './pages/MemoryPage';
 import DecisionCenter from './components/decision/DecisionCenter';
 import AccountingPage from './components/accounting/AccountingPage';
-import TreasuryPage from './components/treasury/TreasuryPage';
 import ProcurementPage from './components/procurement/ProcurementPage';
 import PayrollPage from './components/payroll/PayrollPage';
 import TaxPage from './components/tax/TaxPage';
@@ -58,7 +57,6 @@ import MultiCompanyPage from './components/admin/MultiCompanyPage';
 import AuditTrailPage from './components/audit/AuditTrailPage';
 import CustomReportBuilder from './components/reports/CustomReportBuilder';
 import OnboardingWizard from './pages/OnboardingWizard';
-import BankStatementImporter from './components/treasury/BankStatementImporter';
 import AIAgentsPage from './components/agents/AIAgentsPage';
 import KnowledgeGraph from './components/knowledge/KnowledgeGraph';
 import PersonalDashboard from './components/dashboard/PersonalDashboard';
@@ -95,8 +93,6 @@ const NAV_GROUPS = [
     label: 'Finance',
     items: [
       { path: '/accounting',  label: 'Accounting',       icon: 'M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M9 7V4a1 1 0 011-1h9a1 1 0 011 1v9a1 1 0 01-1 1h-3M9 7h6' },
-      { path: '/bank-import',  label: 'Bank Import',    icon: 'M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12' },
-      { path: '/treasury',    label: 'Treasury',         icon: 'M3 6l9-4 9 4M3 6v12l9 4 9-4V6M12 2v20' },
       { path: '/procurement', label: 'Procurement',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 14a2 2 0 110-4 2 2 0 010 4z' },
       { path: '/payroll',     label: 'Payroll',          icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z' },
     { path: '/gst-portal',  label: 'GST Portal',       icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z' },
@@ -271,7 +267,7 @@ function TopBar({ title, subtitle }) {
     { label: 'AP Invoice',      path: '/accounting',  icon: '📋' },
     { label: 'AR Invoice',      path: '/accounting',  icon: '📄' },
     { label: 'Add Employee',    path: '/payroll',     icon: '👤' },
-    { label: 'Record Payment',  path: '/treasury',    icon: '💳' },
+    { label: 'Record Payment',  path: '/accounting',    icon: '💳' },
     { label: 'Expense Claim',   path: '/expenses',    icon: '🧾' },
     { label: 'Add Vendor',      path: '/procurement', icon: '🏭' },
     { label: 'New Project',     path: '/projects',    icon: '📊' },
@@ -524,7 +520,6 @@ export default function App() {
     { path: '/automation-logs', title: 'Automation Center', sub: 'Monitor and test all automated workflows.', comp: <AutomationLogsPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive monitoring.', comp: <DriveMonitorPage /> },
     { path: '/drive-monitor', title: 'Drive Monitor', sub: 'Autonomous Google Drive financial file monitoring.', comp: <DriveMonitorPage /> },
-    { path: '/bank-import',  title: 'Bank Import',    sub: 'Import CSV from Indian banks.', comp: <BankStatementImporter /> },
     { path: '/reports',      title: 'Custom Reports', sub: 'Build and export reports.', comp: <CustomReportBuilder /> },
     { path: '/app',           title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
     { path: '/gst-portal', title: 'GST Portal', sub: 'File GST returns and track ITC.', comp: <GSTPortalPage /> },
@@ -532,7 +527,6 @@ export default function App() {
     { path: '/memory',       title: 'Finance Memory',        sub: 'Every decision and insight, searchable forever.',     comp: <FinanceMemoryPage /> },
     { path: '/decision',     title: 'AI Decision Center',    sub: 'Your executive financial command center.',            comp: <DecisionCenter /> },
     { path: '/accounting',   title: 'Accounting',            sub: 'General Ledger, Journal Entries, AP and AR.',         comp: <AccountingPage /> },
-    { path: '/treasury',     title: 'Treasury',              sub: 'Bank accounts, cash position, and liquidity.',        comp: <TreasuryPage /> },
     { path: '/procurement',  title: 'Procurement',           sub: 'Purchase orders, vendors, and approval workflow.',    comp: <ProcurementPage /> },
     { path: '/payroll',      title: 'Payroll',               sub: 'Employee management, salary processing, PF and TDS.', comp: <PayrollPage /> },
     { path: '/tax',          title: 'Tax and GST',           sub: 'Filing calendar, TDS, advance tax, and compliance.',  comp: <TaxPage /> },

@@ -17,7 +17,7 @@ const Toggle = ({value, onChange}) => (
 );
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const DATA_TYPES = ['Auto-detect','SALES_INVOICES','PURCHASE_INVOICES','EXPENSES','INVENTORY','PAYROLL','CUSTOMERS','VENDORS','BANK_TRANSACTIONS','ASSETS'];
+const DATA_TYPES = ['Auto-detect','SALES_INVOICES','PURCHASE_INVOICES','EXPENSES','INVENTORY','PAYROLL','CUSTOMERS','VENDORS','ASSETS'];
 
 
 function SlackTeamsTab({api}) {
