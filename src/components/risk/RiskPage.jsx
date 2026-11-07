@@ -50,7 +50,8 @@ export default function RiskPage() {
       </div>
       <div style={card}>
         <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Vendors: supply, tax and payment-control risk</div>
-        {d.vendors.length === 0 ? <div style={{ fontSize: 13, color: '#64748B' }}>No vendor spend recorded.</div> : d.vendors.map(v => <Row key={v.id} name={v.name} sub={'12-month spend ' + v.spend_inr} score={v.score} band={v.band} reasons={v.reasons.length ? v.reasons : ['No risk signals found.']} />)}
+        {d.vendors.length === 0 ? <div style={{ fontSize: 13, color: '#64748B' }}>No vendor bills recorded yet.</div> : d.vendors.map(v => <Row key={v.id} name={v.name} sub={'12-month spend ' + v.spend_inr} score={v.score} band={v.band} reasons={v.reasons.length ? v.reasons : ['No risk signals found.']} />)}
+        {d.vendor_hygiene && d.vendor_hygiene.idle_vendors > 0 && <div style={{ fontSize: 13, color: '#64748B', borderTop: '1px solid #E2E8F0', paddingTop: 10, marginTop: 6 }}>{d.vendor_hygiene.idle_vendors} vendor(s) have no bills yet, so they are not scored. {d.vendor_hygiene.missing_pan > 0 && d.vendor_hygiene.missing_pan + ' have no PAN'}{d.vendor_hygiene.missing_pan > 0 && d.vendor_hygiene.missing_gstin > 0 && ' and '}{d.vendor_hygiene.missing_gstin > 0 && d.vendor_hygiene.missing_gstin + ' have no GSTIN'}{(d.vendor_hygiene.missing_pan > 0 || d.vendor_hygiene.missing_gstin > 0) && ' on record. Add them before the first bill so TDS and input tax credit are handled correctly.'}</div>}
       </div>
     </div>
   );
