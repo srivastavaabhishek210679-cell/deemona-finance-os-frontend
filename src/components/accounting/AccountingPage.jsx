@@ -497,10 +497,6 @@ function RecordPaymentModal({ type, invoice, onClose, onDone }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    apiGet(apiURL('/api/treasury/bank-accounts')).then(d => setBanks(d.accounts || [])).catch(() => setBanks([]));
-  }, []);
-
   const submit = async () => {
     setError('');
     const amt = parseFloat(amount);
@@ -534,17 +530,108 @@ function RecordPaymentModal({ type, invoice, onClose, onDone }) {
         <input type="number" min="0" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} style={{ ...field, marginBottom: 12 }} />
         <label style={label}>{isAr ? 'DATE RECEIVED' : 'DATE PAID'}</label>
         <input type="date" value={date} max={today} min={invoice.date ? String(invoice.date).slice(0, 10) : undefined} onChange={e => setDate(e.target.value)} style={{ ...field, marginBottom: 12 }} />
-        <label style={label}>BANK ACCOUNT (OPTIONAL - ALSO POSTS A BANK ENTRY AND UPDATES THE BALANCE)</label>
-        <select value={bankId} onChange={e => setBankId(e.target.value)} style={{ ...field, marginBottom: 12 }}>
-          <option value="">Do not post to a bank account</option>
-          {banks.map(b => <option key={b.id} value={b.id}>{b.name} - {b.bank_name}</option>)}
-        </select>
         <label style={label}>REFERENCE (UTR, CHEQUE NO., OPTIONAL)</label>
         <input value={reference} onChange={e => setReference(e.target.value)} style={{ ...field, marginBottom: 14 }} />
         {error && <div style={{ fontSize: 12, color: '#FF5C5C', marginBottom: 12 }}>{error}</div>}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button onClick={onClose} disabled={saving} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
           <button onClick={submit} disabled={saving} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700 }}>{saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── New invoice / bill ───────────────────────────────────────
+function NewInvoiceModal({ type, onClose, onDone }) {
+  const isAr = type === 'ar';
+  const today = new Date().toLocaleDateString('en-CA');
+  const plus30 = new Date(Date.now() + 30 * 86400000).toLocaleDateString('en-CA');
+  const [parties, setParties] = useState([]);
+  const [partyId, setPartyId] = useState('');
+  const [newName, setNewName] = useState('');
+  const [invNo, setInvNo] = useState('');
+  const [date, setDate] = useState(today);
+  const [due, setDue] = useState(plus30);
+  const [desc, setDesc] = useState('');
+  const [amount, setAmount] = useState('');
+  const [gst, setGst] = useState('18');
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    apiGet(API + (isAr ? '/customers' : '/vendors')).then(d => setParties(isAr ? (d.customers || []) : (d.vendors || []))).catch(() => setParties([]));
+  }, [isAr]);
+
+  const amt = parseFloat(amount) || 0;
+  const tax = amt * ((parseFloat(gst) || 0) / 100);
+
+  const submit = async () => {
+    setError('');
+    if (!(amt > 0)) { setError('Enter an amount greater than zero.'); return; }
+    if (!desc.trim()) { setError('Enter a description.'); return; }
+    if (!isAr && !invNo.trim()) { setError("Enter the vendor's invoice number."); return; }
+    if (!date || !due) { setError('Enter the invoice and due dates.'); return; }
+    if (due < date) { setError('Due date cannot be before the invoice date.'); return; }
+    if (!partyId && !newName.trim()) { setError('Choose a ' + (isAr ? 'customer' : 'vendor') + ' or type a new name.'); return; }
+    setSaving(true);
+    try {
+      let pid = partyId;
+      if (!pid) {
+        const p = await apiPost(API + (isAr ? '/customers' : '/vendors'), { name: newName.trim() });
+        pid = (isAr ? p.customer : p.vendor).id;
+      }
+      const lines = [{ description: desc.trim(), quantity: 1, unit_price: amt, amount: amt }];
+      const body = isAr
+        ? { customer_id: pid, date, due_date: due, lines, tax_type: 'GST', gst_rate: parseFloat(gst) || 0 }
+        : { vendor_id: pid, invoice_number: invNo.trim(), date, due_date: due, lines, tax_type: 'GST', gst_rate: parseFloat(gst) || 0 };
+      const r = await apiPost(API + (isAr ? '/ar-invoices' : '/ap-invoices'), body);
+      const id = r.invoice && r.invoice.id;
+      if (id) {
+        const res = await fetch(API + (isAr ? '/ar-invoices/' + id + '/send' : '/ap-invoices/' + id + '/confirm'), { method: 'PATCH', headers: headers() });
+        if (!res.ok) throw new Error('Saved as draft, but could not mark it ' + (isAr ? 'sent' : 'approved') + '. Payments can only be recorded on ' + (isAr ? 'sent' : 'approved') + ' invoices.');
+      }
+      onDone();
+    } catch (e) {
+      let msg = e.message;
+      try { msg = JSON.parse(e.message).error || msg; } catch {}
+      setError(msg);
+    } finally { setSaving(false); }
+  };
+
+  const field = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-3)', color: 'var(--text-primary)', fontSize: 13, boxSizing: 'border-box' };
+  const label = { fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: 4, display: 'block' };
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: 460, maxWidth: '100%', maxHeight: '92vh', overflowY: 'auto', background: 'var(--surface-1)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
+        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 14 }}>{isAr ? 'New sales invoice' : 'New vendor bill'}</div>
+        <label style={label}>{isAr ? 'CUSTOMER' : 'VENDOR'}</label>
+        <select value={partyId} onChange={e => setPartyId(e.target.value)} style={{ ...field, marginBottom: 8 }}>
+          <option value="">{isAr ? 'Add a new customer below' : 'Add a new vendor below'}</option>
+          {parties.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+        </select>
+        {!partyId && <input placeholder={isAr ? 'New customer name' : 'New vendor name'} value={newName} onChange={e => setNewName(e.target.value)} style={{ ...field, marginBottom: 12 }} />}
+        {partyId && <div style={{ height: 4 }} />}
+        {!isAr && (<>
+          <label style={label}>VENDOR'S INVOICE NUMBER</label>
+          <input value={invNo} onChange={e => setInvNo(e.target.value)} style={{ ...field, marginBottom: 12 }} />
+        </>)}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+          <div><label style={label}>INVOICE DATE</label><input type="date" value={date} onChange={e => setDate(e.target.value)} style={field} /></div>
+          <div><label style={label}>DUE DATE</label><input type="date" value={due} min={date} onChange={e => setDue(e.target.value)} style={field} /></div>
+        </div>
+        <label style={label}>DESCRIPTION</label>
+        <input value={desc} onChange={e => setDesc(e.target.value)} placeholder={isAr ? 'e.g. Software development services' : 'e.g. Cloud hosting, October'} style={{ ...field, marginBottom: 12 }} />
+        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 10, marginBottom: 8 }}>
+          <div><label style={label}>AMOUNT BEFORE TAX (INR)</label><input type="number" min="0" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} style={field} /></div>
+          <div><label style={label}>GST %</label><input type="number" min="0" max="100" step="0.5" value={gst} onChange={e => setGst(e.target.value)} style={field} /></div>
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 14 }}>GST {formatINR(tax)} · Total {formatINR(amt + tax)}</div>
+        {error && <div style={{ fontSize: 12, color: '#FF5C5C', marginBottom: 12 }}>{error}</div>}
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <button onClick={onClose} disabled={saving} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+          <button onClick={submit} disabled={saving} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700, opacity: saving ? 0.6 : 1 }}>{saving ? 'Saving...' : (isAr ? 'Create invoice' : 'Create bill')}</button>
         </div>
       </div>
     </div>
@@ -591,6 +678,7 @@ function InvoiceTable({ type, invoices, onPay }) {
 }
 
 function APTab() {
+  const [creating, setCreating] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
@@ -612,6 +700,7 @@ function APTab() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}><button onClick={() => setCreating(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>+ New vendor bill</button></div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         {statuses.map(s => (
           <button key={s} onClick={() => setFilter(s)} style={{
@@ -633,12 +722,14 @@ function APTab() {
         <InvoiceTable type="ap" invoices={invoices} onPay={setPaying} />
       )}
       {paying && <RecordPaymentModal type="ap" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
+      {creating && <NewInvoiceModal type="ap" onClose={() => setCreating(false)} onDone={() => { setCreating(false); load(); }} />}
     </div>
   );
 }
 
 // ── AR Invoices Tab ───────────────────────────────────────────
 function ARTab() {
+  const [creating, setCreating] = useState(false);
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [paying, setPaying] = useState(null);
@@ -655,6 +746,7 @@ function ARTab() {
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}><button onClick={() => setCreating(true)} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>+ New sales invoice</button></div>
       {loading ? (
         <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading...</div>
       ) : invoices.length === 0 ? (
@@ -664,6 +756,7 @@ function ARTab() {
         <InvoiceTable type="ar" invoices={invoices} onPay={setPaying} />
       )}
       {paying && <RecordPaymentModal type="ar" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
+      {creating && <NewInvoiceModal type="ar" onClose={() => setCreating(false)} onDone={() => { setCreating(false); load(); }} />}
     </div>
   );
 }

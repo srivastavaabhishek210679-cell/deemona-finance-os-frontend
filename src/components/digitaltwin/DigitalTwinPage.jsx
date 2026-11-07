@@ -252,12 +252,13 @@ export default function DigitalTwinPage() {
             growth_pct: inputs.revenue_growth_pct, years: inputs.projection_years, new_hires: inputs.new_hires, avg_salary: inputs.avg_salary,
             new_office: inputs.new_office, office_rent_monthly: inputs.office_rent_monthly, new_product: inputs.new_product, product_dev_cost: inputs.product_dev_cost,
             inflation_pct: inputs.inflation_pct, tax_rate_pct: inputs.tax_rate_pct, custom: inputs.custom_assumption }),
-          'CALCULATED RESULT: ' + JSON.stringify({ verdict: calc.verdict, years: calc.years.map(y => ({ year: y.year, revenue: y.revenue, ebitda: y.ebitda, net_profit: y.net_profit })), key_metrics: calc.key_metrics }),
+          'CALCULATED RESULT: ' + JSON.stringify({ verdict: calc.verdict, years: calc.years.map(y => ({ year: y.year, revenue: y.revenue, ebitda: y.ebitda, net_profit: y.net_profit, monthly_burn: y.monthly_burn })), key_metrics: calc.key_metrics }),
           ctx ? 'COMPANY DATA FROM THE BOOKS (live): ' + JSON.stringify({ months_covered: ctx.months_covered, position: ctx.position }) : 'No company books data was found.',
           '',
           'Use your tools only if you need the company\'s own data (ar_aging, collection_efficiency, budget_vs_actual). Then reply with ONLY this JSON, no markdown:',
           '{ "summary": "2-3 sentences on what this scenario means for this company", "risks": ["..","..",".."], "opportunities": ["..","..",".."], "recommendations": ["..","..",".."] }',
           'Mention assumptions you relied on. Do not invent facts about the company.',
+          /* SAME_BURN_RULE */ 'For monthly burn, runway and any year-by-year figure, quote ONLY the numbers in CALCULATED RESULT (monthly_burn per year). Never quote burn or runway figures returned by tools, because they use a different basis and would contradict the cards on this page.',
           'Write in plain business English. Never quote field names or code words such as total_investment, null, roi_3yr or payback_months; say "no extra investment" or "not calculated" instead. Figures in INPUTS (such as average salary) may be form defaults the user has not changed, so do not present them as facts about the company.',
         ].join('\n');
 
