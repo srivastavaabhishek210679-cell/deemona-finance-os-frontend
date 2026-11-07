@@ -21,6 +21,10 @@ function Chart({ scenarios }) {
   const W = 800, H = 280, L = 70, R = 16, T = 16, B = 28;
   const all = scenarios.flatMap(s => s.points.map(p => p.close).concat([s.opening]));
   let lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+  const mn = Math.min(...all), mx = Math.max(...all);
+  // Cash far above zero: zoom in so movements are visible instead of a flat line.
+  const zoomed = mn > 0 && (mx - mn) < 0.5 * mx;
+  if (zoomed) { const pad = Math.max((mx - mn) * 0.4, mx * 0.002); lo = mn - pad; hi = mx + pad; }
   if (hi === lo) hi = lo + 1;
   const raw = (hi - lo) / 4, mag = Math.pow(10, Math.floor(Math.log10(raw)));
   const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(v => v >= raw);
@@ -39,7 +43,7 @@ function Chart({ scenarios }) {
           <text x={L - 8} y={y(t) + 4} textAnchor="end" fontSize="11" fill="#64748B">{short(t)}</text>
         </g>
       ))}
-      <line x1={L} x2={W - R} y1={y(0)} y2={y(0)} stroke="#B91C1C" strokeWidth="1.2" strokeDasharray="3 3" />
+      {lo <= 0 && hi >= 0 && <line x1={L} x2={W - R} y1={y(0)} y2={y(0)} stroke="#B91C1C" strokeWidth="1.2" strokeDasharray="3 3" />}
       {labels.map((i, k) => (
         <text key={k} x={x(i)} y={H - 8} textAnchor={k === 0 ? 'start' : k === labels.length - 1 ? 'end' : 'middle'} fontSize="11" fill="#64748B">
           {i === 0 ? 'Today' : fmtDate(scenarios[0].points[i - 1].date)}
@@ -140,7 +144,7 @@ export default function CashForecastPage() {
           </div>
         </div>
         {data ? <Chart scenarios={data.scenarios} /> : <div style={{ color: '#64748B', fontSize: 14 }}>Loading…</div>}
-        <div style={{ fontSize: 12, color: '#64748B', marginTop: 6 }}>The red dashed line is zero cash.</div>
+        <div style={{ fontSize: 12, color: '#64748B', marginTop: 6 }}>The red dashed line marks zero cash. When cash stays well above zero, the vertical scale is zoomed in so changes are visible.</div>
       </div>
 
       <div style={card}>
