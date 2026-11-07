@@ -117,6 +117,59 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
   );
 }
 
+// -- Projection maths (done in code, never by the AI) -----------
+const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function computeProjection(inp) {
+  const n = v => { const x = parseFloat(v); return Number.isFinite(x) ? x : 0; };
+  const rev0 = n(inp.current_revenue), emp0 = Math.round(n(inp.current_employees)), opexM = n(inp.current_monthly_expenses);
+  const g = n(inp.revenue_growth_pct) / 100, infl = n(inp.inflation_pct) / 100, taxRate = n(inp.tax_rate_pct) / 100;
+  const N = Math.min(5, Math.max(1, Math.round(n(inp.projection_years)) || 1));
+  const hires = Math.max(0, Math.round(n(inp.new_hires))), sal = n(inp.avg_salary);
+  const rent = inp.new_office ? n(inp.office_rent_monthly) : 0;
+  const prod = inp.new_product ? n(inp.product_dev_cost) : 0;
+  const r = Math.round;
+  const years = [];
+  for (let y = 1; y <= N; y++) {
+    const revenue = rev0 * Math.pow(1 + g, y);
+    const base = opexM * 12 * Math.pow(1 + infl, y);
+    const hireCost = hires * sal * Math.pow(1 + infl, y - 1);
+    const office = rent * 12 * Math.pow(1 + infl, y - 1);
+    const oneOff = y === 1 ? prod : 0;
+    const opex = base + hireCost + office + oneOff;
+    const ebitda = revenue - opex;
+    const tax = ebitda > 0 ? ebitda * taxRate : 0;
+    const net = ebitda - tax;
+    years.push({ year: y, revenue: r(revenue), gross_profit: null, operating_expenses: r(opex), ebitda: r(ebitda), tax: r(tax),
+      net_profit: r(net), cash_flow: r(net), headcount: emp0 + hires, monthly_burn: r((opex - oneOff) / 12) });
+  }
+  const start = new Date().getMonth();
+  const cash_flow_months = [];
+  let breakEven = null;
+  for (let m = 1; m <= 12; m++) {
+    const rev = (rev0 / 12) * Math.pow(1 + g, m / 12);
+    const cost = opexM * Math.pow(1 + infl, m / 12) + (hires * sal) / 12 + rent + (m === 1 ? prod : 0);
+    const value = r(rev - cost);
+    if (breakEven === null && value >= 0) breakEven = m;
+    cash_flow_months.push({ month: MONTHS_SHORT[(start + m) % 12], value });
+  }
+  const first = years[0], last = years[N - 1], y3 = years[Math.min(3, N) - 1];
+  const margin = y => (y.revenue > 0 ? Math.round((y.ebitda / y.revenue) * 1000) / 10 : 0);
+  const total_investment = r(prod + hires * sal + rent * 12);
+  let verdict = 'POSITIVE';
+  if (last.ebitda < 0) verdict = 'NEGATIVE';
+  else if (first.ebitda < 0 || margin(last) < 10) verdict = 'CAUTION';
+  const summary = 'Revenue grows from ' + formatINR(rev0) + ' to ' + formatINR(last.revenue) + ' over ' + N + ' year(s). Year 1 EBITDA is ' + formatINR(first.ebitda) +
+    '; by year ' + N + ' it is ' + formatINR(last.ebitda) + ' (' + margin(last) + '% margin). Extra spend in year 1 from this scenario: ' + formatINR(total_investment) + '. ' +
+    'Calculated from your inputs: current expenses are assumed to include today\'s payroll, and no extra revenue is assumed from the new hires, office or product.';
+  return {
+    summary, verdict, years, cash_flow_months, risks: [], opportunities: [], recommendations: [],
+    key_metrics: {
+      revenue_cagr: rev0 > 0 ? Math.round((Math.pow(last.revenue / rev0, 1 / N) - 1) * 1000) / 10 : 0,
+      ebitda_margin_y3: margin(y3), payback_months: null, break_even_month: breakEven, total_investment, roi_3yr: null,
+    },
+  };
+}
+
 // -- Main Digital Twin ------------------------------------------
 export default function DigitalTwinPage() {
   const [running, setRunning] = useState(false);
@@ -182,84 +235,45 @@ export default function DigitalTwinPage() {
     setActiveTab('results');
 
     try {
-      const prompt = [
-        'You are the Digital Twin engine of Deemona AI Finance OS.',
-        'Run a financial scenario simulation for an Indian ' + inputs.industry + ' company.',
-        '',
-        'CURRENT STATE:',
-        '- Annual Revenue: INR ' + parseFloat(inputs.current_revenue).toLocaleString('en-IN'),
-        '- Employees: ' + inputs.current_employees,
-        '- Monthly Operating Expenses: INR ' + parseFloat(inputs.current_monthly_expenses).toLocaleString('en-IN'),
-        '',
-        ctx ? 'COMPANY DATA FROM THE BOOKS (queried live - treat as ground truth; call your tools for anything else you need, such as ar_aging, budget_vs_actual or collection_efficiency, before projecting):' : 'No company books data was found; say so in the summary and treat the figures above as user-entered.',
-        ctx ? JSON.stringify({ months_covered: ctx.months_covered, basis: ctx.basis, position: ctx.position }) : '',
-        '',
-        'SCENARIO ASSUMPTIONS:',
-        '- Revenue growth rate: ' + inputs.revenue_growth_pct + '% per year',
-        '- Projection period: ' + inputs.projection_years + ' years',
-        '- New hires planned: ' + inputs.new_hires + ' employees at avg INR ' + parseFloat(inputs.avg_salary).toLocaleString('en-IN') + '/year',
-        inputs.new_office ? '- New office: Monthly rent INR ' + parseFloat(inputs.office_rent_monthly).toLocaleString('en-IN') : '',
-        inputs.new_product ? '- New product development: One-time cost INR ' + parseFloat(inputs.product_dev_cost).toLocaleString('en-IN') : '',
-        '- Inflation rate: ' + inputs.inflation_pct + '% per year',
-        '- Effective tax rate: ' + inputs.tax_rate_pct + '%',
-        inputs.custom_assumption ? '- Additional: ' + inputs.custom_assumption : '',
-        '',
-        'Generate a detailed financial projection. Return a JSON object with this exact structure:',
-        '{',
-        '  "summary": "2-3 sentence executive summary of the scenario outcome",',
-        '  "verdict": "POSITIVE" | "CAUTION" | "NEGATIVE",',
-        '  "years": [',
-        '    {',
-        '      "year": 1,',
-        '      "revenue": number,',
-        '      "gross_profit": number,',
-        '      "operating_expenses": number,',
-        '      "ebitda": number,',
-        '      "tax": number,',
-        '      "net_profit": number,',
-        '      "cash_flow": number,',
-        '      "headcount": number,',
-        '      "monthly_burn": number',
-        '    }',
-        '  ],',
-        '  "key_metrics": {',
-        '    "revenue_cagr": number,',
-        '    "ebitda_margin_y3": number,',
-        '    "payback_months": number,',
-        '    "break_even_month": number,',
-        '    "total_investment": number,',
-        '    "roi_3yr": number',
-        '  },',
-        '  "risks": ["risk1", "risk2", "risk3"],',
-        '  "opportunities": ["opp1", "opp2", "opp3"],',
-        '  "recommendations": ["rec1", "rec2", "rec3"],',
-        '  "cash_flow_months": [',
-        '    { "month": "Apr", "value": number },',
-        '    ... 12 months for year 1',
-        '  ]',
-        '}',
-        'All projections are estimates derived from the data above: state the key assumptions in the summary and do not invent facts about the company. Return only valid JSON, no markdown.',
-      ].filter(Boolean).join('\n');
-
-      const res = await fetch(apiURL('/api/cfo/brief'), {
-        method: 'POST',
-        headers: headers(),
-        body: JSON.stringify({ prompt }),
-      });
-      const rawText = await res.text();
-      let parsed;
+      const calc = computeProjection(inputs);
+      let parsed = calc;
       try {
-        const data = JSON.parse(rawText);
-        const aiText = data.text || rawText;
-        const jsonMatch = aiText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          try { parsed = JSON.parse(jsonMatch[0]); } catch { parsed = null; }
+        const prompt = [
+          'You are the commentary writer for the Digital Twin of Deemona AI Finance OS (an Indian ' + inputs.industry + ' company).',
+          'The projection below was CALCULATED IN CODE from the company inputs. Do not recompute, change or restate any number differently.',
+          '',
+          'INPUTS: ' + JSON.stringify({ current_revenue: inputs.current_revenue, employees: inputs.current_employees, monthly_expenses: inputs.current_monthly_expenses,
+            growth_pct: inputs.revenue_growth_pct, years: inputs.projection_years, new_hires: inputs.new_hires, avg_salary: inputs.avg_salary,
+            new_office: inputs.new_office, office_rent_monthly: inputs.office_rent_monthly, new_product: inputs.new_product, product_dev_cost: inputs.product_dev_cost,
+            inflation_pct: inputs.inflation_pct, tax_rate_pct: inputs.tax_rate_pct, custom: inputs.custom_assumption }),
+          'CALCULATED RESULT: ' + JSON.stringify({ verdict: calc.verdict, years: calc.years.map(y => ({ year: y.year, revenue: y.revenue, ebitda: y.ebitda, net_profit: y.net_profit })), key_metrics: calc.key_metrics }),
+          ctx ? 'COMPANY DATA FROM THE BOOKS (live): ' + JSON.stringify({ months_covered: ctx.months_covered, position: ctx.position }) : 'No company books data was found.',
+          '',
+          'Use your tools only if you need the company\'s own data (ar_aging, collection_efficiency, budget_vs_actual). Then reply with ONLY this JSON, no markdown:',
+          '{ "summary": "2-3 sentences on what this scenario means for this company", "risks": ["..","..",".."], "opportunities": ["..","..",".."], "recommendations": ["..","..",".."] }',
+          'Mention assumptions you relied on. Do not invent facts about the company.',
+        ].join('\n');
+
+        const res = await fetch(apiURL('/api/cfo/brief'), { method: 'POST', headers: headers(), body: JSON.stringify({ prompt }) });
+        const rawText = await res.text();
+        let data = null;
+        try { data = JSON.parse(rawText); } catch {}
+        if (!res.ok) {
+          parsed = { ...calc, ai_note: 'AI commentary unavailable: ' + (data && data.error ? String(data.error).slice(0, 200) : 'HTTP ' + res.status) };
+        } else {
+          const aiText = (data && data.text) || rawText;
+          const m = aiText.match(/\{[\s\S]*\}/);
+          let ai = null;
+          if (m) { try { ai = JSON.parse(m[0]); } catch {} }
+          const list = v => (Array.isArray(v) ? v.map(String) : []);
+          if (ai && (ai.summary || ai.risks || ai.recommendations)) {
+            parsed = { ...calc, summary: (ai.summary ? ai.summary + '\n\n' : '') + calc.summary, risks: list(ai.risks), opportunities: list(ai.opportunities), recommendations: list(ai.recommendations) };
+          } else {
+            parsed = { ...calc, summary: calc.summary + '\n\nAI commentary: ' + String(aiText).slice(0, 1500) };
+          }
         }
-        if (!parsed) {
-          parsed = { error: 'The reply could not be read as a projection. Please run the simulation again.' };
-        }
-      } catch(e) {
-        parsed = { error: 'The reply could not be read as a projection. Please run the simulation again.' };
+      } catch (e) {
+        parsed = { ...calc, ai_note: 'AI commentary unavailable: ' + e.message };
       }
       setResult(parsed);
     } catch (err) {
@@ -536,7 +550,8 @@ export default function DigitalTwinPage() {
                     <div style={{ fontSize: 14, fontWeight: 700, color: verdictConfig[result.verdict]?.color, marginBottom: 4 }}>
                       SIMULATION VERDICT: {result.verdict}
                     </div>
-                    <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-primary)' }}>{result.summary}</div>
+                    <div style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--text-primary)', whiteSpace: 'pre-line' }}>{result.summary}</div>
+                    {result.ai_note && <div style={{ fontSize: 12, marginTop: 8, color: 'var(--text-muted)' }}>{result.ai_note}</div>}
                   </div>
                   {/* Save scenario */}
                   <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
@@ -557,10 +572,10 @@ export default function DigitalTwinPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 10, marginBottom: 20 }}>
                   <MetricCard label="Revenue CAGR" value={result.key_metrics.revenue_cagr + '%'} color="#22C98A" />
                   <MetricCard label="EBITDA Margin Y3" value={result.key_metrics.ebitda_margin_y3 + '%'} color="#1B4FD8" />
-                  <MetricCard label="Payback Period" value={result.key_metrics.payback_months + ' mo'} color="#4FC3F7" />
-                  <MetricCard label="Break-even Month" value={'M' + result.key_metrics.break_even_month} color="#3B82F6" />
+                  <MetricCard label="Payback Period" value={result.key_metrics.payback_months != null ? result.key_metrics.payback_months + ' mo' : 'n/a'} color="#4FC3F7" />
+                  <MetricCard label="Break-even Month" value={result.key_metrics.break_even_month != null ? 'M' + result.key_metrics.break_even_month : 'Not in year 1'} color="#3B82F6" />
                   <MetricCard label="Total Investment" value={formatINR(result.key_metrics.total_investment)} color="#F5A623" />
-                  <MetricCard label="3-Year ROI" value={result.key_metrics.roi_3yr + '%'} color={result.key_metrics.roi_3yr >= 0 ? '#22C98A' : '#FF5C5C'} />
+                  <MetricCard label="3-Year ROI" value={result.key_metrics.roi_3yr != null ? result.key_metrics.roi_3yr + '%' : 'n/a'} color={result.key_metrics.roi_3yr == null || result.key_metrics.roi_3yr >= 0 ? '#22C98A' : '#FF5C5C'} />
                 </div>
               )}
 
@@ -584,7 +599,7 @@ export default function DigitalTwinPage() {
                           { label: 'Tax', value: yr.tax, color: '#F5A623' },
                           { label: 'Headcount', value: yr.headcount + ' people', color: '#3B5998', noFormat: true },
                           { label: 'Monthly Burn', value: yr.monthly_burn, color: '#FF5C5C' },
-                        ].map(m => (
+                        ].filter(m => m.value != null).map(m => (
                           <div key={m.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '5px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
                             <span style={{ color: 'var(--text-muted)' }}>{m.label}</span>
                             <span style={{ fontWeight: 700, color: m.color }}>
