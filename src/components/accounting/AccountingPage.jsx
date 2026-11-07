@@ -638,6 +638,21 @@ function NewInvoiceModal({ type, onClose, onDone }) {
   );
 }
 
+function DeleteInvoiceButton({ invoice, type, onDone }) {
+  const [busy, setBusy] = useState(false);
+  if (parseFloat(invoice.paid_amount || 0) > 0) return null;
+  const go = async () => {
+    if (!window.confirm('Delete ' + (type === 'ar' ? 'invoice ' : 'bill ') + invoice.invoice_number + '? This cannot be undone.')) return;
+    setBusy(true);
+    try {
+      const res = await fetch(API + (type === 'ar' ? '/ar-invoices/' : '/ap-invoices/') + invoice.id, { method: 'DELETE', headers: headers() });
+      if (!res.ok) { let m = 'Could not delete'; try { m = (await res.json()).error || m; } catch {} window.alert(m); }
+      else onDone();
+    } finally { setBusy(false); }
+  };
+  return <button onClick={go} disabled={busy} title="Delete" style={{ padding: '5px 8px', borderRadius: 8, border: 'none', background: 'transparent', color: '#FF5C5C', fontSize: 12, cursor: busy ? 'not-allowed' : 'pointer' }}>Delete</button>;
+}
+
 function PayButton({ invoice, type, onPay }) {
   const balance = parseFloat(invoice.balance_due || 0);
   const ok = balance > 0 && (type === 'ar' ? ['sent', 'overdue', 'partially_paid'] : ['approved', 'overdue']).includes(invoice.status);
@@ -651,7 +666,7 @@ function PayButton({ invoice, type, onPay }) {
 
 const INV_COLS = '140px 1fr 100px 120px 120px 100px 130px';
 
-function InvoiceTable({ type, invoices, onPay }) {
+function InvoiceTable({ type, invoices, onPay, onChanged }) {
   const isAr = type === 'ar';
   return (
     <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
@@ -670,7 +685,7 @@ function InvoiceTable({ type, invoices, onPay }) {
           <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatINR(inv.total_amount)}</span>
           <span style={{ textAlign: 'right', color: parseFloat(inv.balance_due) > 0 ? '#FF5C5C' : '#22C98A', fontWeight: 600 }}>{formatINR(inv.balance_due)}</span>
           <span style={{ paddingLeft: 14 }}><StatusBadge status={inv.status} /></span>
-          <PayButton invoice={inv} type={type} onPay={onPay} />
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}><PayButton invoice={inv} type={type} onPay={onPay} /><DeleteInvoiceButton invoice={inv} type={type} onDone={onChanged || (() => {})} /></span>
         </div>
       ))}
     </div>
@@ -719,7 +734,7 @@ function APTab() {
         <EmptyState icon="📄" title="No AP invoices yet"
           sub="Add vendors first, then record bills from suppliers" />
       ) : (
-        <InvoiceTable type="ap" invoices={invoices} onPay={setPaying} />
+        <InvoiceTable type="ap" invoices={invoices} onPay={setPaying} onChanged={load} />
       )}
       {paying && <RecordPaymentModal type="ap" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
       {creating && <NewInvoiceModal type="ap" onClose={() => setCreating(false)} onDone={() => { setCreating(false); load(); }} />}
@@ -753,7 +768,7 @@ function ARTab() {
         <EmptyState icon="🧾" title="No sales invoices yet"
           sub="Add customers first, then create invoices for your sales" />
       ) : (
-        <InvoiceTable type="ar" invoices={invoices} onPay={setPaying} />
+        <InvoiceTable type="ar" invoices={invoices} onPay={setPaying} onChanged={load} />
       )}
       {paying && <RecordPaymentModal type="ar" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
       {creating && <NewInvoiceModal type="ar" onClose={() => setCreating(false)} onDone={() => { setCreating(false); load(); }} />}
