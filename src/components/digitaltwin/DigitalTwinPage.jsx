@@ -1,5 +1,5 @@
 ﻿import { apiURL } from '../../api.js';
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 
@@ -215,23 +215,44 @@ export default function DigitalTwinPage() {
   // Real figures from this company's books (GET /api/cfo/twin-context); null fields are never made up
   const [ctx, setCtx] = useState(null);
   const [fromBooks, setFromBooks] = useState({});
-  useEffect(() => {
-    let alive = true;
-    fetch(apiURL('/api/cfo/twin-context'), { headers: headers() })
+  const fromBooksRef = useRef({});
+  useEffect(() => { fromBooksRef.current = fromBooks; }, [fromBooks]);
+  const [live, setLive] = useState({ at: null, table: null });
+  const [ranAt, setRanAt] = useState(0);
+  const [changedAt, setChangedAt] = useState(0);
+  // /*twin-live*/ Real figures from this company's books (GET /api/cfo/twin-context); null fields are never made up
+  const loadCtx = useCallback((initial) => {
+    return fetch(apiURL('/api/cfo/twin-context'), { headers: headers() })
       .then(r => (r.ok ? r.json() : null))
       .then(d => {
-        if (!alive || !d || !d.baseline) return;
+        if (!d || !d.baseline) return;
         setCtx(d);
         const fill = {}, tag = {};
         if (d.baseline.annual_revenue != null) { fill.current_revenue = String(d.baseline.annual_revenue); tag.current_revenue = true; }
         if (d.baseline.employees != null) { fill.current_employees = String(d.baseline.employees); tag.current_employees = true; }
         if (d.baseline.monthly_opex != null) { fill.current_monthly_expenses = String(d.baseline.monthly_opex); tag.current_monthly_expenses = true; }
-        setInputs(p => ({ ...p, ...fill }));
-        setFromBooks(tag);
+        if (initial) { setInputs(p => ({ ...p, ...fill })); setFromBooks(tag); return; }
+        // live refresh: only update fields the user has not edited
+        const keep = {};
+        Object.keys(fill).forEach(k => { if (fromBooksRef.current[k]) keep[k] = fill[k]; });
+        if (Object.keys(keep).length) setInputs(p => ({ ...p, ...keep }));
       })
       .catch(() => {});
-    return () => { alive = false; };
   }, []);
+  useEffect(() => { loadCtx(true); }, [loadCtx]);
+  useEffect(() => {
+    let t = null;
+    const onChange = (e) => {
+      const d = (e && e.detail) || {};
+      setLive(p => ({ at: Date.now(), table: d.table || p.table }));
+      setChangedAt(Date.now());
+      clearTimeout(t);
+      t = setTimeout(() => loadCtx(false), 2500);
+    };
+    window.addEventListener('deemona_data_change', onChange);
+    return () => { window.removeEventListener('deemona_data_change', onChange); clearTimeout(t); };
+  }, [loadCtx]);
+  useEffect(() => { if (result) setRanAt(Date.now()); }, [result]);
 
   const set = (key, val) => { setFromBooks(p => ({ ...p, [key]: false })); setInputs(p => ({ ...p, [key]: val })); };
 
@@ -364,6 +385,21 @@ export default function DigitalTwinPage() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', margin: '-4px 0 16px', fontSize: 12, color: 'var(--text-secondary)' }}>
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: live.at ? '#22C98A' : '#94A3B8' }} />
+          {live.at
+            ? 'Live: books updated at ' + new Date(live.at).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) + (live.table ? ' (' + String(live.table).replace(/_/g, ' ') + ')' : '')
+            : 'Connected to your books. The baseline refreshes automatically when they change.'}
+        </span>
+        {result && !result.error && changedAt > ranAt && (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '3px 10px', borderRadius: 100, background: '#FEF3C7', color: '#92400E', fontWeight: 600 }}>
+            Your books changed after this simulation
+            <button onClick={runSimulation} style={{ padding: '2px 10px', borderRadius: 100, border: 'none', background: '#1B4FD8', color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Re-run</button>
+          </span>
+        )}
       </div>
 
       {/* Tabs */}
