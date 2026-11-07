@@ -13,6 +13,7 @@ import BudgetingPage from './components/budgeting/BudgetingPage';
 import { ExpensesPage, AssetsPage, InventoryPage, ProjectsPage, CompliancePage, CRMPage } from './components/remaining/AllPages';
 import DigitalTwinPage from './components/digitaltwin/DigitalTwinPage';
 import StatementsPage from './components/statements/StatementsPage';
+import CashBalancePage from './components/cash/CashBalancePage';
 import CFOAgentPage from './components/cfoagent/CFOAgentPage';
 import DocumentAIPage from './components/documentai/DocumentAIPage';
 import AutomationPage from './components/automation/AutomationPage';
@@ -93,11 +94,13 @@ const NAV_GROUPS = [
     label: 'Finance',
     items: [
       { path: '/accounting',  label: 'Accounting',       icon: 'M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M9 7V4a1 1 0 011-1h9a1 1 0 011 1v9a1 1 0 01-1 1h-3M9 7h6' },
+      { path: '/cash-balance', label: 'Cash Balance', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
       { path: '/procurement', label: 'Procurement',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 14a2 2 0 110-4 2 2 0 010 4z' },
       { path: '/payroll',     label: 'Payroll',          icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z' },
     { path: '/gst-portal',  label: 'GST Portal',       icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z' },
       { path: '/tax',         label: 'Tax & GST',        icon: 'M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8' },
       { path: '/budgeting',   label: 'Budgeting',        icon: 'M18 20V10M12 20V4M6 20v-6' },
+      { path: '/cash-balance', title: 'Cash Balance', sub: 'Enter your cash and bank balance. No bank data is stored.', comp: <CashBalancePage /> },
       { path: '/statements',  label: 'Statements',       icon: 'M9 17v-2m3 2v-4m3 4v-6M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1z' },
       { path: '/reports',      label: 'Reports',          icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z' },
     ],
