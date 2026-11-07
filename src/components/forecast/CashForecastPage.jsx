@@ -65,6 +65,44 @@ export default function CashForecastPage() {
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState(false);
   const seq = useRef(0);
+  const [saved, setSaved] = useState([]);
+  const [saveName, setSaveName] = useState('');
+  const [saveMsg, setSaveMsg] = useState(null);
+  const [ai, setAi] = useState({ text: '', key: '', loading: false, err: null });
+
+  const settings = () => ({ days, ar_delay_days: arDelay, collection_pct: pct, ap_delay_days: apDelay, monthly_outflow: Number(mOut) || 0, monthly_inflow: Number(mIn) || 0 });
+  const settingsKey = JSON.stringify(settings());
+  const api = async (method, url, body) => {
+    try {
+      const r = await fetch(apiURL(url), { method, headers: hdr(), body: body ? JSON.stringify(body) : undefined });
+      const t = await r.text(); let d = {}; try { d = JSON.parse(t); } catch { /* ignore */ }
+      return r.ok ? d : { error: d.error || ('Request failed (' + r.status + ')') };
+    } catch (e) { return { error: e.message }; }
+  };
+  const loadSaved = useCallback(async () => { const d = await api('GET', '/api/cash-forecast/scenarios'); if (d.scenarios) setSaved(d.scenarios); }, []);
+  useEffect(() => { loadSaved(); }, [loadSaved]);
+  const saveScenario = async () => {
+    setSaveMsg(null);
+    const d = await api('POST', '/api/cash-forecast/scenarios', { name: saveName, params: settings() });
+    if (d.error) { setSaveMsg({ ok: false, text: d.error }); return; }
+    setSaveName(''); setSaveMsg({ ok: true, text: 'Saved.' }); loadSaved();
+  };
+  const useScenario = sc => {
+    const p = sc.params || {};
+    setDays(p.days || 90); setArDelay(p.ar_delay_days || 0); setPct(p.collection_pct == null ? 100 : p.collection_pct);
+    setApDelay(p.ap_delay_days || 0); setMOut(p.monthly_outflow ? String(p.monthly_outflow) : ''); setMIn(p.monthly_inflow ? String(p.monthly_inflow) : '');
+  };
+  const delScenario = async sc => {
+    if (!window.confirm('Delete the saved scenario "' + sc.name + '"?')) return;
+    const d = await api('DELETE', '/api/cash-forecast/scenarios/' + sc.id);
+    if (d.error) setSaveMsg({ ok: false, text: d.error }); else loadSaved();
+  };
+  const explain = async () => {
+    setAi(a => ({ ...a, loading: true, err: null }));
+    const key = settingsKey;
+    const d = await api('POST', '/api/cash-forecast/commentary', settings());
+    if (d.error) setAi(a => ({ ...a, loading: false, err: d.error })); else setAi({ text: d.text, key, loading: false, err: null });
+  };
 
   const load = useCallback(async () => {
     const my = ++seq.current;
@@ -148,6 +186,25 @@ export default function CashForecastPage() {
       </div>
 
       <div style={card}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 700 }}>Explain this forecast</div>
+            <div style={{ fontSize: 13, color: '#64748B' }}>A short plain-language read of the chart. The AI only explains the figures calculated above.</div>
+          </div>
+          <button onClick={explain} disabled={ai.loading || !data} style={{ padding: '9px 18px', background: '#1B4FD8', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 600, cursor: ai.loading ? 'default' : 'pointer', opacity: ai.loading ? 0.6 : 1 }}>{ai.loading ? 'Writing…' : (ai.text ? 'Explain again' : 'Explain')}</button>
+        </div>
+        {ai.err && <div style={{ fontSize: 13, color: '#B91C1C', marginTop: 10 }}>{ai.err}</div>}
+        {ai.text && (
+          <div style={{ marginTop: 12, padding: 14, background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10 }}>
+            <div style={{ fontSize: 14, color: '#0F172A', whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{ai.text}</div>
+            <div style={{ fontSize: 11, color: ai.key === settingsKey ? '#64748B' : '#B45309', marginTop: 8 }}>
+              {ai.key === settingsKey ? 'AI-written from the numbers above. It can make mistakes, so check the figures against the chart.' : 'Your settings changed after this was written. Press Explain again to refresh it.'}
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={card}>
         <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>Try your own scenario</div>
         <div style={{ fontSize: 13, color: '#64748B', marginBottom: 14 }}>Change anything below and the chart updates. A third line appears once your settings differ from the two built-in cases.</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14 }}>
@@ -163,6 +220,27 @@ export default function CashForecastPage() {
             <input style={input} type="number" min="0" placeholder="0" value={mOut} onChange={e => setMOut(e.target.value)} /></div>
           <div><label style={label}>New monthly sales not yet invoiced (₹)</label>
             <input style={input} type="number" min="0" placeholder="0" value={mIn} onChange={e => setMIn(e.target.value)} /></div>
+        </div>
+        <div style={{ borderTop: '1px solid #F1F5F9', marginTop: 18, paddingTop: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Saved scenarios</div>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center', marginBottom: 10 }}>
+            <input style={{ ...input, width: 240 }} maxLength={80} placeholder="Name these settings, e.g. Slow October" value={saveName} onChange={e => setSaveName(e.target.value)} />
+            <button onClick={saveScenario} disabled={!saveName.trim()} style={{ padding: '9px 16px', background: '#fff', color: '#1B4FD8', border: '1px solid #1B4FD8', borderRadius: 8, fontWeight: 600, cursor: saveName.trim() ? 'pointer' : 'default', opacity: saveName.trim() ? 1 : 0.5 }}>Save current settings</button>
+            {saveMsg && <span style={{ fontSize: 13, color: saveMsg.ok ? '#15803D' : '#B91C1C' }}>{saveMsg.text}</span>}
+          </div>
+          {saved.length === 0 ? <div style={{ fontSize: 13, color: '#64748B' }}>Nothing saved yet.</div> : saved.map(sc => {
+            const p = sc.params || {};
+            const bits = [p.days + ' days', p.ar_delay_days ? 'customers ' + p.ar_delay_days + 'd late' : null, p.collection_pct < 100 ? p.collection_pct + '% collected' : null, p.ap_delay_days ? 'suppliers paid ' + p.ap_delay_days + 'd late' : null, p.monthly_outflow ? inr(p.monthly_outflow) + '/mo costs' : null, p.monthly_inflow ? inr(p.monthly_inflow) + '/mo new sales' : null].filter(Boolean).join(' · ');
+            return (
+              <div key={sc.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '8px 0', borderTop: '1px solid #F1F5F9', fontSize: 13 }}>
+                <div><div style={{ fontWeight: 600 }}>{sc.name}</div><div style={{ fontSize: 12, color: '#64748B' }}>{bits}</div></div>
+                <div style={{ display: 'flex', gap: 10 }}>
+                  <button onClick={() => useScenario(sc)} style={{ background: 'none', border: 'none', color: '#1B4FD8', fontWeight: 600, cursor: 'pointer' }}>Load</button>
+                  <button onClick={() => delScenario(sc)} style={{ background: 'none', border: 'none', color: '#B91C1C', cursor: 'pointer' }}>Delete</button>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -187,7 +265,7 @@ export default function CashForecastPage() {
               </tbody>
             </table>
           )}
-          <div style={{ fontSize: 12, color: '#64748B', marginTop: 12 }}>{data.note} Every number is plain arithmetic on your records; no AI is used.</div>
+          <div style={{ fontSize: 12, color: '#64748B', marginTop: 12 }}>{data.note} Every number is plain arithmetic on your records. The AI commentary only explains those numbers.</div>
         </div>
       )}
     </div>
