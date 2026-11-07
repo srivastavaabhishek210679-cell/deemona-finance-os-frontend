@@ -18,7 +18,18 @@ function Rich({ text }) {
   return (
     <div style={{ fontSize: 14, lineHeight: 1.55, color: '#0F172A' }}>
       {String(text).split(/\n{2,}/).map((para, i) => {
-        const lines = para.split('\n');
+        const lines = para.split('\n').filter(l => !/^\s*(-{3,}|\*{3,}|_{3,})\s*$/.test(l)).map(l => l.replace(/^#{1,6}\s+/, ''));
+        if (lines.length === 0) return null;
+        if (lines.length >= 2 && lines.every(l => l.trim().startsWith('|'))) {
+          const rows = lines.filter(l => !/^\s*\|?[\s:|-]+\|?\s*$/.test(l)).map(l => l.trim().replace(/^\||\|$/g, '').split('|').map(c => c.trim()));
+          return (
+            <div key={i} style={{ overflowX: 'auto', margin: '8px 0' }}>
+              <table style={{ borderCollapse: 'collapse', fontSize: 13 }}>
+                <tbody>{rows.map((r, ri) => <tr key={ri} style={{ borderTop: ri ? '1px solid #E2E8F0' : 'none', background: ri === 0 ? '#F1F5F9' : 'transparent' }}>{r.map((c, ci) => <td key={ci} style={{ padding: '6px 10px', fontWeight: ri === 0 ? 700 : 400 }}>{bold(c)}</td>)}</tr>)}</tbody>
+              </table>
+            </div>
+          );
+        }
         if (lines.every(l => /^\s*[-•]\s/.test(l))) return <ul key={i} style={{ margin: '6px 0', paddingLeft: 20 }}>{lines.map((l, j) => <li key={j}>{bold(l.replace(/^\s*[-•]\s/, ''))}</li>)}</ul>;
         return <p key={i} style={{ margin: '6px 0' }}>{lines.map((l, j) => <span key={j}>{bold(l)}{j < lines.length - 1 && <br />}</span>)}</p>;
       })}
