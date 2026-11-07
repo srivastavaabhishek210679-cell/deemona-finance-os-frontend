@@ -377,7 +377,7 @@ export default function DashboardPage() {
                   <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 12 }}>No data</div>
                 )}
                 <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 7, background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>{runwayDays != null ? 'Runway: about ' + (runwayDays / 30).toFixed(1) + ' months' : 'Runway: not available yet'}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>{/*runway-cap*/runwayDays != null ? (runwayDays / 30 > 60 ? 'Runway: 5+ years' : 'Runway: about ' + (runwayDays / 30).toFixed(1) + ' months') : 'Runway: not available yet'}</div>
                   <div style={{ fontSize: 10, color: '#64748B' }}>{runwayDays != null ? 'Cash divided by average monthly outflow' : 'Needs payments or costs recorded'}</div>
                 </div>
               </div>
