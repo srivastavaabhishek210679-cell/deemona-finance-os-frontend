@@ -119,7 +119,7 @@ function SavedScenarios({ scenarios, onLoad, onDelete }) {
 
 // -- Projection maths (done in code, never by the AI) -----------
 const MONTHS_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-function computeProjection(inp) {
+function computeProjection(inp, ctx) {
   const n = v => { const x = parseFloat(v); return Number.isFinite(x) ? x : 0; };
   const rev0 = n(inp.current_revenue), emp0 = Math.round(n(inp.current_employees)), opexM = n(inp.current_monthly_expenses);
   const g = n(inp.revenue_growth_pct) / 100, infl = n(inp.inflation_pct) / 100, taxRate = n(inp.tax_rate_pct) / 100;
@@ -158,9 +158,15 @@ function computeProjection(inp) {
   let verdict = 'POSITIVE';
   if (last.ebitda < 0) verdict = 'NEGATIVE';
   else if (first.ebitda < 0 || margin(last) < 10) verdict = 'CAUTION';
+  const dso = ctx && ctx.position ? Number(ctx.position.dso_days) : NaN;
+  let collectionNote = '';
+  if (Number.isFinite(dso) && dso > 90) {
+    if (verdict === 'POSITIVE') verdict = 'CAUTION';
+    collectionNote = ' Caution: your books show customers taking about ' + Math.round(dso) + ' days to pay, so profit on paper may not turn into cash soon.';
+  }
   const summary = 'Revenue grows from ' + formatINR(rev0) + ' to ' + formatINR(last.revenue) + ' over ' + N + ' year(s). Year 1 EBITDA is ' + formatINR(first.ebitda) +
     '; by year ' + N + ' it is ' + formatINR(last.ebitda) + ' (' + margin(last) + '% margin). Extra spend in year 1 from this scenario: ' + formatINR(total_investment) + '. ' +
-    'Calculated from your inputs: current expenses are assumed to include today\'s payroll, and no extra revenue is assumed from the new hires, office or product.';
+    'Calculated from your inputs: current expenses are assumed to include today\'s payroll, and no extra revenue is assumed from the new hires, office or product.' + collectionNote;
   return {
     summary, verdict, years, cash_flow_months, risks: [], opportunities: [], recommendations: [],
     key_metrics: {
@@ -235,7 +241,7 @@ export default function DigitalTwinPage() {
     setActiveTab('results');
 
     try {
-      const calc = computeProjection(inputs);
+      const calc = computeProjection(inputs, ctx);
       let parsed = calc;
       try {
         const prompt = [
@@ -595,7 +601,7 @@ export default function DigitalTwinPage() {
                           { label: 'Gross Profit', value: yr.gross_profit, color: '#4FC3F7' },
                           { label: 'EBITDA', value: yr.ebitda, color: '#3B82F6' },
                           { label: 'Net Profit', value: yr.net_profit, color: yr.net_profit >= 0 ? '#22C98A' : '#FF5C5C' },
-                          { label: 'Cash Flow', value: yr.cash_flow, color: yr.cash_flow >= 0 ? '#22C98A' : '#FF5C5C' },
+                          { label: 'Cash Flow (if collected)', value: yr.cash_flow, color: yr.cash_flow >= 0 ? '#22C98A' : '#FF5C5C' },
                           { label: 'Tax', value: yr.tax, color: '#F5A623' },
                           { label: 'Headcount', value: yr.headcount + ' people', color: '#3B5998', noFormat: true },
                           { label: 'Monthly Burn', value: yr.monthly_burn, color: '#FF5C5C' },
@@ -616,7 +622,7 @@ export default function DigitalTwinPage() {
               {/* Cash flow chart */}
               {result.cash_flow_months?.length > 0 && (
                 <div style={{ padding: 20, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)', marginBottom: 20 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Monthly Cash Flow  -  Year 1</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16 }}>Monthly result before collections  -  Year 1</div>
                   <BarChart
                     data={result.cash_flow_months.map(m => ({ label: m.month, value: m.value }))}
                     color="#1B4FD8"
@@ -630,7 +636,7 @@ export default function DigitalTwinPage() {
                 {[
                   { title: 'Key Risks', items: result.risks, color: '#FF5C5C', icon: '!' },
                   { title: 'Opportunities', items: result.opportunities, color: '#22C98A', icon: '+' },
-                  { title: 'Recommendations', items: result.recommendations, color: '#1B4FD8', icon: 'down' },
+                  { title: 'Recommendations', items: result.recommendations, color: '#1B4FD8', icon: '>' },
                 ].map(section => (
                   <div key={section.title} style={{ padding: 16, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
                     <div style={{ fontSize: 14, fontWeight: 700, color: section.color, marginBottom: 12 }}>
@@ -644,7 +650,7 @@ export default function DigitalTwinPage() {
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
                           fontSize: 10, fontWeight: 700, marginTop: 1,
                         }}>{section.icon}</span>
-                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)', lineHeight: 1.5 }}>{item}</span>
+                        <span style={{ fontSize: 13, color: 'var(--text-primary)', lineHeight: 1.5 }}>{item}</span>
                       </div>
                     ))}
                   </div>
