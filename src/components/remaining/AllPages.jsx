@@ -201,21 +201,21 @@ export function AssetsPage() {
       {loading?<div style={{textAlign:'center',padding:40,color:'var(--text-muted)'}}>Loading...</div>:assets.length===0?
         <EmptyState icon="🏭" title="No assets registered" sub="Track all fixed assets, depreciation, and disposal" action="+ Add Asset" onAction={()=>setShowForm(true)}/>:(
         <div style={{borderRadius:12,border:'1px solid var(--border)',overflow:'hidden'}}>
-          <div style={{display:'grid',gridTemplateColumns:'80px 1fr 100px 100px 120px 120px 100px 80px',padding:'10px 16px',background:'var(--surface-3)',fontSize:11,fontWeight:700,color:'var(--text-muted)',letterSpacing:'0.05em'}}>
+          <div style={{display:'grid',gridTemplateColumns:'80px 1fr 100px 100px 120px 120px 110px 90px',columnGap:12,padding:'10px 16px',background:'var(--surface-3)',fontSize:11,fontWeight:700,color:'var(--text-muted)',letterSpacing:'0.05em'}}>
             <span>CODE</span><span>NAME</span><span>CATEGORY</span><span>PURCHASE DATE</span><span style={{textAlign:'right'}}>COST</span><span style={{textAlign:'right'}}>DEPRECIATION</span><span style={{textAlign:'right'}}>BOOK VALUE</span><span>STATUS</span>
           </div>
           {assets.map((a,i)=>{
             const dep=calcDepreciation(a);
             const bookVal=parseFloat(a.purchase_price||0)-dep;
             return(
-              <div key={a.id} style={{display:'grid',gridTemplateColumns:'80px 1fr 100px 100px 120px 120px 100px 80px',padding:'12px 16px',fontSize:13,alignItems:'center',background:i%2===0?'var(--surface-2)':'var(--surface-1)',borderTop:'1px solid var(--border)'}}>
+              <div key={a.id} style={{display:'grid',gridTemplateColumns:'80px 1fr 100px 100px 120px 120px 110px 90px',columnGap:12,padding:'12px 16px',fontSize:13,alignItems:'center',background:i%2===0?'var(--surface-2)':'var(--surface-1)',borderTop:'1px solid var(--border)'}}>
                 <span style={{fontWeight:700,color:'var(--text-muted)',fontSize:12}}>{a.asset_code}</span>
                 <div><div style={{fontWeight:500}}>{a.name}</div>{a.location&&<div style={{fontSize:11,color:'var(--text-muted)'}}>{a.location}</div>}</div>
                 <span style={{fontSize:12,color:'var(--text-muted)'}}>{a.category}</span>
                 <span style={{fontSize:12,color:'var(--text-muted)'}}>{fmtDate(a.purchase_date)}</span>
                 <span style={{textAlign:'right',fontWeight:600}}>{INR(a.purchase_price)}</span>
-                <span style={{textAlign:'right',color:'#FF5C5C'}}>{INR(dep)}</span>
-                <span style={{textAlign:'right',fontWeight:700,color:'#22C98A'}}>{INR(Math.max(0,bookVal))}</span>
+                <span style={{textAlign:'right',color:'#FF5C5C'}}>{INR(Math.round(dep))}</span>
+                <span style={{textAlign:'right',fontWeight:700,color:'#22C98A'}}>{INR(Math.round(Math.max(0,bookVal)))}</span>
                 <SBadge status={a.status}/>
               </div>
             );
