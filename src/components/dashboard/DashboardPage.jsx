@@ -173,6 +173,29 @@ function printSection(id, title) {
 }
 
 // ── Main Dashboard ────────────────────────────────────────────
+// Cash outlook banner: shown on the Executive Dashboard only when the 90-day forecast shows a shortfall
+// (or when no opening cash balance has been entered). Healthy = a single quiet line with a link.
+function CashOutlookBanner() {
+  const [d, setD] = useState(null);
+  useEffect(() => {
+    let alive = true;
+    const load = () => get('/api/cash-forecast?days=90').then(r => { if (alive && r && r.scenarios) setD(r); }).catch(() => {});
+    load();
+    window.addEventListener('deemona_data_change', load);
+    return () => { alive = false; window.removeEventListener('deemona_data_change', load); };
+  }, []);
+  if (!d) return null;
+  const fmt = s => new Date(s + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+  const base = d.scenarios.find(s => s.key === 'base');
+  const slow = d.scenarios.find(s => s.key === 'slow30');
+  const link = <a href="/cash-forecast" style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline', marginLeft: 8 }}>See forecast</a>;
+  const box = (bg, bd, fg) => ({ background: bg, border: '1px solid ' + bd, color: fg, borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: 13 });
+  if (!d.has_cash_entry) return <div style={box('#FFFBEB', '#FDE68A', '#92400E')}>No cash balance entered yet, so the cash forecast cannot start from your real position. <a href="/cash-balance" style={{ color: 'inherit', fontWeight: 700, textDecoration: 'underline' }}>Add it</a></div>;
+  if (base.first_negative) return <div style={box('#FEF2F2', '#FECACA', '#B91C1C')}><b>Cash shortfall ahead.</b> On the invoices and bills you have booked, cash runs out on {fmt(base.first_negative)} and falls to {INR(base.lowest.amount)}. You would need about {INR(base.shortfall)} of cover.{link}</div>;
+  if (slow && slow.first_negative) return <div style={box('#FFFBEB', '#FDE68A', '#92400E')}><b>Watch collections.</b> Cash holds as booked, but if customers pay 30 days late it runs out on {fmt(slow.first_negative)} (low of {INR(slow.lowest.amount)}).{link}</div>;
+  return <div style={box('#F0FDF4', '#BBF7D0', '#15803D')}>Cash outlook healthy: positive through the next 90 days, even if customers pay 30 days late. Lowest point {INR(Math.min(base.lowest.amount, slow ? slow.lowest.amount : base.lowest.amount))}.{link}</div>;
+}
+
 export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
@@ -274,6 +297,7 @@ export default function DashboardPage() {
       </div>
 
       <div id="dashboard-content">
+        <CashOutlookBanner />
 
         {/* ── OVERVIEW TAB ─────────────────────────────────────── */}
         {activeTab === 'overview' && (
