@@ -14,6 +14,7 @@ import { ExpensesPage, AssetsPage, InventoryPage, ProjectsPage, CompliancePage, 
 import DigitalTwinPage from './components/digitaltwin/DigitalTwinPage';
 import StatementsPage from './components/statements/StatementsPage';
 import CashBalancePage from './components/cash/CashBalancePage';
+import CashForecastPage from './components/forecast/CashForecastPage';
 import DataSyncPage from './components/datasync/DataSyncPage';
 import CFOAgentPage from './components/cfoagent/CFOAgentPage';
 import DocumentAIPage from './components/documentai/DocumentAIPage';
@@ -96,6 +97,7 @@ const NAV_GROUPS = [
     items: [
       { path: '/accounting',  label: 'Accounting',       icon: 'M9 7H6a2 2 0 00-2 2v9a2 2 0 002 2h9a2 2 0 002-2v-3M9 7V4a1 1 0 011-1h9a1 1 0 011 1v9a1 1 0 01-1 1h-3M9 7h6' },
       { path: '/cash-balance', label: 'Cash Balance', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
+      { path: '/cash-forecast', label: 'Cash Forecast', icon: 'M3 17l6-6 4 4 8-8M14 7h7v7' },
       { path: '/procurement', label: 'Procurement',      icon: 'M20 7H4a2 2 0 00-2 2v6a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2zM12 14a2 2 0 110-4 2 2 0 010 4z' },
       { path: '/payroll',     label: 'Payroll',          icon: 'M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75M9 11a4 4 0 100-8 4 4 0 000 8z' },
     { path: '/gst-portal',  label: 'GST Portal',       icon: 'M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z' },
@@ -542,6 +544,7 @@ export default function App() {
     { path: '/compliance',   title: 'Compliance',            sub: 'Statutory deadlines, penalties, and calendar.',      comp: <CompliancePage /> },
     { path: '/crm',          title: 'CRM',                   sub: 'Sales pipeline, leads, and customer revenue.',       comp: <CRMPage /> },
     { path: '/digitaltwin',  title: 'Digital Twin',          sub: 'Simulate scenarios before making real decisions.',   comp: <DigitalTwinPage /> },
+    { path: '/cash-forecast', title: 'Cash Forecast', sub: 'Where your cash is heading, and what happens if customers pay late.', comp: <CashForecastPage /> },
     { path: '/cash-balance', title: 'Cash Balance', sub: 'Enter your cash and bank balance. No bank data is stored.', comp: <CashBalancePage /> },
     { path: '/data-sync', title: 'Data Sync', sub: 'Real-time webhooks and the freshness of every data source.', comp: <DataSyncPage /> },
     { path: '/statements',   title: 'Financial Statements',  sub: 'P&L, Balance Sheet, and Cash Flow.',                 comp: <StatementsPage /> },
