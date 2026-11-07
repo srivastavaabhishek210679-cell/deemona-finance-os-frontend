@@ -61,6 +61,7 @@ import AuditTrailPage from './components/audit/AuditTrailPage';
 import CustomReportBuilder from './components/reports/CustomReportBuilder';
 import OnboardingWizard from './pages/OnboardingWizard';
 import AIAgentsPage from './components/agents/AIAgentsPage';
+import SpecialistAgentsPage from './components/specialists/SpecialistAgentsPage';
 import KnowledgeGraph from './components/knowledge/KnowledgeGraph';
 import PersonalDashboard from './components/dashboard/PersonalDashboard';
 import WorkflowDesigner from './components/automation/WorkflowDesigner';
@@ -125,6 +126,7 @@ const NAV_GROUPS = [
       { path: '/workflow-designer', label: 'Workflow Studio',  icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
       { path: '/knowledge-graph',   label: 'Knowledge Graph',  icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
       { path: '/ai-agents',         label: 'AI Agents',        icon: 'M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z' },
+      { path: '/finance-specialists', label: 'Finance Specialists', icon: 'M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z' },
       { path: '/automation-logs', label: 'Automation Logs', icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01' },
       { path: '/automation',   label: 'Automation',      icon: 'M13 10V3L4 14h7v7l9-11h-7z' },
       { path: '/tax-agent',    label: 'Tax Agent',       icon: 'M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18' },
@@ -568,6 +570,7 @@ export default function App() {
     { path: '/my-dashboard', title: 'My Dashboard', sub: 'Personalized role-based workspace.', comp: <PersonalDashboard /> },
     { path: '/knowledge-graph', title: 'Knowledge Graph', sub: 'Visual enterprise knowledge explorer.', comp: <KnowledgeGraph /> },
     { path: '/ai-agents', title: 'AI Agents', sub: 'Your intelligent AI workforce.', comp: <AIAgentsPage /> },
+    { path: '/finance-specialists', title: 'Finance Specialists', sub: 'Treasury, FP&A and Compliance agents that answer from your own books.', comp: <SpecialistAgentsPage /> },
     { path: '/landing', title: 'Deemona Finance OS', sub: 'Landing page.', comp: <LandingPage /> },
     { path: '/dashboard',    title: 'Executive Dashboard',   sub: 'Charts, KPIs, and financial analytics.',  comp: <DashboardPage /> },
     { path: '/audit-trail', title: 'Audit Trail', sub: 'Complete event history and change log.', comp: <AuditTrailPage /> },
