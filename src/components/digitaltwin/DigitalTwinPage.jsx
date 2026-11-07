@@ -258,6 +258,7 @@ export default function DigitalTwinPage() {
           'Use your tools only if you need the company\'s own data (ar_aging, collection_efficiency, budget_vs_actual). Then reply with ONLY this JSON, no markdown:',
           '{ "summary": "2-3 sentences on what this scenario means for this company", "risks": ["..","..",".."], "opportunities": ["..","..",".."], "recommendations": ["..","..",".."] }',
           'Mention assumptions you relied on. Do not invent facts about the company.',
+          'Write in plain business English. Never quote field names or code words such as total_investment, null, roi_3yr or payback_months; say "no extra investment" or "not calculated" instead. Figures in INPUTS (such as average salary) may be form defaults the user has not changed, so do not present them as facts about the company.',
         ].join('\n');
 
         const res = await fetch(apiURL('/api/cfo/brief'), { method: 'POST', headers: headers(), body: JSON.stringify({ prompt }) });
