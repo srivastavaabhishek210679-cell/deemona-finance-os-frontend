@@ -1,5 +1,5 @@
 ﻿import { apiURL } from '../../api.js';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 
 const headers = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 
@@ -153,7 +153,28 @@ export default function DigitalTwinPage() {
     custom_assumption: '',
   });
 
-  const set = (key, val) => setInputs(p => ({ ...p, [key]: val }));
+  // Real figures from this company's books (GET /api/cfo/twin-context); null fields are never made up
+  const [ctx, setCtx] = useState(null);
+  const [fromBooks, setFromBooks] = useState({});
+  useEffect(() => {
+    let alive = true;
+    fetch(apiURL('/api/cfo/twin-context'), { headers: headers() })
+      .then(r => (r.ok ? r.json() : null))
+      .then(d => {
+        if (!alive || !d || !d.baseline) return;
+        setCtx(d);
+        const fill = {}, tag = {};
+        if (d.baseline.annual_revenue != null) { fill.current_revenue = String(d.baseline.annual_revenue); tag.current_revenue = true; }
+        if (d.baseline.employees != null) { fill.current_employees = String(d.baseline.employees); tag.current_employees = true; }
+        if (d.baseline.monthly_opex != null) { fill.current_monthly_expenses = String(d.baseline.monthly_opex); tag.current_monthly_expenses = true; }
+        setInputs(p => ({ ...p, ...fill }));
+        setFromBooks(tag);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
+
+  const set = (key, val) => { setFromBooks(p => ({ ...p, [key]: false })); setInputs(p => ({ ...p, [key]: val })); };
 
   const runSimulation = useCallback(async () => {
     setRunning(true);
@@ -169,6 +190,9 @@ export default function DigitalTwinPage() {
         '- Annual Revenue: INR ' + parseFloat(inputs.current_revenue).toLocaleString('en-IN'),
         '- Employees: ' + inputs.current_employees,
         '- Monthly Operating Expenses: INR ' + parseFloat(inputs.current_monthly_expenses).toLocaleString('en-IN'),
+        '',
+        ctx ? 'COMPANY DATA FROM THE BOOKS (queried live - treat as ground truth; call your tools for anything else you need, such as ar_aging, budget_vs_actual or collection_efficiency, before projecting):' : 'No company books data was found; say so in the summary and treat the figures above as user-entered.',
+        ctx ? JSON.stringify({ months_covered: ctx.months_covered, basis: ctx.basis, position: ctx.position }) : '',
         '',
         'SCENARIO ASSUMPTIONS:',
         '- Revenue growth rate: ' + inputs.revenue_growth_pct + '% per year',
@@ -214,7 +238,7 @@ export default function DigitalTwinPage() {
         '    ... 12 months for year 1',
         '  ]',
         '}',
-        'Use realistic Indian SME numbers in INR. Return only valid JSON, no markdown.',
+        'All projections are estimates derived from the data above: state the key assumptions in the summary and do not invent facts about the company. Return only valid JSON, no markdown.',
       ].filter(Boolean).join('\n');
 
       const res = await fetch(apiURL('/api/cfo/brief'), {
@@ -232,10 +256,10 @@ export default function DigitalTwinPage() {
           try { parsed = JSON.parse(jsonMatch[0]); } catch { parsed = null; }
         }
         if (!parsed) {
-          parsed = { summary: aiText, revenue_year1: 0, profit_margin: 34, cash_runway_months: 8 };
+          parsed = { error: 'The reply could not be read as a projection. Please run the simulation again.' };
         }
       } catch(e) {
-        parsed = { summary: rawText, revenue_year1: 0, profit_margin: 34, cash_runway_months: 8 };
+        parsed = { error: 'The reply could not be read as a projection. Please run the simulation again.' };
       }
       setResult(parsed);
     } catch (err) {
@@ -243,7 +267,7 @@ export default function DigitalTwinPage() {
     } finally {
       setRunning(false);
     }
-  }, [inputs]);
+  }, [inputs, ctx]);
 
   const saveScenario = () => {
     if (!result || result.error) return;
@@ -340,9 +364,9 @@ export default function DigitalTwinPage() {
           {/* Column 1: Company Baseline */}
           <div style={{ padding: 20, borderRadius: 12, background: 'var(--surface-2)', border: '1px solid var(--border)' }}>
             <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 16, color: '#1B4FD8' }}>Company Baseline</div>
-            <ScenarioField label="Current Annual Revenue" value={inputs.current_revenue} onChange={v => set('current_revenue', v)} unit="INR" hint="Your current year's total revenue" />
-            <ScenarioField label="Current Employees" value={inputs.current_employees} onChange={v => set('current_employees', v)} hint="Full-time headcount today" />
-            <ScenarioField label="Monthly Operating Expenses" value={inputs.current_monthly_expenses} onChange={v => set('current_monthly_expenses', v)} unit="INR" hint="Total monthly burn rate" />
+            <ScenarioField label="Current Annual Revenue" value={inputs.current_revenue} onChange={v => set('current_revenue', v)} unit="INR" hint={fromBooks.current_revenue ? 'From your books' + (ctx && ctx.months_covered ? ' (last ' + ctx.months_covered + ' completed month(s))' : '') : 'Typed by you or a sample value'} />
+            <ScenarioField label="Current Employees" value={inputs.current_employees} onChange={v => set('current_employees', v)} hint={fromBooks.current_employees ? 'From your books' + (ctx && ctx.months_covered ? ' (last ' + ctx.months_covered + ' completed month(s))' : '') : 'Typed by you or a sample value'} />
+            <ScenarioField label="Monthly Operating Expenses" value={inputs.current_monthly_expenses} onChange={v => set('current_monthly_expenses', v)} unit="INR" hint={fromBooks.current_monthly_expenses ? 'From your books' + (ctx && ctx.months_covered ? ' (last ' + ctx.months_covered + ' completed month(s))' : '') : 'Typed by you or a sample value'} />
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Industry</div>
               <select value={inputs.industry} onChange={e => set('industry', e.target.value)} style={{
