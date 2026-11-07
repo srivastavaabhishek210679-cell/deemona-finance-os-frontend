@@ -202,20 +202,20 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const tid = 'af1845e2-39f3-4e9d-b1ed-91c2798a0f6f';
+    /*real-data*/
     Promise.all([
-      get('/api/treasury/dashboard'),
-      get('/api/accounting/ar'),
-      get('/api/accounting/ap'),
+      get('/api/cash-position'),
+      get('/api/accounting/ar-invoices'),
+      get('/api/accounting/ap-invoices'),
       get('/api/payroll/employees'),
       get('/api/crm/leads'),
       get('/api/projects'),
-      get('/api/forecasting/cash-flow?days=90'),
-      get('/api/forecasting/revenue?months=6'),
-      get('/api/audit/dashboard'),
-      get('/api/expenses/summary'),
-    ]).then(([treasury, ar, ap, employees, crm, projects, cashflow, revenue, audit, expenses]) => {
-      setData({ treasury, ar, ap, employees, crm, projects, cashflow, revenue, audit, expenses });
+      get('/api/cash-forecast?days=90'),
+      get('/api/cfo/metrics/pnl_trend?months=13'),
+      get('/api/cfo/metrics/working_capital'),
+      get('/api/cfo/metrics/cash_runway'),
+    ]).then(([cashPos, ar, ap, employees, crm, projects, forecast, pnl, wc, runway]) => {
+      setData({ cashPos, ar, ap, employees, crm, projects, forecast, pnl, wc, runway });
       setLoading(false);
     }).catch(() => setLoading(false));
   }, []);
@@ -227,33 +227,48 @@ export default function DashboardPage() {
   );
 
   // ── Computed values ───────────────────────────────────────────
-  const cash = parseFloat(data?.treasury?.total_balance || data?.treasury?.banks?.[0]?.current_balance || 9100000);
-  const arTotal = (data?.ar?.invoices || []).reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
-  const arPending = (data?.ar?.invoices || []).filter(i => i.status !== 'paid').reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
-  const apTotal = (data?.ap?.invoices || []).reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
-  const apPending = (data?.ap?.invoices || []).filter(i => i.status !== 'paid').reduce((s, i) => s + parseFloat(i.total_amount || 0), 0);
+  const cashEntered = !!data?.cashPos?.current?.has_entry;
+  const cash = cashEntered ? parseFloat(data.cashPos.current.amount) : 0;
+  const num = v => parseFloat(v || 0) || 0;
+  const arLive = (data?.ar?.invoices || []).filter(i => !['draft', 'cancelled'].includes(i.status));
+  const apLive = (data?.ap?.invoices || []).filter(i => !['draft', 'rejected'].includes(i.status));
+  const arTotal = arLive.reduce((a, i) => a + num(i.total_amount), 0);
+  const arPending = arLive.reduce((a, i) => a + num(i.balance_due), 0);
+  const arPendingCount = arLive.filter(i => num(i.balance_due) > 0).length;
+  const apTotal = apLive.reduce((a, i) => a + num(i.total_amount), 0);
+  const apPending = apLive.reduce((a, i) => a + num(i.balance_due), 0);
+  const apPendingList = apLive.filter(i => num(i.balance_due) > 0);
+  const apPendingCount = apPendingList.length;
   const empCount = (data?.employees?.employees || []).length;
   const leads = data?.crm?.leads || [];
   const pipelineValue = leads.reduce((s, l) => s + parseFloat(l.value || 0) * parseFloat(l.probability || 0) / 100, 0);
   const projectsList = data?.projects?.projects || [];
   const activeProjects = projectsList.filter(p => p.status === 'active').length;
 
-  // ── Revenue trend (mock 6 months) ────────────────────────────
-  const revTrend = [
-    { label: 'Mar', value: 3200000 },
-    { label: 'Apr', value: 3800000 },
-    { label: 'May', value: 4100000 },
-    { label: 'Jun', value: 3750000 },
-    { label: 'Jul', value: 4800000 },
-    { label: 'Aug', value: 2800000 },
-  ];
-
-  const cashTrend = (data?.cashflow?.forecast || []).slice(0, 8).map(f => ({ label: `D${f.day}`, value: f.closing }));
+  // ── Profit and loss from invoices, payroll and approved claims (the same basis as the CFO agent) ──
+  const MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const monthLabel = ym => MN[parseInt(String(ym).slice(5, 7), 10) - 1] + ' ' + String(ym).slice(0, 4);
+  const pnlMonths = (data?.pnl?.months || []).map(m => ({ ...m, cost: num(m.vendor_costs) + num(m.payroll) + num(m.expense_claims) }));
+  const activeMonths = pnlMonths.filter(m => num(m.revenue) > 0 || m.cost > 0);
+  const lastM = activeMonths.length ? activeMonths[activeMonths.length - 1] : null;
+  const prevM = lastM ? pnlMonths[pnlMonths.indexOf(lastM) - 1] : null;
+  const mom = (cur, prev) => (prev && num(prev) > 0 ? ((num(cur) - num(prev)) / num(prev)) * 100 : null);
+  const trendProps = p => (p === null || p === undefined || (lastM && lastM.partial_month) ? {} : { trend: Math.abs(p).toFixed(1) + '%', trendUp: p >= 0 });
+  const lastLabel = lastM ? monthLabel(lastM.month) + (lastM.partial_month ? ' (so far)' : '') : 'No data yet';
+  const revTrend = pnlMonths.slice(-6).map(m => ({ label: MN[parseInt(m.month.slice(5, 7), 10) - 1] + (m.partial_month ? '*' : ''), value: num(m.revenue) }));
+  const fyStart = (() => { const d = new Date(); return (d.getMonth() >= 3 ? d.getFullYear() : d.getFullYear() - 1) + '-04'; })();
+  const fyMonths = pnlMonths.filter(m => m.month >= fyStart && (num(m.revenue) > 0 || m.cost > 0));
+  const fyRev = fyMonths.reduce((a, m) => a + num(m.revenue), 0);
+  const fyCost = fyMonths.reduce((a, m) => a + m.cost, 0);
+  const fcBase = (data?.forecast?.scenarios || []).find(x => x.key === 'base');
+  const cashTrend = fcBase ? fcBase.points.filter((_, i) => i % 11 === 10).map(p => ({ label: new Date(p.date + 'T00:00:00').toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }), value: p.close })) : [];
+  const runwayDays = data?.runway?.runway_days_gross;
+  const payrollTotal = (data?.employees?.employees || []).reduce((a, e) => a + num(e.basic_salary), 0);
 
   // ── AR by status ──────────────────────────────────────────────
   const arByStatus = [
-    { label: 'Paid', value: arTotal - arPending, color: '#059669' },
-    { label: 'Pending', value: arPending, color: '#1B4FD8' },
+    { label: 'Collected', value: Math.max(0, arTotal - arPending), color: '#059669' },
+    { label: 'Outstanding', value: arPending, color: '#1B4FD8' },
   ];
 
   // ── Pipeline by stage ─────────────────────────────────────────
@@ -272,7 +287,7 @@ export default function DashboardPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
         <div>
           <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0A1628', marginBottom: 3, fontFamily: 'Plus Jakarta Sans, Inter, sans-serif' }}>Executive Dashboard</h1>
-          <div style={{ fontSize: 12, color: '#64748B' }}>Deemona Technologies · As of {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+          <div style={{ fontSize: 12, color: '#64748B' }}>As of {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
         </div>
         <ExportToolbar
           title="Executive Dashboard"
@@ -304,17 +319,17 @@ export default function DashboardPage() {
           <div>
             {/* KPI Row */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-              <KPICard label="Cash Position"    value={INR(cash)}          color="#1B4FD8" icon="🏦" sub="Across 3 accounts"     trend="12.4%" trendUp={true} />
-              <KPICard label="AR Outstanding"   value={INR(arPending)}     color="#D97706" icon="📄" sub="5 invoices pending"    trend="8.2%"  trendUp={false} />
-              <KPICard label="AP Outstanding"   value={INR(apPending)}     color="#DC2626" icon="📋" sub="4 invoices due"        trend="3.1%"  trendUp={false} />
-              <KPICard label="Pipeline Value"   value={INR(pipelineValue)} color="#059669" icon="🎯" sub="Weighted probability"  trend="22.5%" trendUp={true} />
+              <KPICard label="Cash Position"    value={cashEntered ? INR(cash) : '—'} color="#1B4FD8" icon="🏦" sub={cashEntered ? 'Entered balance plus recorded flows' : 'Enter a balance on Cash Balance'} />
+              <KPICard label="AR Outstanding"   value={INR(arPending)}     color="#D97706" icon="📄" sub={arPendingCount + ' invoice(s) with a balance'} />
+              <KPICard label="AP Outstanding"   value={INR(apPending)}     color="#DC2626" icon="📋" sub={apPendingCount + ' bill(s) with a balance'} />
+              <KPICard label="Pipeline Value"   value={INR(pipelineValue)} color="#059669" icon="🎯" sub="Weighted by probability" />
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-              <KPICard label="Monthly Revenue"  value="Rs 48.00 L"  color="#059669" icon="📈" sub="August 2026"    trend="14.3%" trendUp={true} />
-              <KPICard label="Monthly Expenses" value="Rs 31.50 L"  color="#DC2626" icon="📉" sub="August 2026"    trend="2.8%"  trendUp={false} />
-              <KPICard label="Net Profit"       value="Rs 16.50 L"  color="#1B4FD8" icon="💹" sub="This month"     trend="31.2%" trendUp={true} />
-              <KPICard label="Gross Margin"     value="34.4%"       color="#7C3AED" icon="📊" sub="YTD average"    trend="2.1%"  trendUp={true} />
+              <KPICard label="Monthly Revenue"  value={lastM ? INR(lastM.revenue) : '—'}  color="#059669" icon="📈" sub={lastLabel} {...(lastM ? trendProps(mom(lastM.revenue, prevM && prevM.revenue)) : {})} />
+              <KPICard label="Monthly Expenses" value={lastM ? INR(lastM.cost) : '—'}  color="#DC2626" icon="📉" sub={lastLabel} {...(lastM ? trendProps(mom(lastM.cost, prevM && prevM.cost)) : {})} />
+              <KPICard label="Net Profit"       value={lastM ? INR(lastM.ebitda) : '—'}  color="#1B4FD8" icon="💹" sub={lastLabel} />
+              <KPICard label="Gross Margin"     value={lastM && lastM.gross_margin_pct != null ? lastM.gross_margin_pct + '%' : '—'}  color="#7C3AED" icon="📊" sub={lastLabel} />
             </div>
 
             {/* Charts Row */}
@@ -324,7 +339,7 @@ export default function DashboardPage() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
                   <div>
                     <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Revenue Trend</div>
-                    <div style={{ fontSize: 11, color: '#64748B' }}>Last 6 months</div>
+                    <div style={{ fontSize: 11, color: '#64748B' }}>Invoiced revenue, last 6 months (* = month so far)</div>
                   </div>
                   <ExportToolbar title="Revenue Trend"
                     onPrint={() => printSection('rev-chart', 'Revenue Trend')}
@@ -357,15 +372,13 @@ export default function DashboardPage() {
               {/* Cash Flow */}
               <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', padding: '18px 20px' }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628', marginBottom: 4 }}>Cash Flow</div>
-                <div style={{ fontSize: 11, color: '#64748B', marginBottom: 12 }}>90-day forecast</div>
-                {cashTrend.length > 0 ? <LineChart data={cashTrend} height={100} color="#059669" /> : (
-                  <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <LineChart data={[{value:9100000},{value:8800000},{value:9500000},{value:9200000},{value:10100000},{value:9800000},{value:10500000},{value:10200000}]} height={100} color="#059669" />
-                  </div>
+                <div style={{ fontSize: 11, color: '#64748B', marginBottom: 12 }}>90-day forecast from booked invoices and bills</div>
+                {cashTrend.length > 1 ? <LineChart data={cashTrend} height={100} color="#059669" /> : (
+                  <div style={{ height: 100, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94A3B8', fontSize: 12 }}>No data</div>
                 )}
                 <div style={{ marginTop: 8, padding: '8px 10px', borderRadius: 7, background: '#ECFDF5', border: '1px solid #A7F3D0' }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>Runway: 8+ months</div>
-                  <div style={{ fontSize: 10, color: '#64748B' }}>Based on current burn rate</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#059669' }}>{runwayDays != null ? 'Runway: about ' + (runwayDays / 30).toFixed(1) + ' months' : 'Runway: not available yet'}</div>
+                  <div style={{ fontSize: 10, color: '#64748B' }}>{runwayDays != null ? 'Cash divided by average monthly outflow' : 'Needs payments or costs recorded'}</div>
                 </div>
               </div>
             </div>
@@ -435,9 +448,9 @@ export default function DashboardPage() {
         {activeTab === 'financial' && (
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
-              <KPICard label="Total Revenue YTD"   value="Rs 2.85 Cr"  color="#059669" icon="📈" sub="Apr-Aug 2026" />
-              <KPICard label="Total Expenses YTD"  value="Rs 1.89 Cr"  color="#DC2626" icon="📉" sub="Apr-Aug 2026" />
-              <KPICard label="Net Profit YTD"      value="Rs 96.00 L"  color="#1B4FD8" icon="💹" sub="33.7% margin" />
+              <KPICard label="Total Revenue YTD"   value={INR(fyRev)}  color="#059669" icon="📈" sub={'Financial year from April ' + fyStart.slice(0, 4)} />
+              <KPICard label="Total Expenses YTD"  value={INR(fyCost)}  color="#DC2626" icon="📉" sub="Vendor bills, payroll, approved claims" />
+              <KPICard label="Net Profit YTD"      value={INR(fyRev - fyCost)}  color="#1B4FD8" icon="💹" sub={fyRev > 0 ? (((fyRev - fyCost) / fyRev) * 100).toFixed(1) + '% margin' : 'No revenue yet'} />
             </div>
 
             {/* Monthly P&L Table */}
@@ -446,13 +459,7 @@ export default function DashboardPage() {
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Monthly P&L Summary</div>
                 <ExportToolbar title="P&L Summary"
                   onPrint={() => printSection('pnl-table', 'Monthly P&L Summary')}
-                  onCSV={() => downloadCSV([
-                    { Month: 'Apr 2026', Revenue: 4800000, Expenses: 3200000, Profit: 1600000, Margin: '33.3%' },
-                    { Month: 'May 2026', Revenue: 5200000, Expenses: 3400000, Profit: 1800000, Margin: '34.6%' },
-                    { Month: 'Jun 2026', Revenue: 4900000, Expenses: 3100000, Profit: 1800000, Margin: '36.7%' },
-                    { Month: 'Jul 2026', Revenue: 5600000, Expenses: 3600000, Profit: 2000000, Margin: '35.7%' },
-                    { Month: 'Aug 2026', Revenue: 4800000, Expenses: 3150000, Profit: 1650000, Margin: '34.4%' },
-                  ], 'pnl-summary.csv')}
+                  onCSV={() => downloadCSV(fyMonths.map(m => ({ Month: monthLabel(m.month), Revenue: num(m.revenue), Expenses: m.cost, Profit: num(m.ebitda), Margin: m.ebitda_margin_pct != null ? m.ebitda_margin_pct + '%' : '' })), 'pnl-summary.csv')}
                   onMail={() => {}} />
               </div>
               <div id="pnl-table">
@@ -463,15 +470,10 @@ export default function DashboardPage() {
                     ))}
                   </tr></thead>
                   <tbody>
-                    {[
-                      { month: 'April 2026',  rev: 4800000, exp: 3200000 },
-                      { month: 'May 2026',    rev: 5200000, exp: 3400000 },
-                      { month: 'June 2026',   rev: 4900000, exp: 3100000 },
-                      { month: 'July 2026',   rev: 5600000, exp: 3600000 },
-                      { month: 'August 2026', rev: 4800000, exp: 3150000 },
-                    ].map((row, i) => {
+                    {fyMonths.length === 0 && <tr><td colSpan={5} style={{ padding: 16, color: '#64748B' }}>No invoices, payroll or claims recorded this financial year yet.</td></tr>}
+                    {fyMonths.map(m => ({ month: monthLabel(m.month) + (m.partial_month ? ' (so far)' : ''), rev: num(m.revenue), exp: m.cost })).map((row, i) => {
                       const profit = row.rev - row.exp;
-                      const margin = ((profit / row.rev) * 100).toFixed(1);
+                      const margin = row.rev > 0 ? ((profit / row.rev) * 100).toFixed(1) : '0.0';
                       return (
                         <tr key={i} style={{ borderTop: '1px solid #F1F5F9', background: i % 2 === 0 ? '#fff' : '#FAFBFF' }}>
                           <td style={{ padding: '11px 16px', fontWeight: 600, color: '#0A1628' }}>{row.month}</td>
@@ -492,10 +494,10 @@ export default function DashboardPage() {
             {/* AP Invoices Table */}
             <div style={{ background: '#fff', borderRadius: 12, border: '1px solid #C7D9F8', overflow: 'hidden' }}>
               <div style={{ padding: '14px 18px', borderBottom: '1px solid #EEF3FD', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>AP Invoices - Pending Payments</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#0A1628' }}>Vendor Bills - Pending Payments</div>
                 <ExportToolbar title="AP Invoices"
                   onPrint={() => printSection('ap-table', 'AP Invoices')}
-                  onCSV={() => downloadCSV((data?.ap?.invoices || []).filter(i => i.status !== 'paid').map(i => ({ Invoice: i.invoice_number, Amount: i.total_amount, Status: i.status, Due: i.due_date })), 'ap-pending.csv')}
+                  onCSV={() => downloadCSV(apPendingList.map(i => ({ Invoice: i.invoice_number, Amount: i.total_amount, Status: i.status, Due: i.due_date })), 'ap-pending.csv')}
                   onMail={() => {}} />
               </div>
               <div id="ap-table">
@@ -506,11 +508,11 @@ export default function DashboardPage() {
                     ))}
                   </tr></thead>
                   <tbody>
-                    {(data?.ap?.invoices || []).filter(i => i.status !== 'paid').map((inv, i) => (
+                    {apPendingList.map((inv, i) => (
                       <tr key={i} style={{ borderTop: '1px solid #F1F5F9' }}>
                         <td style={{ padding: '9px 14px', color: '#1B4FD8', fontWeight: 600 }}>{inv.invoice_number}</td>
                         <td style={{ padding: '9px 14px', color: '#334155' }}>{inv.vendor_name || 'Vendor'}</td>
-                        <td style={{ padding: '9px 14px', fontWeight: 700, color: '#0A1628' }}>{INR(inv.total_amount)}</td>
+                        <td style={{ padding: '9px 14px', fontWeight: 700, color: '#0A1628' }}>{INR(inv.balance_due)}</td>
                         <td style={{ padding: '9px 14px', color: new Date(inv.due_date) < new Date() ? '#DC2626' : '#334155' }}>{new Date(inv.due_date).toLocaleDateString('en-IN')}</td>
                         <td style={{ padding: '9px 14px' }}>
                           <span style={{ padding: '2px 8px', borderRadius: 20, fontSize: 10, fontWeight: 700, background: inv.status === 'submitted' ? '#DBEAFE' : '#FFF7ED', color: inv.status === 'submitted' ? '#1B4FD8' : '#D97706' }}>{inv.status}</span>
@@ -528,10 +530,10 @@ export default function DashboardPage() {
         {activeTab === 'operations' && (
           <div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
-              <KPICard label="Total Employees"   value={empCount || 11} color="#1B4FD8" icon="👥" sub="Active headcount" />
-              <KPICard label="Monthly Payroll"   value="Rs 10.50 L"     color="#DC2626" icon="💳" sub="Gross salary" />
+              <KPICard label="Total Employees"   value={empCount} color="#1B4FD8" icon="👥" sub="Active headcount" />
+              <KPICard label="Monthly Payroll"   value={INR(payrollTotal)}     color="#DC2626" icon="💳" sub="Total basic salary" />
               <KPICard label="Active Projects"   value={activeProjects} color="#059669" icon="📋" sub={`of ${projectsList.length} total`} />
-              <KPICard label="Compliance Items"  value="5 pending"       color="#D97706" icon="⚖️" sub="Due this month" />
+              <KPICard label="Overdue Receivables" value={INR(data?.wc?.ar_overdue)}  color="#D97706" icon="⏰" sub="Customer invoices past due date" />
             </div>
 
             {/* Employees Table */}
