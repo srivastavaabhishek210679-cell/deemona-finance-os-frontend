@@ -484,10 +484,117 @@ function JournalEntriesTab() {
 }
 
 // ── AP Invoices Tab ───────────────────────────────────────────
+// ── Record payment (receipt or supplier payment, with its date) ──
+function RecordPaymentModal({ type, invoice, onClose, onDone }) {
+  const isAr = type === 'ar';
+  const balance = parseFloat(invoice.balance_due || 0);
+  const today = new Date().toLocaleDateString('en-CA');
+  const [amount, setAmount] = useState(String(balance));
+  const [date, setDate] = useState(today);
+  const [bankId, setBankId] = useState('');
+  const [reference, setReference] = useState('');
+  const [banks, setBanks] = useState([]);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    apiGet(apiURL('/api/treasury/bank-accounts')).then(d => setBanks(d.accounts || [])).catch(() => setBanks([]));
+  }, []);
+
+  const submit = async () => {
+    setError('');
+    const amt = parseFloat(amount);
+    if (!(amt > 0)) { setError('Enter an amount greater than zero.'); return; }
+    if (amt > balance + 0.005) { setError('Amount is more than the outstanding balance.'); return; }
+    setSaving(true);
+    try {
+      await apiPost(apiURL('/api/payment-events'), {
+        invoice_type: type, invoice_id: invoice.id, amount: amt, payment_date: date,
+        bank_account_id: bankId || undefined, reference: reference || undefined,
+      });
+      onDone();
+    } catch (e) {
+      let msg = e.message;
+      try { msg = JSON.parse(e.message).error || msg; } catch {}
+      setError(msg);
+    } finally { setSaving(false); }
+  };
+
+  const field = { width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--surface-3)', color: 'var(--text-primary)', fontSize: 13, boxSizing: 'border-box' };
+  const label = { fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em', marginBottom: 4, display: 'block' };
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 16 }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: 420, maxWidth: '100%', background: 'var(--surface-1)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
+        <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 4 }}>{isAr ? 'Record receipt' : 'Record payment'}</div>
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 16 }}>
+          Invoice {invoice.invoice_number} · {isAr ? invoice.customer_name : invoice.vendor_name} · outstanding {formatINR(balance)}
+        </div>
+        <label style={label}>AMOUNT (INR)</label>
+        <input type="number" min="0" step="0.01" value={amount} onChange={e => setAmount(e.target.value)} style={{ ...field, marginBottom: 12 }} />
+        <label style={label}>{isAr ? 'DATE RECEIVED' : 'DATE PAID'}</label>
+        <input type="date" value={date} max={today} min={invoice.date ? String(invoice.date).slice(0, 10) : undefined} onChange={e => setDate(e.target.value)} style={{ ...field, marginBottom: 12 }} />
+        <label style={label}>BANK ACCOUNT (OPTIONAL - ALSO POSTS A BANK ENTRY AND UPDATES THE BALANCE)</label>
+        <select value={bankId} onChange={e => setBankId(e.target.value)} style={{ ...field, marginBottom: 12 }}>
+          <option value="">Do not post to a bank account</option>
+          {banks.map(b => <option key={b.id} value={b.id}>{b.name} - {b.bank_name}</option>)}
+        </select>
+        <label style={label}>REFERENCE (UTR, CHEQUE NO., OPTIONAL)</label>
+        <input value={reference} onChange={e => setReference(e.target.value)} style={{ ...field, marginBottom: 14 }} />
+        {error && <div style={{ fontSize: 12, color: '#FF5C5C', marginBottom: 12 }}>{error}</div>}
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+          <button onClick={onClose} disabled={saving} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'transparent', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: 13 }}>Cancel</button>
+          <button onClick={submit} disabled={saving} style={{ padding: '8px 18px', borderRadius: 8, border: 'none', background: 'var(--accent)', color: '#fff', cursor: saving ? 'not-allowed' : 'pointer', fontSize: 13, fontWeight: 700 }}>{saving ? 'Saving...' : 'Save'}</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PayButton({ invoice, type, onPay }) {
+  const balance = parseFloat(invoice.balance_due || 0);
+  const ok = balance > 0 && (type === 'ar' ? ['sent', 'overdue', 'partially_paid'] : ['approved', 'overdue']).includes(invoice.status);
+  if (!ok) return <span />;
+  return (
+    <button onClick={() => onPay(invoice)} style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid var(--accent)', background: 'transparent', color: 'var(--accent)', cursor: 'pointer', fontSize: 11, fontWeight: 700 }}>
+      {type === 'ar' ? 'Record receipt' : 'Record payment'}
+    </button>
+  );
+}
+
+const INV_COLS = '140px 1fr 100px 120px 120px 100px 130px';
+
+function InvoiceTable({ type, invoices, onPay }) {
+  const isAr = type === 'ar';
+  return (
+    <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: INV_COLS, padding: '10px 16px', background: 'var(--surface-3)', fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em' }}>
+        <span>INVOICE #</span><span>{isAr ? 'CUSTOMER' : 'VENDOR'}</span><span>{isAr ? 'DUE DATE' : 'DATE'}</span>
+        <span style={{ textAlign: 'right' }}>AMOUNT</span>
+        <span style={{ textAlign: 'right' }}>BALANCE</span>
+        <span>STATUS</span>
+        <span />
+      </div>
+      {invoices.map((inv, i) => (
+        <div key={inv.id} style={{ display: 'grid', gridTemplateColumns: INV_COLS, padding: '12px 16px', fontSize: 13, alignItems: 'center', background: i % 2 === 0 ? 'var(--surface-2)' : 'var(--surface-1)', borderTop: '1px solid var(--border)' }}>
+          <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: 12 }}>{inv.invoice_number}</span>
+          <span>{isAr ? inv.customer_name : inv.vendor_name}</span>
+          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(inv.due_date)}</span>
+          <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatINR(inv.total_amount)}</span>
+          <span style={{ textAlign: 'right', color: parseFloat(inv.balance_due) > 0 ? '#FF5C5C' : '#22C98A', fontWeight: 600 }}>{formatINR(inv.balance_due)}</span>
+          <StatusBadge status={inv.status} />
+          <PayButton invoice={inv} type={type} onPay={onPay} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function APTab() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
+  const [paying, setPaying] = useState(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -523,36 +630,9 @@ function APTab() {
         <EmptyState icon="📄" title="No AP invoices yet"
           sub="Add vendors first, then record bills from suppliers" />
       ) : (
-        <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
-          <div style={{
-            display: 'grid', gridTemplateColumns: '140px 1fr 100px 120px 120px 100px',
-            padding: '10px 16px', background: 'var(--surface-3)',
-            fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em',
-          }}>
-            <span>INVOICE #</span><span>VENDOR</span><span>DATE</span>
-            <span style={{ textAlign: 'right' }}>AMOUNT</span>
-            <span style={{ textAlign: 'right' }}>BALANCE</span>
-            <span>STATUS</span>
-          </div>
-          {invoices.map((inv, i) => (
-            <div key={inv.id} style={{
-              display: 'grid', gridTemplateColumns: '140px 1fr 100px 120px 120px 100px',
-              padding: '12px 16px', fontSize: 13, alignItems: 'center',
-              background: i % 2 === 0 ? 'var(--surface-2)' : 'var(--surface-1)',
-              borderTop: '1px solid var(--border)',
-            }}>
-              <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: 12 }}>{inv.invoice_number}</span>
-              <span>{inv.vendor_name}</span>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(inv.due_date)}</span>
-              <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatINR(inv.total_amount)}</span>
-              <span style={{ textAlign: 'right', color: parseFloat(inv.balance_due) > 0 ? '#FF5C5C' : '#22C98A', fontWeight: 600 }}>
-                {formatINR(inv.balance_due)}
-              </span>
-              <StatusBadge status={inv.status} />
-            </div>
-          ))}
-        </div>
+        <InvoiceTable type="ap" invoices={invoices} onPay={setPaying} />
       )}
+      {paying && <RecordPaymentModal type="ap" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
     </div>
   );
 }
@@ -561,48 +641,29 @@ function APTab() {
 function ARTab() {
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [paying, setPaying] = useState(null);
 
-  useEffect(() => {
+  const load = useCallback(() => {
+    setLoading(true);
     apiGet(API + '/ar-invoices')
       .then(d => setInvoices(d.invoices || []))
       .catch(() => setInvoices([]))
       .finally(() => setLoading(false));
   }, []);
 
-  return loading ? (
-    <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading...</div>
-  ) : invoices.length === 0 ? (
-    <EmptyState icon="🧾" title="No sales invoices yet"
-      sub="Add customers first, then create invoices for your sales" />
-  ) : (
-    <div style={{ borderRadius: 12, border: '1px solid var(--border)', overflow: 'hidden' }}>
-      <div style={{
-        display: 'grid', gridTemplateColumns: '140px 1fr 100px 120px 120px 100px',
-        padding: '10px 16px', background: 'var(--surface-3)',
-        fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', letterSpacing: '0.05em',
-      }}>
-        <span>INVOICE #</span><span>CUSTOMER</span><span>DUE DATE</span>
-        <span style={{ textAlign: 'right' }}>AMOUNT</span>
-        <span style={{ textAlign: 'right' }}>BALANCE</span>
-        <span>STATUS</span>
-      </div>
-      {invoices.map((inv, i) => (
-        <div key={inv.id} style={{
-          display: 'grid', gridTemplateColumns: '140px 1fr 100px 120px 120px 100px',
-          padding: '12px 16px', fontSize: 13, alignItems: 'center',
-          background: i % 2 === 0 ? 'var(--surface-2)' : 'var(--surface-1)',
-          borderTop: '1px solid var(--border)',
-        }}>
-          <span style={{ fontWeight: 700, color: 'var(--accent)', fontSize: 12 }}>{inv.invoice_number}</span>
-          <span>{inv.customer_name}</span>
-          <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>{formatDate(inv.due_date)}</span>
-          <span style={{ textAlign: 'right', fontWeight: 600 }}>{formatINR(inv.total_amount)}</span>
-          <span style={{ textAlign: 'right', color: parseFloat(inv.balance_due) > 0 ? '#FF5C5C' : '#22C98A', fontWeight: 600 }}>
-            {formatINR(inv.balance_due)}
-          </span>
-          <StatusBadge status={inv.status} />
-        </div>
-      ))}
+  useEffect(() => { load(); }, [load]);
+
+  return (
+    <div>
+      {loading ? (
+        <div style={{ textAlign: 'center', padding: 40, color: 'var(--text-muted)' }}>Loading...</div>
+      ) : invoices.length === 0 ? (
+        <EmptyState icon="🧾" title="No sales invoices yet"
+          sub="Add customers first, then create invoices for your sales" />
+      ) : (
+        <InvoiceTable type="ar" invoices={invoices} onPay={setPaying} />
+      )}
+      {paying && <RecordPaymentModal type="ar" invoice={paying} onClose={() => setPaying(null)} onDone={() => { setPaying(null); load(); }} />}
     </div>
   );
 }
