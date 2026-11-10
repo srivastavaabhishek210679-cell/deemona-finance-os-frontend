@@ -85,10 +85,68 @@ function ActionCard({ a, onDone, setMsg }) {
   );
 }
 
+function MyWhatsapp({ setMsg }) {
+  const [phone, setPhone] = useState('');
+  const [saved, setSaved] = useState(null);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => { call('GET', '/api/actions/my-whatsapp').then(d => { if (!d.error) { setSaved(d.phone || ''); setPhone(d.phone || ''); } }); }, []);
+  const save = async () => {
+    setBusy(true); setMsg(null);
+    const d = await call('PUT', '/api/actions/my-whatsapp', { phone });
+    setBusy(false);
+    if (d.error) setMsg({ ok: false, text: d.error }); else { setSaved(d.phone || ''); setPhone(d.phone || ''); setMsg({ ok: true, text: d.phone ? 'WhatsApp approval number saved. Send ACTIONS to the bot from that number.' : 'WhatsApp approval number removed.' }); }
+  };
+  return (
+    <div style={{ ...card, padding: 14, display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>My WhatsApp approval number</div>
+      <input value={phone} onChange={e => setPhone(e.target.value)} placeholder="10-digit mobile number" style={{ padding: '7px 9px', border: '1px solid #CBD5E1', borderRadius: 8, fontSize: 13, width: 190 }} />
+      <button disabled={busy || phone === (saved || '')} onClick={save} style={{ ...btn(phone !== (saved || '') ? '#4338CA' : '#E2E8F0', phone !== (saved || '') ? '#fff' : '#94A3B8'), padding: '7px 14px' }}>{busy ? '…' : 'Save'}</button>
+      <div style={{ fontSize: 12, color: '#64748B' }}>Lets you approve actions by replying OK or NO on WhatsApp.</div>
+    </div>
+  );
+}
+
+function ContactRow({ c, setMsg }) {
+  const [email, setEmail] = useState(c.email || '');
+  const [phone, setPhone] = useState(c.phone || '');
+  const [busy, setBusy] = useState(false);
+  const dirty = email !== (c.email || '') || phone !== (c.phone || '');
+  const save = async () => {
+    setBusy(true); setMsg(null);
+    const d = await call('PUT', '/api/actions/contacts/' + c.id, { email, phone });
+    setBusy(false);
+    if (d.error) setMsg({ ok: false, text: c.name + ': ' + d.error }); else { c.email = email; c.phone = phone; setMsg({ ok: true, text: 'Saved contact details for ' + c.name + '.' }); }
+  };
+  const inp = { padding: '7px 9px', border: '1px solid #CBD5E1', borderRadius: 8, fontSize: 13, width: '100%', boxSizing: 'border-box' };
+  return (
+    <tr style={{ borderTop: '1px solid #E2E8F0' }}>
+      <td style={{ padding: 10, fontWeight: 600 }}>{c.name}<div style={{ fontSize: 11, color: '#64748B', fontWeight: 400 }}>{Number(c.open_balance) > 0 ? 'Open ' + inr(c.open_balance) : 'Nothing open'}</div></td>
+      <td style={{ padding: 10, minWidth: 190 }}><input style={inp} value={email} onChange={e => setEmail(e.target.value)} placeholder="name@company.com" /></td>
+      <td style={{ padding: 10, minWidth: 140 }}><input style={inp} value={phone} onChange={e => setPhone(e.target.value)} placeholder="98XXXXXXXX" /></td>
+      <td style={{ padding: 10 }}><button disabled={!dirty || busy} onClick={save} style={{ ...btn(dirty ? '#4338CA' : '#E2E8F0', dirty ? '#fff' : '#94A3B8'), padding: '7px 14px' }}>{busy ? '…' : 'Save'}</button></td>
+    </tr>
+  );
+}
+function ContactsTable({ rows, setMsg }) {
+  return (
+    <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
+      <div style={{ padding: '12px 16px', fontSize: 13, color: '#475569' }}>Reminders can only be proposed for customers with an email (or a phone number for WhatsApp). Add them here.</div>
+      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+        <thead><tr style={{ background: '#F8FAFC', textAlign: 'left', color: '#475569' }}><th style={{ padding: 10 }}>Customer</th><th style={{ padding: 10 }}>Email</th><th style={{ padding: 10 }}>WhatsApp / phone</th><th style={{ padding: 10 }}></th></tr></thead>
+        <tbody>
+          {rows.length === 0 && <tr><td colSpan={4} style={{ padding: 16, color: '#64748B', textAlign: 'center' }}>No customers yet.</td></tr>}
+          {rows.map(c => <ContactRow key={c.id} c={c} setMsg={setMsg} />)}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function ActionsPage() {
   const [tab, setTab] = useState('open');
   const [rows, setRows] = useState([]);
   const [audit, setAudit] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [msg, setMsg] = useState(null);
   const [err, setErr] = useState(null);
   const [busy, setBusy] = useState('');
@@ -99,6 +157,9 @@ export default function ActionsPage() {
     if (tab === 'audit') {
       const d = await call('GET', '/api/actions/audit');
       if (d.error) setErr(d.status === 403 ? 'Only company admins can see Actions.' : d.error); else setAudit(d.audit || []);
+    } else if (tab === 'contacts') {
+      const d = await call('GET', '/api/actions/contacts');
+      if (d.error) setErr(d.status === 403 ? 'Only company admins can see Actions.' : d.error); else setContacts(d.customers || []);
     } else {
       const d = await call('GET', '/api/actions?scope=' + (tab === 'open' ? 'open' : 'history'));
       if (d.error) setErr(d.status === 403 ? 'Only company admins can see Actions.' : d.error); else setRows(d.actions || []);
@@ -135,11 +196,13 @@ export default function ActionsPage() {
           <button disabled={!!busy} onClick={() => propose('compliance')} style={btn('#fff', '#4338CA')}>{busy === 'compliance' ? '…' : 'Propose compliance tasks'}</button>
         </div>
       </div>
+      <MyWhatsapp setMsg={setMsg} />
       {msg && <div style={{ ...card, padding: 12, background: msg.ok ? '#F0FDF4' : '#FEF2F2', borderColor: msg.ok ? '#BBF7D0' : '#FECACA', color: msg.ok ? '#166534' : '#991B1B', fontSize: 14 }}>{msg.text}</div>}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>{tabBtn('open', 'Waiting for approval')}{tabBtn('history', 'History')}{tabBtn('audit', 'Audit log')}</div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>{tabBtn('open', 'Waiting for approval')}{tabBtn('history', 'History')}{tabBtn('contacts', 'Customer contacts')}{tabBtn('audit', 'Audit log')}</div>
       {err && <div style={{ ...card, color: '#991B1B', background: '#FEF2F2', borderColor: '#FECACA' }}>{err}</div>}
-      {!err && tab !== 'audit' && rows.length === 0 && <div style={{ ...card, color: '#64748B', textAlign: 'center' }}>{tab === 'open' ? 'Nothing is waiting for approval. Use the buttons above, or ask the Digital CFO to propose actions.' : 'No past actions yet.'}</div>}
-      {!err && tab !== 'audit' && rows.map(a => <ActionCard key={a.id} a={a} onDone={load} setMsg={setMsg} />)}
+      {!err && tab !== 'audit' && tab !== 'contacts' && rows.length === 0 && <div style={{ ...card, color: '#64748B', textAlign: 'center' }}>{tab === 'open' ? 'Nothing is waiting for approval. Use the buttons above, or ask the Digital CFO to propose actions.' : 'No past actions yet.'}</div>}
+      {!err && tab !== 'audit' && tab !== 'contacts' && rows.map(a => <ActionCard key={a.id} a={a} onDone={load} setMsg={setMsg} />)}
+      {!err && tab === 'contacts' && <ContactsTable rows={contacts} setMsg={setMsg} reload={load} />}
       {!err && tab === 'audit' && (
         <div style={{ ...card, padding: 0, overflowX: 'auto' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
