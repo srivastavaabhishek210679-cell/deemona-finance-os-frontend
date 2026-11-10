@@ -513,7 +513,7 @@ export default function App() {
     </div>
   );
 
-  const isPublicRoute = ['/', '/landing'].includes(window.location.pathname);
+  const isPublicRoute = ['/', '/landing'].includes(window.location.pathname) || window.location.pathname.startsWith('/auth/google/callback');
   if (!user && !isPublicRoute) return <AuthGate />;
 
   const routes = [

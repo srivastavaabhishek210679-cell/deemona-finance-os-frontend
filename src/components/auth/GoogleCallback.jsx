@@ -1,41 +1,48 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import { apiURL } from '../../api.js';
-import { useAuth } from '../../context/AuthContext';
 
+// Google redirects here with #id_token=... after sign-in. Works as a popup (signs the main window in, then closes) or as a normal page.
 export default function GoogleCallback() {
-  const navigate = useNavigate();
-  const { login } = useAuth();
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const hash = window.location.hash.substring(1);
-    const params = new URLSearchParams(hash);
+    const params = new URLSearchParams(window.location.hash.substring(1));
     const idToken = params.get('id_token');
-    if (!idToken) { navigate('/login'); return; }
+    const gErr = params.get('error') || new URLSearchParams(window.location.search).get('error');
+    if (gErr) { setError('Google sign-in was cancelled or failed (' + gErr + ').'); return; }
+    if (!idToken) { setError('Google did not return a sign-in token. Please close this window and try again.'); return; }
 
-    fetch(apiURL('/api/auth/google'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id_token: idToken }),
-    })
-    .then(r => r.json())
-    .then(data => {
-      if (data.token) {
-        login(data.token, data.user);
-        navigate('/');
-      } else {
-        navigate('/login?error=' + encodeURIComponent(data.error || 'Google login failed'));
-      }
-    })
-    .catch(() => navigate('/login?error=Google+login+failed'));
+    fetch(apiURL('/api/auth/google'), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id_token: idToken }) })
+      .then(r => r.json().then(d => ({ ok: r.ok, d })))
+      .then(({ ok, d }) => {
+        if (d.needsCompany) { setError('This Google account is not registered yet. Close this window, choose "Create one", and sign up with Google first.'); return; }
+        if (!ok || !d.token) { setError(d.error || 'Google sign-in failed. Please try again.'); return; }
+        try { localStorage.setItem('token', d.token); } catch (e) { setError('Your browser blocked saving the sign-in. Please allow site data and try again.'); return; }
+        if (window.opener && !window.opener.closed) {
+          try { window.opener.location.reload(); } catch (e) { /* opener on another origin */ }
+          window.close();
+        } else {
+          window.location.replace('/');
+        }
+      })
+      .catch(() => setError('Could not reach the server. Please try again.'));
   }, []);
 
   return (
-    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'#f0f4ff'}}>
-      <div style={{textAlign:'center'}}>
-        <div style={{fontSize:32,marginBottom:12}}>&#10003;</div>
-        <div style={{fontSize:16,fontWeight:700,color:'#1e3a8a'}}>Signing you in...</div>
-        <div style={{fontSize:12,color:'#64748b',marginTop:6}}>Please wait</div>
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4ff', padding: 20 }}>
+      <div style={{ textAlign: 'center', maxWidth: 340 }}>
+        {error ? (
+          <>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#991B1B', marginBottom: 8 }}>Sign-in did not complete</div>
+            <div style={{ fontSize: 13, color: '#475569', marginBottom: 14 }}>{error}</div>
+            <button onClick={() => { if (window.opener) window.close(); else window.location.replace('/'); }} style={{ background: '#1e3a8a', color: '#fff', border: 'none', borderRadius: 8, padding: '9px 16px', fontSize: 14, cursor: 'pointer' }}>Back to sign in</button>
+          </>
+        ) : (
+          <>
+            <div style={{ fontSize: 16, fontWeight: 700, color: '#1e3a8a' }}>Signing you in...</div>
+            <div style={{ fontSize: 12, color: '#64748b', marginTop: 6 }}>Please wait</div>
+          </>
+        )}
       </div>
     </div>
   );
