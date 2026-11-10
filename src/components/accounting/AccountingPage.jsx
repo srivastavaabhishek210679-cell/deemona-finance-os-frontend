@@ -2,7 +2,7 @@
 import { apiURL } from '../../api.js';
 
 const API = apiURL('/api/accounting');
-const AGENT_API = apiURL('/api/agent');
+const AGENT_API = apiURL('/api/agents/accounting');
 const headers = () => ({
   'Content-Type': 'application/json',
   Authorization: `Bearer ${localStorage.getItem('token') ?? ''}`,
