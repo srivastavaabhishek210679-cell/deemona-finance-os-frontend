@@ -783,6 +783,7 @@ function AgentTab() {
   const [loading, setLoading] = useState(false);
   const [anomalies, setAnomalies] = useState([]);
   const [anomalyLoading, setAnomalyLoading] = useState(false);
+  const [anomalyScannedAt, setAnomalyScannedAt] = useState(null);
 
   const EXAMPLES = [
     'What is my current cash position?',
@@ -811,6 +812,7 @@ function AgentTab() {
     try {
       const res = await apiGet(AGENT_API + '/anomalies');
       setAnomalies(res.anomalies || []);
+      setAnomalyScannedAt(new Date());
     } catch (e) { alert('Error: ' + e.message); }
     finally { setAnomalyLoading(false); }
   };
@@ -917,7 +919,9 @@ function AgentTab() {
           </div>
           {anomalies.length === 0 ? (
             <div style={{ fontSize: 12, color: 'var(--text-muted)', textAlign: 'center', padding: '20px 0' }}>
-              Click Scan Now to detect anomalies in your accounts
+              {anomalyScannedAt
+                ? 'Scan complete at ' + anomalyScannedAt.toLocaleTimeString() + ': no anomalies found'
+                : 'Click Scan Now to detect anomalies in your accounts'}
             </div>
           ) : (
             anomalies.map((a, i) => (

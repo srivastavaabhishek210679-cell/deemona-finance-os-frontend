@@ -3,6 +3,7 @@
 // ============================================================
 import { useState, useEffect, useCallback } from 'react';
 import { apiURL } from '../../api.js';
+import CrmConnections from '../crm/CrmConnections.jsx';
 
 const hdr = () => ({ 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token') ?? ''}` });
 const get = async url => { const r = await fetch(url,{headers:hdr()}); const t=await r.text(); if(!r.ok) throw new Error(t); if(!t||t.trim()==='') return {}; try{return JSON.parse(t);}catch{return {};} };
@@ -543,6 +544,7 @@ export function CRMPage() {
   const [showForm,setShowForm]=useState(false);
   const [saving,setSaving]=useState(false);
   const [filter,setFilter]=useState('all');
+  const [showConn,setShowConn]=useState(()=>/crm_(connected|error)=/.test(window.location.search));
   const [form,setForm]=useState({name:'',company:'',email:'',phone:'',source:'referral',stage:'new',value:'',probability:20,expected_close:'',notes:''});
 
   const load=useCallback(async()=>{setLoading(true);try{const d=await get(apiURL('/api/crm/leads'));setLeads(d.leads||[]);}catch{setLeads([]);}finally{setLoading(false);};},[]);
@@ -561,6 +563,7 @@ export function CRMPage() {
 
   return(
     <div style={{padding:24,background:'#EEF3FD',minHeight:'100%'}}>
+      {showConn&&<CrmConnections onSynced={load}/>}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:24}}>
         {[{label:'Total Leads',value:leads.length,color:'#1B4FD8'},{label:'Pipeline Value',value:INR(pipeline),color:'#4FC3F7'},{label:'Won Revenue',value:INR(won),color:'#22C98A'},{label:'Active',value:leads.filter(l=>!['won','lost'].includes(l.stage)).length,color:'#F5A623'}].map(c=>(
           <div key={c.label} style={{padding:'18px 20px',borderRadius:12,background:'var(--surface-2)',border:'1px solid var(--border)'}}>
@@ -576,7 +579,8 @@ export function CRMPage() {
             {s==='all'?'All':s}
           </button>
         ))}
-        <button onClick={()=>setShowForm(!showForm)} style={{marginLeft:'auto',padding:'8px 16px',borderRadius:8,background:'var(--accent)',color:'#fff',border:'none',cursor:'pointer',fontSize:14,fontWeight:600}}>+ New Lead</button>
+        <button onClick={()=>setShowConn(!showConn)} style={{marginLeft:'auto',padding:'8px 16px',borderRadius:8,background:'transparent',color:'var(--accent)',border:'1px solid var(--accent)',cursor:'pointer',fontSize:14,fontWeight:600}}>Connect CRM</button>
+        <button onClick={()=>setShowForm(!showForm)} style={{padding:'8px 16px',borderRadius:8,background:'var(--accent)',color:'#fff',border:'none',cursor:'pointer',fontSize:14,fontWeight:600}}>+ New Lead</button>
       </div>
 
       {showForm&&(
