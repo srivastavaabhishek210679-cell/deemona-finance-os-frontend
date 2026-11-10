@@ -133,18 +133,14 @@ export default function EnterpriseFinanceDashboard() {
 
   const loadAll = async () => {
     setLoading(true);
-    const [gl, ar, ap, budget, assets, inventory, payroll, compliance, expenses, procurement] = await Promise.all([
+    /*no-dead-calls*/
+    const [gl, payroll, expenses, procurement] = await Promise.all([
       get('/api/accounting/gl-summary'),
-      get('/api/accounting/ar-summary'),
-      get('/api/accounting/ap-summary'),
-      get('/api/budgeting/summary'),
-      get('/api/assets/summary'),
-      get('/api/inventory/summary'),
       get('/api/payroll/summary'),
-      get('/api/compliance/summary'),
       get('/api/expenses/summary'),
       get('/api/procurement/summary'),
     ]);
+    const ar = {}, ap = {}, budget = {}, assets = {}, inventory = {}, compliance = {};
     setData({ gl, ar, ap, budget, assets, inventory, payroll, compliance, expenses, procurement });
     setLoading(false);
   };

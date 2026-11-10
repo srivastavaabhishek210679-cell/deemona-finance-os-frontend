@@ -187,7 +187,7 @@ function ForgotPasswordPage({ onBack }) {
   };
 
   const resetPassword = async e => {
-    e.preventDefault();
+    e.preventDefault(); setSuccess('');
     if (newPassword !== confirmPassword) { setError('Passwords do not match'); return; }
     if (newPassword.length < 8) { setError('Password must be at least 8 characters'); return; }
     setLoading(true); setError('');
@@ -251,8 +251,8 @@ function ForgotPasswordPage({ onBack }) {
                   onFocus={focusBlue} onBlur={e=>e.target.style.borderColor=confirmPassword!==newPassword?'#FF5C5C':'var(--border)'}/>
                 {confirmPassword&&confirmPassword!==newPassword&&<div style={{ fontSize:11, color:'#FF5C5C', marginTop:3 }}>Passwords do not match</div>}
               </div>
-              <button type="submit" disabled={loading||!!success} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success)?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
-                {loading?'Resetting...':success?'Redirecting...':'Reset Password'}
+              <button type="submit" /*reset-btn*/ disabled={loading||success.startsWith('Password reset')} style={{ width:'100%', padding:'13px', borderRadius:10, fontSize:15, fontWeight:700, background:(loading||success.startsWith('Password reset'))?'var(--surface-3)':'linear-gradient(135deg,#1B4FD8,#3B82F6)', color:(loading||success)?'var(--text-muted)':'#fff', border:'none', cursor:(loading||success)?'not-allowed':'pointer' }}>
+                {loading?'Resetting...':success.startsWith('Password reset')?'Redirecting...':'Reset Password'}
               </button>
             </form>
           </>

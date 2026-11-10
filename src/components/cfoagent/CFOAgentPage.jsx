@@ -41,6 +41,13 @@ function MarkdownText({ text }) {
 
 export default function CFOAgentPage() {
   const [dashboard, setDashboard] = useState(null);
+  /*cfo-mobile*/
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  useEffect(() => {
+    const on = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -84,13 +91,15 @@ export default function CFOAgentPage() {
   };
 
   return (
-    <div style={{ padding: 24, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)', gap: 20 }}>
+    <div style={isMobile
+      ? { padding: 12, display: 'flex', flexDirection: 'column', gap: 16 }
+      : { padding: 24, display: 'flex', flexDirection: 'column', height: 'calc(100vh - 80px)', gap: 20 }}>
 
       {/* CFO Dashboard KPIs */}
       {dashboard && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, flexShrink: 0 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)', gap: 12, flexShrink: 0 }}>
           {[
-            { label: 'Cash Position',    value: INR(dashboard.cash),             color: '#22C98A', sub: dashboard.runway_months + ' months runway' },
+            { label: 'Cash Position',    value: INR(dashboard.cash),             color: '#22C98A', sub: (dashboard.runway_months >= 36 ? '36+' : dashboard.runway_months) + ' months runway' },
             { label: 'AR Outstanding',   value: INR(dashboard.ar),               color: '#4FC3F7', sub: 'Receivables due' },
             { label: 'AP Outstanding',   value: INR(dashboard.ap),               color: '#FF5C5C', sub: 'Payables due' },
             { label: 'Pipeline (Wtd)',   value: INR(dashboard.pipeline_weighted), color: '#1B4FD8', sub: dashboard.active_projects + ' active projects' },
@@ -111,6 +120,7 @@ export default function CFOAgentPage() {
         borderRadius: 16, border: '1px solid var(--border)',
         background: 'var(--surface-1)', overflow: 'hidden',
         minHeight: 0,
+        ...(isMobile ? { height: '75vh', minHeight: 440 } : {}),
       }}>
         {/* Header */}
         <div style={{

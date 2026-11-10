@@ -250,7 +250,7 @@ export default function CashForecastPage() {
             <input type="range" min="0" max="100" step="5" value={pct} onChange={e => setPct(Number(e.target.value))} style={{ width: '100%' }} /></div>
           <div><label style={label}>You pay suppliers late by: {apDelay} days</label>
             <input type="range" min="0" max="60" step="5" value={apDelay} onChange={e => setApDelay(Number(e.target.value))} style={{ width: '100%' }} /></div>
-          <div><label style={label}>Other monthly costs not in bills, e.g. salaries (₹)</label>
+          <div><label style={label}>Other monthly costs not in bills or payroll (₹)</label>
             <input style={input} type="number" min="0" placeholder="0" value={mOut} onChange={e => setMOut(e.target.value)} /></div>
           <div><label style={label}>New monthly sales not yet invoiced (₹)</label>
             <input style={input} type="number" min="0" placeholder="0" value={mIn} onChange={e => setMIn(e.target.value)} /></div>
@@ -283,7 +283,7 @@ export default function CashForecastPage() {
       {data && (
         <div style={card}>
           <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>What the forecast is built from</div>
-          <div style={{ fontSize: 13, color: '#64748B', marginBottom: 10 }}>{data.counts.receivables} open sales invoice(s) and {data.counts.payables} approved bill(s), by due date. Overdue amounts are assumed to arrive in 7 days (receipts) or tomorrow (payments). Drafts and bills awaiting approval are not counted.</div>
+          <div style={{ fontSize: 13, color: '#64748B', marginBottom: 10 }}>{data.counts.receivables} open sales invoice(s) and {data.counts.payables} approved bill(s), by due date{data.counts.payroll_and_tax_items > 0 ? ', plus salaries, PF/ESIC, TDS, professional tax and GST coming due' : ''}. Overdue amounts are assumed to arrive in 7 days (receipts) or tomorrow (payments). Drafts and bills awaiting approval are not counted.</div>
           {data.upcoming.length === 0 ? <div style={{ fontSize: 13, color: '#64748B' }}>No open invoices or bills yet.</div> : (
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
               <thead><tr style={{ textAlign: 'left', color: '#64748B' }}>
@@ -301,6 +301,9 @@ export default function CashForecastPage() {
               </tbody>
             </table>
           )}
+          {/*payroll-tax-ui*/}
+          {(data.basis || []).map((b, i) => <div key={i} style={{ fontSize: 12, color: '#475569', marginTop: i === 0 ? 12 : 4 }}>• {b}</div>)}
+          {(!data.basis || data.basis.length === 0) && <div style={{ fontSize: 12, color: '#B45309', marginTop: 12 }}>Salaries and taxes are not in this forecast yet: no payroll run or employees are recorded. Run payroll, or enter a monthly amount above.</div>}
           <div style={{ fontSize: 12, color: '#64748B', marginTop: 12 }}>{data.note} Every number is plain arithmetic on your records. The AI commentary only explains those numbers.</div>
         </div>
       )}
